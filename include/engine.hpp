@@ -99,10 +99,10 @@ typedef struct s_player {
 } t_player;
 
 typedef struct s_engine {
-	std::atomic<int> height, width, status;
+	std::atomic_int height, width, status;
 	Font font;
-	std::atomic<Camera2D> camera;
-	std::atomic<RenderTexture> fbo;
+	Camera2D camera;
+	RenderTexture fbo;
 } t_engine;
 
 typedef struct s_thread_handle {
@@ -110,5 +110,10 @@ typedef struct s_thread_handle {
 	std::mutex mtx;
 	bool available = true;
 } t_thread_handle;
+
+void renderMenu(void);
+void renderOnline(void);
+void renderSolo(void);
+
 
 #endif

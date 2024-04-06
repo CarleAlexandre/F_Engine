@@ -2,12 +2,7 @@
 # define DEBUG
 # include <engine.hpp>
 
-std::mutex render_mtx;
-std::condition_variable render_sync;
-bool ready = false;
-
 std::queue<t_thread_queue> thread_queue;
-
 t_engine engine;
 
 void callthread(void (*fun)(void *), void *arg) {
@@ -20,7 +15,7 @@ void callthread(void (*fun)(void *), void *arg) {
 void syncThread(int max_thread) {
 	t_thread_handle thread_pool[max_thread];
 
-	while (true) {
+	while (engine.status.load() != engine_status_close) {
 		if (!thread_queue.empty()) {
 			for (int i = 0; i < max_thread; i++) {
 				if (thread_pool[i].mtx.try_lock()) {
@@ -35,7 +30,6 @@ void syncThread(int max_thread) {
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 	}
-	
 }
 
 void updateFun() {
@@ -43,90 +37,11 @@ void updateFun() {
 }
 
 void audioFun() {
-
-}
-
-void renderThread(void *arg) {
-	RenderTexture fbo;
-
-	rlglInit(engine.width.load(), engine.height.load());
-	fbo = LoadRenderTexture(engine.width.load(), engine.height.load());
-	switch (engine.status.load()) {
-		case (engine_status_solo): {
-			BeginTextureMode(fbo);
-				ClearBackground(BLACK);
-				BeginMode2D(engine.camera.load());
-				
-				EndMode2D();
-			EndTextureMode();
-			break;
-		}
-		case (engine_status_menu): {
-			BeginTextureMode(fbo);
-				ClearBackground(BLACK);
-				DrawRectangle(100, 50, 50, 50, RED);
-			EndTextureMode();
-			break;
-		}
-		default:
-			break;
-	}
-	engine.fbo.store(fbo);
-    std::lock_guard<std::mutex> lock(render_mtx);
-    ready = true;
-
-    render_sync.notify_one();
-	rlglClose();
-}
-
-void renderFun(t_engine &engine) {
-	switch (engine.status.load()) {
-		case (engine_status_solo): {
-			callthread(renderThread, NULL);
-
-			std::unique_lock<std::mutex> lock(render_mtx);
-			render_sync.wait(lock, [] { return ready; });
-
-			BeginDrawing();
-				ClearBackground(BLACK);
-				DrawTextureRec(engine.fbo.load().texture, {0, 0, (float)engine.width, -(float)engine.height}, {0, 0}, WHITE);
-				/*if (enviroenment == Darkness) {	
-					BeginShaderMode(engine.shader);
-						DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
-					EndShaderMode();
-				}*/
-				DrawFPS(0, 0);
-			EndDrawing();
-			ready = false;
-			break;
-		}
-		case (engine_status_menu): {
-			BeginDrawing();
-				ClearBackground(BLACK);
-				callthread(renderThread, NULL);
-
-				std::unique_lock<std::mutex> lock(render_mtx);
-				render_sync.wait(lock, [] { return ready; });
-
-				ready = false;
-			EndDrawing();
-			break;
-		}
-		case (engine_status_online): {
-			BeginDrawing();
-				ClearBackground(BLACK);
-			EndDrawing();
-			break;
-		}
-		default:
-			break;
-	}
-
 }
 
 int main(void) {
 	std::thread sync_thread;
-	engine.status.store(engine_status_menu);
+	engine.status = engine_status_menu;
 	engine.height = 480;
 	engine.width = 720;
 
@@ -148,15 +63,42 @@ int main(void) {
 	InitWindow(engine.width, engine.height, "noheaven");
 	SetTargetFPS(120);
 
+	engine.fbo = LoadRenderTexture(engine.width, engine.height);
+	SetTextureFilter(engine.fbo.texture, TEXTURE_FILTER_TRILINEAR);
+
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
 			engine.status.store(engine_status_close);
 		}
-		renderFun(engine);
-		UnloadRenderTexture(engine.fbo);
+		switch (engine.status) {
+			case (engine_status_solo): {
+				renderSolo();
+				break;
+			}
+			case (engine_status_menu): {
+				renderMenu();
+				break;
+			}
+			case (engine_status_online): {
+				renderOnline();
+				break;
+			}
+			default:
+				break;
+		}
+		BeginDrawing();
+			ClearBackground(BLACK);
+			DrawTextureRec(engine.fbo.texture, {0, 0, (float)engine.width.load(), -(float)engine.height.load()}, {0, 0}, WHITE);
+			/*if (enviroenment == Darkness) {	
+				BeginShaderMode(engine.shader);
+					DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
+				EndShaderMode();
+			}*/
+			DrawFPS(0, 0);
+		EndDrawing();
 	}
 
 	sync_thread.join();
-
+	UnloadRenderTexture(engine.fbo);
 	CloseWindow();
 }
