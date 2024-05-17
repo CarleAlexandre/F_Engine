@@ -91,7 +91,8 @@ typedef struct s_player {
 	float x, y, z;
 	char dir;
 	int	status;
-	unsigned int level;
+	unsigned int lvl;
+	float xp;
 	std::vector<t_item> inventory[36];
 	t_stats stats;
 	float life;
@@ -104,6 +105,13 @@ typedef struct s_engine {
 	Camera2D camera;
 	RenderTexture fbo;
 } t_engine;
+
+typedef struct s_level {
+	int *terrain;
+	int *wall;
+	int *event;
+	Vector2 dimension;
+} t_level;
 
 typedef struct s_thread_handle {
 	std::thread th;
