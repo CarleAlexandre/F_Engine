@@ -119,9 +119,48 @@ typedef struct s_thread_handle {
 	bool available = true;
 } t_thread_handle;
 
+
 void renderMenu(void);
 void renderOnline(void);
 void renderSolo(void);
+bool IsMouseInBound(Rectangle bound, Vector2 pos, Vector2 mousePos);
 
+
+
+class Button {
+	private:
+	Rectangle	boundaries;
+	Vector2		pos;
+	std::string text;
+	void	*(*fun)(void *arg);
+	public:
+
+	void ButtonLogic(int n, Vector2 mouse_pos, void *arg) {
+		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+			for (int i = 0; i < n; i++) {
+				if (IsMouseInBound(boundaries, pos, mouse_pos)) {
+					fun(arg);
+				}
+			}
+		}
+	}
+
+	void ButtonRender(int n, const Font font, std::vector<Texture2D> &textAtlas, const Vector2 mousePos) {
+		for (u32 k = 0; k < n; k++) {
+			if (IsMouseInBound(boundaries, pos, mousePos)) {
+				DrawTextureRec(textAtlas[texture_button_hover], boundaries, pos, WHITE);
+			} else {
+				DrawTextureRec(textAtlas[texture_button], boundaries, pos, WHITE);
+			}
+			DrawTextEx(font, text.c_str(),
+					(Vector2){pos.x + 10, static_cast<float>(
+							pos.y + boundaries.height * 0.5 - 6
+							)}, 22, 0, WHITE);
+		}
+	}
+
+	Button(){}
+	~Button(){}
+};
 
 #endif
