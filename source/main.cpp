@@ -1,6 +1,7 @@
 
 # define DEBUG
 # include <engine.hpp>
+# include <queue>
 
 std::queue<t_thread_queue> thread_queue;
 t_engine engine;

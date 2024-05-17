@@ -9,12 +9,23 @@
 
 # include <thread>
 # include <mutex>
-# include <condition_variable>
-# include <queue>
+
 
 # ifdef DEBUG
 	# include <iostream>
 #endif
+
+typedef uint32_t u32;
+typedef int32_t i32;
+typedef uint64_t u64;
+typedef int64_t i64;
+typedef ptrdiff_t ptr;
+typedef float f32;
+typedef double f64;
+typedef uint8_t u8;
+typedef int8_t i8;
+typedef uint16_t u16;
+typedef int16_t i16;
 
 enum texture_index_e {
 	texture_index_ui = 1,
@@ -148,9 +159,9 @@ class Button {
 	void ButtonRender(int n, const Font font, std::vector<Texture2D> &textAtlas, const Vector2 mousePos) {
 		for (u32 k = 0; k < n; k++) {
 			if (IsMouseInBound(boundaries, pos, mousePos)) {
-				DrawTextureRec(textAtlas[texture_button_hover], boundaries, pos, WHITE);
+				DrawTextureRec(textAtlas[texture_index_ui], boundaries, pos, WHITE);
 			} else {
-				DrawTextureRec(textAtlas[texture_button], boundaries, pos, WHITE);
+				DrawTextureRec(textAtlas[texture_index_ui], boundaries, pos, WHITE);
 			}
 			DrawTextEx(font, text.c_str(),
 					(Vector2){pos.x + 10, static_cast<float>(
