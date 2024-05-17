@@ -29,6 +29,7 @@ void syncThread(int max_thread) {
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+		//need to join all thread here and send back isready true and wait for it to be false to restart another loop
 	}
 }
 

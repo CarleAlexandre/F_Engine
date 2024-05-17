@@ -1,0 +1,82 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-std=c++20",
+      "-O3",
+      "-g",
+      "-I",
+      "C:/mingw64/include",
+      "-I",
+      "include",
+      "-g",
+      "-c",
+      "-o",
+      "source/main.o",
+      "source/main.cpp"
+    ],
+    "directory": "/home/fatmeat/dev/F_Engine",
+    "file": "/home/fatmeat/dev/F_Engine/source/main.cpp",
+    "output": "/home/fatmeat/dev/F_Engine/source/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-std=c++20",
+      "-O3",
+      "-g",
+      "-I",
+      "C:/mingw64/include",
+      "-I",
+      "include",
+      "-g",
+      "-c",
+      "-o",
+      "source/player.o",
+      "source/player.cpp"
+    ],
+    "directory": "/home/fatmeat/dev/F_Engine",
+    "file": "/home/fatmeat/dev/F_Engine/source/player.cpp",
+    "output": "/home/fatmeat/dev/F_Engine/source/player.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-std=c++20",
+      "-O3",
+      "-g",
+      "-I",
+      "C:/mingw64/include",
+      "-I",
+      "include",
+      "-g",
+      "-c",
+      "-o",
+      "source/render.o",
+      "source/render.cpp"
+    ],
+    "directory": "/home/fatmeat/dev/F_Engine",
+    "file": "/home/fatmeat/dev/F_Engine/source/render.cpp",
+    "output": "/home/fatmeat/dev/F_Engine/source/render.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-std=c++20",
+      "-O3",
+      "-g",
+      "-I",
+      "C:/mingw64/include",
+      "-I",
+      "include",
+      "-g",
+      "-c",
+      "-o",
+      "source/thread.o",
+      "source/thread.cpp"
+    ],
+    "directory": "/home/fatmeat/dev/F_Engine",
+    "file": "/home/fatmeat/dev/F_Engine/source/thread.cpp",
+    "output": "/home/fatmeat/dev/F_Engine/source/thread.o"
+  }
+]
