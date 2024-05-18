@@ -4,6 +4,7 @@
 # define GLSL_VERSION 330
 # include <raylib.h>
 # include <rlgl.h>
+# include <raymath.h>
 # include <vector>
 # include <atomic>
 
@@ -59,6 +60,13 @@ enum engine_status_e {
 	engine_status_online = 2,
 	engine_status_solo = 3,
 	engine_status_setting = 4,
+};
+
+enum diraction_e {
+	SOUTH	= 1 << 0,
+	NORTH	= 1 << 1,
+	EAST	= 1 << 2,
+	WEST	= 1 << 3,
 };
 
 typedef struct s_stats {

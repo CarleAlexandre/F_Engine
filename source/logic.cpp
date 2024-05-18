@@ -1,6 +1,5 @@
 #include <engine.hpp>
 
-
 Vector2 getBlockPos(Vector2 pos) {
 	Vector2 result;
 
