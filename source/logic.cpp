@@ -1,4 +1,6 @@
-#include <engine.hpp>
+# include <engine.hpp>
+# include <cfloat>
+# include <iostream>
 
 Vector2 getBlockPos(Vector2 pos) {
 	Vector2 result;
@@ -11,7 +13,7 @@ Vector2 getBlockPos(Vector2 pos) {
 	return (result);
 }
 
-bool isWall(Vector2 pos, t_engine &engine) {
+bool isWall(Vector2 pos, const t_level &level) {
 	Vector2 tmp = getBlockPos(pos);
 	tmp.x /= 32;
 	tmp.y /= 32;
@@ -23,30 +25,30 @@ bool isWall(Vector2 pos, t_engine &engine) {
 	//	std::cout << engine.level.map[tmp.x + tmp.y * engine.level.width].pos.x << ", " << engine.level.map[tmp.x + tmp.y * engine.level.width].pos.y << "\n";
 	//	time = 0;
 	//}
-	if (tmp.x > engine.level.width || tmp.y > engine.level.height || tmp.x < 0 || tmp.y < 0) {
+	if (tmp.x > level.dimension.x || tmp.y > level.dimension.y || tmp.x < 0 || tmp.y < 0) {
 		std::cerr << "Error, Coordinate is OutOfBound!!\n";
 		return (true);
 	}
-	if (engine.level.map[tmp.x + tmp.y * engine.level.width].wall) {
+	if (level.wall[(int)(tmp.x + tmp.y * level.dimension.x)]) {
 		return (true);
 	}
 	return (false);
 }
 
-Rectangle GetNearestWallBound(Vector2 pos, t_level &level, Rectangle *bound) {
+Rectangle GetNearestWallBound(Vector2 pos, const t_level &level, Rectangle *bound) {
 	float minDist1 = FLT_MAX;
     float minDist2 = FLT_MAX;
 
 	bound[0] = {0};
 	bound[1] = {0};
 
-	int idx = (pos.x / 32 - 1) + (pos.y / 32 - 1) * level.width;
-	int hi = (pos.x / 32 + 1) + (pos.y / 32 + 1) * level.width;
+	int idx = (pos.x / 32 - 1) + (pos.y / 32 - 1) * level.dimension.x;
+	int hi = (pos.x / 32 + 1) + (pos.y / 32 + 1) * level.dimension.x;
 	for (int i = idx; i < hi; i++) {
-		if (level.map[i].wall) {
-			Vector2 tmp = {level.map[i].pos.x * 32, level.map[i].pos.y * 32};
+		if (level.wall[i]) {
+			Vector2 tmp = {i / level.dimension.x * 32, (float)(i % (int)level.dimension.y) * 32};
 			float dist = Vector2Distance(pos, tmp);
-			if (dist < minDist1 && level.map[i].wall) {
+			if (dist < minDist1 && level.wall[i]) {
 				minDist2 = minDist1;
 				bound[1] = bound[0];
 				minDist1 = dist;
@@ -60,34 +62,29 @@ Rectangle GetNearestWallBound(Vector2 pos, t_level &level, Rectangle *bound) {
 	return (bound[1]);
 }
 
-Vector2 CorrectWallCollision(Player &player, t_engine &engine, Rectangle *collision) {
+void CorrectWallCollision(t_player *player, const t_level &level, Rectangle *collision) {
 	double deltaTime = GetFrameTime();
-	Vector2 result = player.pos;
 	Rectangle wall[2];
-	*collision = (Rectangle){0, 0, 0, 0};
+	collision[0] = (Rectangle){0, 0, 0, 0};
+	collision[1] = (Rectangle){0, 0, 0, 0};
 
-	GetNearestWallBound(player.pos, engine.level, wall);
-		//*collision = wall;
-	if (CheckCollisionRecs(player.hitbox, wall[0]) || CheckCollisionRecs(player.hitbox, wall[1])) {
-
-		//Vector2Clamp(player.pos, {0, 0}, {(float)engine.level.width * 31, (float)engine.level.height * 31});
-		if (NORTH & player.forward) {
-			player.pos.y += player.GetSpeed() * deltaTime;
-		} else if (SOUTH & player.forward) {
-			player.pos.y -= player.GetSpeed() * deltaTime;
+	GetNearestWallBound({player->x, player->z}, level, wall);
+	if (CheckCollisionRecs(player->hitbox, wall[0]) || CheckCollisionRecs(player->hitbox, wall[1])) {
+		if (NORTH & player->dir) {
+			player->z += player->stats.move_speed * deltaTime;
+		} else if (SOUTH & player->dir) {
+			player->z -= player->stats.move_speed * deltaTime;
 		}
-		if (EAST & player.forward) {
-			player.pos.x -= player.GetSpeed() * deltaTime;
-		} else if (WEST & player.forward) {
-			player.pos.x += player.GetSpeed() * deltaTime;
+		if (EAST & player->dir) {
+			player->x -= player->stats.move_speed * deltaTime;
+		} else if (WEST & player->dir) {
+			player->x += player->stats.move_speed * deltaTime;
 		}
-		player.hitbox.x = player.pos.x - 6;
-		player.hitbox.y = player.pos.y + 8;
-		collision[0] = GetCollisionRec(player.hitbox, wall[0]);
-		collision[1] = GetCollisionRec(player.hitbox, wall[1]);
+		player->hitbox.x = player->x - player->hitbox.width * 0.5;
+		player->hitbox.y = player->z + player->hitbox.height * 0.5;
+		collision[0] = GetCollisionRec(player->hitbox, wall[0]);
+		collision[1] = GetCollisionRec(player->hitbox, wall[1]);
 	}
-
-	return (player.pos);
 }
 
 //GetNearestEntities(){}

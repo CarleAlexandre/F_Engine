@@ -116,6 +116,7 @@ typedef struct s_player {
 	t_stats stats;
 	float life;
 	float max_life;
+	Rectangle hitbox;
 } t_player;
 
 typedef struct s_engine {
@@ -142,40 +143,59 @@ typedef struct s_thread_handle {
 void renderMenu(void);
 void renderOnline(void);
 void renderSolo(void);
+
 bool IsMouseInBound(Rectangle bound, Vector2 pos, Vector2 mousePos);
+Vector2 getBlockPos(Vector2 pos);
+bool isWall(Vector2 pos, const t_level &level);
+Rectangle GetNearestWallBound(Vector2 pos, const t_level &level, Rectangle *bound);
+void CorrectWallCollision(t_player *player, const t_level &level, Rectangle *collision);
 
-
+i32 gcd(i32 a, i32 b);
+f32 rsqrt(f32 num);
+f64 pow(f64 number, long power);
+f32 smoothStep(f32 t);
+f32 clamp(f32 value, f32 lo, f32 hi);
+void travelTarget(Vector2 *current, const Vector2 target, const f32 velocity, const f32 deltaTime);
+bool IsInBond(Vector2 pos, Vector2 hi, Vector2 low);
 
 class Button {
 	private:
-	Rectangle	boundaries;
-	Vector2		pos;
-	std::string text;
-	void	*(*fun)(void *arg);
+		struct s_button {
+			Rectangle	boundaries;
+			Vector2		pos;
+			std::string text;
+			void	*(*fun)(void *arg);
+		};
+
+		std::vector<s_button> array;
 	public:
 
 	void ButtonLogic(int n, Vector2 mouse_pos, void *arg) {
 		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 			for (int i = 0; i < n; i++) {
-				if (IsMouseInBound(boundaries, pos, mouse_pos)) {
-					fun(arg);
+				if (IsMouseInBound(array[i].boundaries, array[i].pos, mouse_pos)) {
+					array[i].fun(arg);
 				}
 			}
 		}
 	}
 
 	void ButtonRender(int n, const Font font, std::vector<Texture2D> &textAtlas, const Vector2 mousePos) {
-		for (u32 k = 0; k < n; k++) {
-			if (IsMouseInBound(boundaries, pos, mousePos)) {
-				DrawTextureRec(textAtlas[texture_index_ui], boundaries, pos, WHITE);
+		for (u32 i = 0; i < n; i++) {
+			if (IsMouseInBound(array[i].boundaries, array[i].pos, mousePos)) {
+				DrawTextureRec(textAtlas[texture_index_ui], array[i].boundaries, array[i].pos, WHITE);
 			} else {
-				DrawTextureRec(textAtlas[texture_index_ui], boundaries, pos, WHITE);
+				DrawTextureRec(textAtlas[texture_index_ui], array[i].boundaries, array[i].pos, WHITE);
 			}
-			DrawTextEx(font, text.c_str(),
-					(Vector2){pos.x + 10, static_cast<float>(
-							pos.y + boundaries.height * 0.5 - 6
+			DrawTextEx(font, array[i].text.c_str(),
+					(Vector2){array[i].pos.x + 10, static_cast<float>(
+							array[i].pos.y + array[i].boundaries.height * 0.5 - 6
 							)}, 22, 0, WHITE);
 		}
+	}
+
+	void push_back(const Rectangle bound, const Vector2 pos, const char *txt, void *(*fun)(void *arg)) {
+		array.push_back((s_button){.boundaries = bound, .pos = pos, .text = txt, .fun = fun});
 	}
 
 	Button(){}
