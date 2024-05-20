@@ -5,3 +5,5 @@
 *.png
 *.txt
 *.exe
+
+build/*
