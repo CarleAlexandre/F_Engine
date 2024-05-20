@@ -63,6 +63,19 @@ enum engine_status_e {
 	engine_status_save = 5,
 };
 
+enum player_status_e {
+	player_status_well = 0,
+	player_status_sick = 1,
+	player_status_dead = 2,
+	player_status_hungry = 3,
+	player_status_drunk = 4,
+	player_status_unlucky = 5,
+	player_status_lucky = 6,
+	player_status_cursed = 7,
+	player_status_blessed = 8,
+	player_status_god = 9,
+};
+
 enum diraction_e {
 	SOUTH	= 1 << 0,
 	NORTH	= 1 << 1,
@@ -81,6 +94,10 @@ typedef struct s_stats {
 	float life_steal;
 	float mana;
 	float magic_affinity;
+	float life;
+	float max_life;
+	float health_regen;
+	float mana_regen;
 } t_stats;
 
 typedef struct s_thread_queue {
@@ -108,16 +125,16 @@ typedef struct s_entity {
 }	t_entity;
 
 typedef struct s_player {
-	float x, y, z;
+	Vector3 pos;
 	char dir;
 	int	status;
 	unsigned int lvl;
 	float xp;
-	std::vector<t_item> inventory[36];
+	std::vector<t_item> inventory;
+	u32 inventory_size;
 	t_stats stats;
-	float life;
-	float max_life;
 	Rectangle hitbox;
+	Rectangle frame;
 } t_player;
 
 typedef struct s_engine {
@@ -161,48 +178,6 @@ f32 clamp(f32 value, f32 lo, f32 hi);
 void travelTarget(Vector2 *current, const Vector2 target, const f32 velocity, const f32 deltaTime);
 bool IsInBond(Vector2 pos, Vector2 hi, Vector2 low);
 
-class Button {
-	private:
-		struct s_button {
-			Rectangle	boundaries;
-			Vector2		pos;
-			std::string text;
-			void	*(*fun)(void *arg);
-		};
-
-		std::vector<s_button> array;
-	public:
-
-	void ButtonLogic(int n, Vector2 mouse_pos, void *arg) {
-		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-			for (int i = 0; i < n; i++) {
-				if (IsMouseInBound(array[i].boundaries, array[i].pos, mouse_pos)) {
-					array[i].fun(arg);
-				}
-			}
-		}
-	}
-
-	void ButtonRender(int n, const Font font, std::vector<Texture2D> &textAtlas, const Vector2 mousePos) {
-		for (u32 i = 0; i < n; i++) {
-			if (IsMouseInBound(array[i].boundaries, array[i].pos, mousePos)) {
-				DrawTextureRec(textAtlas[texture_index_ui], array[i].boundaries, array[i].pos, WHITE);
-			} else {
-				DrawTextureRec(textAtlas[texture_index_ui], array[i].boundaries, array[i].pos, WHITE);
-			}
-			DrawTextEx(font, array[i].text.c_str(),
-					(Vector2){array[i].pos.x + 10, static_cast<float>(
-							array[i].pos.y + array[i].boundaries.height * 0.5 - 6
-							)}, 22, 0, WHITE);
-		}
-	}
-
-	void push_back(const Rectangle bound, const Vector2 pos, const char *txt, void *(*fun)(void *arg)) {
-		array.push_back((s_button){.boundaries = bound, .pos = pos, .text = txt, .fun = fun});
-	}
-
-	Button(){}
-	~Button(){}
-};
+t_player defaultPlayerInit(const Vector3 spawn);
 
 #endif

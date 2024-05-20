@@ -68,20 +68,20 @@ void CorrectWallCollision(t_player *player, const t_level &level, Rectangle *col
 	collision[0] = (Rectangle){0, 0, 0, 0};
 	collision[1] = (Rectangle){0, 0, 0, 0};
 
-	GetNearestWallBound({player->x, player->z}, level, wall);
+	GetNearestWallBound({player->pos.x, player->pos.z}, level, wall);
 	if (CheckCollisionRecs(player->hitbox, wall[0]) || CheckCollisionRecs(player->hitbox, wall[1])) {
 		if (NORTH & player->dir) {
-			player->z += player->stats.move_speed * deltaTime;
+			player->pos.z += player->stats.move_speed * deltaTime;
 		} else if (SOUTH & player->dir) {
-			player->z -= player->stats.move_speed * deltaTime;
+			player->pos.z -= player->stats.move_speed * deltaTime;
 		}
 		if (EAST & player->dir) {
-			player->x -= player->stats.move_speed * deltaTime;
+			player->pos.x -= player->stats.move_speed * deltaTime;
 		} else if (WEST & player->dir) {
-			player->x += player->stats.move_speed * deltaTime;
+			player->pos.x += player->stats.move_speed * deltaTime;
 		}
-		player->hitbox.x = player->x - player->hitbox.width * 0.5;
-		player->hitbox.y = player->z + player->hitbox.height * 0.5;
+		player->hitbox.x = player->pos.x - player->hitbox.width * 0.5;
+		player->hitbox.y = player->pos.z + player->hitbox.height * 0.5;
 		collision[0] = GetCollisionRec(player->hitbox, wall[0]);
 		collision[1] = GetCollisionRec(player->hitbox, wall[1]);
 	}

@@ -43,11 +43,42 @@ void audioFun() {
 
 }
 
+t_player defaultPlayerInit(const Vector3 spawn) {
+	t_player ret;
+
+	ret.status = player_status_well;
+	ret.pos = spawn;
+	ret.xp = 0.0f;
+	ret.lvl = 1;
+	ret.dir = NORTH;
+	ret.hitbox = {ret.pos.x + 6, ret.pos.z - 8, 12, 12};
+	ret.inventory.clear();
+	ret.inventory_size = 36;
+	ret.frame = (Rectangle){0, 0, 32, 32};
+	ret.stats = {
+		.move_speed = 80,
+		.crit_chance = 0.0f,
+		.crit_dmg = 1.2f,
+		.raw_dmg = 0.0f,
+		.dmg_reduction = 0.0f,
+		.armor = 30,
+		.attack_speed = 0.6f,
+		.life_steal = 0.0f,
+		.mana = 300,
+		.magic_affinity = 1.0f,
+		.life = 600,
+		.max_life = 600,
+	};
+	return (ret);
+}
+
 int main(void) {
 	std::thread sync_thread;
 	engine.status = engine_status_menu;
 	engine.height = 480;
 	engine.width = 720;
+	engine.camera.zoom = 2.0f;
+	t_player player = defaultPlayerInit({0, 0, 0});
 
 	unsigned int max_thread = sync_thread.hardware_concurrency();
 	if (max_thread%2 == 0) {
