@@ -60,6 +60,7 @@ enum engine_status_e {
 	engine_status_online = 2,
 	engine_status_solo = 3,
 	engine_status_setting = 4,
+	engine_status_save = 5,
 };
 
 enum diraction_e {
@@ -143,6 +144,8 @@ typedef struct s_thread_handle {
 void renderMenu(void);
 void renderOnline(void);
 void renderSolo(void);
+void renderSave(void);
+void renderSetting(void);
 
 bool IsMouseInBound(Rectangle bound, Vector2 pos, Vector2 mousePos);
 Vector2 getBlockPos(Vector2 pos);

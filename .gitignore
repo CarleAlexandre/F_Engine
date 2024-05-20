@@ -1,0 +1,7 @@
+*.o
+*.out
+*.elf
+*.a
+*.png
+*.txt
+*.exe

@@ -2,6 +2,7 @@
 # define DEBUG
 # include <engine.hpp>
 # include <queue>
+# include <raygui.h>
 
 std::queue<t_thread_queue> thread_queue;
 t_engine engine;
@@ -39,6 +40,7 @@ void updateFun() {
 }
 
 void audioFun() {
+
 }
 
 int main(void) {
@@ -65,20 +67,29 @@ int main(void) {
 	InitWindow(engine.width, engine.height, "noheaven");
 	SetTargetFPS(120);
 
+	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
 	engine.fbo = LoadRenderTexture(engine.width, engine.height);
-	SetTextureFilter(engine.fbo.texture, TEXTURE_FILTER_TRILINEAR);
+//	SetTextureFilter(engine.fbo.texture, TEXTURE_FILTER_TRILINEAR);
 
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
 			engine.status.store(engine_status_close);
 		}
-		switch (engine.status) {
+		switch (engine.status.load()) {
 			case (engine_status_solo): {
 				renderSolo();
 				break;
 			}
 			case (engine_status_menu): {
 				renderMenu();
+				break;
+			}
+			case (engine_status_save): {
+				renderSave();
+				break;
+			}
+			case (engine_status_setting): {
+				renderSetting();
 				break;
 			}
 			case (engine_status_online): {
