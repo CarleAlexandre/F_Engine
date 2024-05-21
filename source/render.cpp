@@ -24,28 +24,117 @@ void menuUi(void) {
 }
 
 void settingUi() {
-	if (GuiButton({40, 90, 100, 50}, "Video")){
-	}
-	if (GuiButton({40, 180, 100, 50}, "Sound")){
-	}	
-	if (GuiButton({40, 270, 100, 50}, "Input")){
-	}	
-	if (GuiButton({40, 360, 100, 50}, "Title Screen")){
-		engine.status.store(engine_status_menu);
+	static int stats = 0;
+
+	switch (stats) {
+		case (0): {
+			if (GuiButton({40, 90, 100, 50}, "Video")){
+				stats = 1;
+			}
+			if (GuiButton({40, 180, 100, 50}, "Sound")){
+				stats = 2;
+			}	
+			if (GuiButton({40, 270, 100, 50}, "Input")){
+				stats = 3;
+			}	
+			if (GuiButton({40, 360, 100, 50}, "Title Screen")){
+				engine.status.store(engine_status_menu);
+				stats = 0;
+			}
+		}
+		case (1):{
+
+		}
+		case (2):{
+
+		}
+		case (3):{
+
+		}
+		default: break;
 	}
 }
 
 void saveUi() {
-	if (GuiButton({40, 90, 100, 50}, "LoadSave")){
-		engine.status.store(engine_status_solo);
+		static int stats = 0;
+
+	switch (stats) {
+		case (0): {
+			if (GuiButton({40, 90, 100, 50}, "LoadSave")){
+				stats = 1;
+			}
+			if (GuiButton({40, 180, 100, 50}, "NewSave")){
+				stats = 2;
+			}	
+			if (GuiButton({40, 270, 100, 50}, "DeleteSave")){
+				stats = 3;
+			}	
+			if (GuiButton({40, 360, 100, 50}, "Title Screen")){
+				engine.status.store(engine_status_menu);
+				stats = 0;
+			}
+			break;
+		}
+		case (1):{
+			if (GuiButton({40, 90, 100, 50}, "Slot1")){
+				engine.status.store(engine_status_solo);
+				//load player slot1
+				stats = 0;
+			}
+			if (GuiButton({40, 180, 100, 50}, "Slot2")){
+				engine.status.store(engine_status_solo);
+				//load player slot2
+				stats = 0;
+			}
+			if (GuiButton({40, 270, 100, 50}, "Slot3")){
+				engine.status.store(engine_status_solo);
+				//load player slot3
+				stats = 0;
+			}	
+			if (GuiButton({40, 360, 100, 50}, "Back")){
+				stats = 0;
+			}
+			break;
+		}
+		case (2):{
+			if (GuiButton({40, 90, 100, 50}, "Slot1")){
+				engine.status.store(engine_status_solo);
+				//if exist ask if replace then init default player into slot;
+				stats = 0;
+			}
+			if (GuiButton({40, 180, 100, 50}, "Slot2")){
+				engine.status.store(engine_status_solo);
+				//if exist ask if replace then init default player into slot;
+				stats = 0;
+			}
+			if (GuiButton({40, 270, 100, 50}, "Slot3")){
+				engine.status.store(engine_status_solo);
+				//if exist ask if replace then init default player into slot;
+				stats = 0;
+			}	
+			if (GuiButton({40, 360, 100, 50}, "Back")){
+				stats = 0;
+			}
+			break;
+		}
+		case (3):{
+			if (GuiButton({40, 90, 100, 50}, "Slot1")){
+				//delete slot 1
+			}
+			if (GuiButton({40, 180, 100, 50}, "Slot2")){
+				//delete slot 2
+			}
+			if (GuiButton({40, 270, 100, 50}, "Slot3")){
+				//delete slot 3
+			}	
+			if (GuiButton({40, 360, 100, 50}, "Back")){
+				stats = 0;
+			}
+			break;
+		}
+		default: break;
 	}
-	if (GuiButton({40, 180, 100, 50}, "NewSave")){
-	}	
-	if (GuiButton({40, 270, 100, 50}, "DeleteSave")){
-	}	
-	if (GuiButton({40, 360, 100, 50}, "Title Screen")){
-		engine.status.store(engine_status_menu);
-	}
+
 }
 
 void renderMenu(void) {

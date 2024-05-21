@@ -75,7 +75,7 @@ t_player loadPlayerSave(u32 slotIdx) {
 				break;
 			}
 			case (player_token_stats):{
-				
+				//set skin to current path or load it
 				break;
 			}
 			case (player_token_status):{
