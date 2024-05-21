@@ -5,12 +5,12 @@
 # include <raylib.h>
 # include <rlgl.h>
 # include <raymath.h>
+
 # include <vector>
 # include <atomic>
 
 # include <thread>
 # include <mutex>
-
 
 # ifdef DEBUG
 	# include <iostream>
