@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cstring>
 #include <iostream>
+#include <unordered_map>
 
 enum TOKEN_IDENTIFIER {
 	TOKEN_CMD		= 1,
@@ -15,11 +16,43 @@ enum TOKEN_IDENTIFIER {
 };
 
 enum player_token_e {
-	player_token_skin	= 0,
-	player_token_stats	= 1,
-	player_token_status	= 2,
-	player_token_lvl	= 3,
-	player_token_xp		= 4,
+	player_token_status			= 2,
+	player_token_lvl			= 3,
+	player_token_xp				= 4,
+	player_token_move_speed		= 5,
+	player_token_crit_chance	= 6,
+	player_token_crit_dmg		= 7,
+	player_token_raw_dmg		= 8,
+	player_token_dmg_reduction	= 9,
+	player_token_armor			= 10,
+	player_token_attack_speed	= 11,
+	player_token_life_steal		= 12,
+	player_token_mana			= 13,
+	player_token_magic_affinity	= 14,
+	player_token_life			= 15,
+	player_token_max_life		= 16,
+	player_token_health_regen	= 17,
+	player_token_mana_regen		= 18,
+};
+
+std::unordered_map<std::string, int> player_dictionnary{
+	{"status", player_token_status},
+	{"lvl", player_token_lvl},
+	{"xp", player_token_xp},
+	{"move_speed", player_token_move_speed},
+	{"crit_chance", player_token_crit_chance},
+	{"crit_dmg", player_token_crit_dmg},
+	{"raw_dmg", player_token_raw_dmg},
+	{"dmg_reduction", player_token_dmg_reduction},
+	{"armor", player_token_armor},
+	{"attack_speed", player_token_attack_speed},
+	{"life_steal", player_token_life_steal},
+	{"mana", player_token_mana},
+	{"magic_affinity", player_token_magic_affinity},
+	{"life", player_token_life},
+	{"max_life", player_token_max_life},
+	{"health_regen", player_token_health_regen},
+	{"mana_regen", player_token_mana_regen},
 };
 
 typedef struct s_token {
@@ -47,7 +80,7 @@ char *readFile(const char *filepath) {
 	return (NULL);
 }
 
-std::vector<t_token> tokenizer(std::string str, const char *delim) {
+std::vector<t_token> tokenizer(std::string str, const char *delim, std::unordered_map<std::string, int> &dictionnary) {
 	std::vector<t_token> token_list;
 	t_token tok;
 	const char *tmp;
@@ -58,24 +91,65 @@ std::vector<t_token> tokenizer(std::string str, const char *delim) {
 			tok.key += *(str.c_str() + k);
 			i++;
 		}
+		tok.identifier = dictionnary[tok.key];
 		token_list.push_back(tok);
 	}
 	return (token_list);
 }
 
 t_player loadPlayerSave(u32 slotIdx) {
-	char *player_data = readFile(TextFormat("save/player/%i.player", slotIdx));
 	t_player ret = defaultPlayerInit(Vector3Zero());
+	if (slotIdx == 0) {
+		return (ret);
+	}
+	char *player_data = readFile(TextFormat("save/player/%i.player", slotIdx));
 	
-	std::vector<t_token> token = tokenizer(player_data, "\n");
-	
+	std::vector<t_token> token = tokenizer(player_data, "\n", player_dictionnary);
+
 	for (int i = 0; i < token.size(); i++) {
 		switch (token[i].identifier) {
-			case (player_token_skin):{
+			case (player_token_move_speed):{
+				ret.stats.move_speed = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_crit_chance):{
+				ret.stats.crit_chance = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_crit_dmg):{
+				ret.stats.crit_dmg = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_raw_dmg):{
+				ret.stats.raw_dmg = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_dmg_reduction):{
+				ret.stats.dmg_reduction = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_armor):{
+				ret.stats.armor = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_attack_speed):{
+				ret.stats.attack_speed = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_life_steal):{
+				ret.stats.life_steal = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_mana):{
+				ret.stats.mana = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_magic_affinity):{
+				ret.stats.magic_affinity = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_life):{
+				ret.stats.life = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_max_life):{
+				ret.stats.max_life = std::atoi(token[i].value.c_str());
+				break;}
+			case (player_token_health_regen):{
+				ret.stats.health_regen = std::atoi(token[i].value.c_str());
 				break;
 			}
-			case (player_token_stats):{
-				//set skin to current path or load it
+			case (player_token_mana_regen):{
+				ret.stats.mana_regen = std::atoi(token[i].value.c_str());
 				break;
 			}
 			case (player_token_status):{
