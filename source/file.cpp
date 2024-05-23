@@ -80,6 +80,16 @@ char *readFile(const char *filepath) {
 	return (NULL);
 }
 
+void writeFile(const char *filepath, const char *data, size_t n) {
+	std::ofstream file;
+
+	if (FileExists(filepath)) {
+		file.open(filepath);
+		file.write(data, n);
+		file.close();
+	}
+}
+
 std::vector<t_token> tokenizer(std::string str, const char *delim, std::unordered_map<std::string, int> &dictionnary) {
 	std::vector<t_token> token_list;
 	t_token tok;
@@ -173,3 +183,30 @@ t_player loadPlayerSave(u32 slotIdx) {
 	return (ret);
 }
 
+void savePlayerData(t_player player, u32 slotIdx) {
+	if (slotIdx == 0) {
+		return;
+	}
+	std::stringstream data;
+
+	data << "lvl:" << player.lvl \
+		<< "\nxp:" << player.xp \
+		<< "\nstatus:" << player.status \
+		<< "\narmor:" << player.stats.armor \
+		<< "\nattack_speed:" << player.stats.attack_speed \
+		<< "\nmove_speed:" << player.stats.move_speed \
+		<< "\ncrit_chance:" << player.stats.crit_chance \
+		<< "\ncrit_dmg:" << player.stats.crit_dmg \
+		<< "\ndmg_reduction:" << player.stats.dmg_reduction \
+		<< "\nhealth_regen:" << player.stats.health_regen \
+		<< "\nmana_regen:" << player.stats.mana_regen \
+		<< "\nmax_life:" << player.stats.max_life \
+		<< "\nlife:" << player.stats.life \
+		<< "\nmana:" << player.stats.mana \
+		<< "\nraw_dmg:" << player.stats.raw_dmg \
+		<< "\nmagic_affinity:" << player.stats.magic_affinity \
+		<< "\nlife_steal:" << player.stats.life_steal \
+		;
+
+	writeFile(TextFormat("save/player/%i.player", slotIdx), data.str().c_str(), data.str().size());
+}
