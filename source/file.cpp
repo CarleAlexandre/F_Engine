@@ -35,7 +35,7 @@ enum player_token_e {
 	player_token_mana_regen		= 18,
 };
 
-std::unordered_map<std::string, int> player_dictionnary{
+std::unordered_map<std::string, player_token_e> player_dictionnary{
 	{"status", player_token_status},
 	{"lvl", player_token_lvl},
 	{"xp", player_token_xp},
@@ -90,7 +90,8 @@ void writeFile(const char *filepath, const char *data, size_t n) {
 	}
 }
 
-std::vector<t_token> tokenizer(std::string str, const char *delim, std::unordered_map<std::string, int> &dictionnary) {
+template <typename T>
+std::vector<t_token> tokenizer(std::string str, const char *delim, std::unordered_map<std::string, T> &dictionnary) {
 	std::vector<t_token> token_list;
 	t_token tok;
 	const char *tmp;
