@@ -14,12 +14,12 @@ DEPS		+=	$(wildcard include/*.hpp)
 
 SRC			+=	$(wildcard source/*.cpp)
 
-INCLUDE		= -I include
+INCLUDE		=	-I include
 
 ifeq ($(OS), Windows_NT)
-INCLUDE		+= -I C:/mingw64/include
-LIBS		=	-lraylib -lopengl32 -lgdi32 -lwinmm -lstdc++ -latomic
-RAYLIB		=	libs/win_librarylib.a
+INCLUDE		+=	-I C:/mingw64/include
+LIBS		=	-lopengl32 -lgdi32 -lwinmm -lstdc++ -latomic
+RAYLIB		=	libs/win_libraylib.a
 endif
 ifeq ($(shell uname -s), Linux)
 LIBS		=	-lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lstdc++
