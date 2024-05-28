@@ -1,4 +1,4 @@
-Menu | - solo - load/create save -> play
-     | - online -> load data -> play
-     | - setting -> audio/video/controle/back
-     | - exit
+
+Sound :
+	https://tinyurl.com/268bfdr8
+

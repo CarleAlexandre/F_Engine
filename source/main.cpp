@@ -4,36 +4,40 @@
 # include <queue>
 # include <raygui.h>
 
-std::queue<t_thread_queue> thread_queue;
+//std::queue<t_thread_queue> thread_queue;
 t_engine engine;
 
-void callthread(void (*fun)(void *), void *arg) {
-	thread_queue.push((t_thread_queue){
-		.fun = fun,
-		.arg = arg,
-	});
-}
+//void callthread(void (*fun)(void *), void *arg) {
+//	thread_queue.push((t_thread_queue){
+//		.fun = fun,
+//		.arg = arg,
+//	});
+//}
 
-void syncThread(int max_thread) {
-	t_thread_handle thread_pool[max_thread];
+//void syncThread(int max_thread) {
+//	std::vector<t_thread_handle> thread_pool;
 
-	while (engine.status.load() != engine_status_close) {
-		if (!thread_queue.empty()) {
-			for (int i = 0; i < max_thread; i++) {
-				if (thread_pool[i].mtx.try_lock()) {
-					if (thread_pool[i].available) {
-						thread_pool[i].available = false;
-						thread_pool[i].th = std::thread(thread_queue.front().fun, thread_queue.front().arg);
-						thread_queue.pop();
-					}
-					thread_pool[i].mtx.unlock();
-				}
-			}
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(16));
-		//need to join all thread here and send back isready true and wait for it to be false to restart another loop
-	}
-}
+//	for (int i = 0; i < max_thread; i++) {
+//		thread_pool.push_back((t_thread_handle){});
+//	}
+
+//	while (engine.status.load() != engine_status_close) {
+//		if (!thread_queue.empty()) {
+//			for (int i = 0; i < max_thread; i++) {
+//				if (thread_pool[i].mtx.try_lock()) {
+//					if (thread_pool[i].available) {
+//						thread_pool[i].available = false;
+//						thread_pool[i].th = std::thread(thread_queue.front().fun, thread_queue.front().arg);
+//						thread_queue.pop();
+//					}
+//					thread_pool[i].mtx.unlock();
+//				}
+//			}
+//		}
+//		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+//		//need to join all thread here and send back isready true and wait for it to be false to restart another loop
+//	}
+//}
 
 void updateFun() {
 
@@ -46,6 +50,7 @@ void audioFun() {
 t_player defaultPlayerInit(const Vector3 spawn) {
 	t_player ret;
 
+	ret.name = "default";
 	ret.status = player_status_well;
 	ret.pos = spawn;
 	ret.xp = 0.0f;
@@ -73,34 +78,36 @@ t_player defaultPlayerInit(const Vector3 spawn) {
 }
 
 int main(void) {
-	std::thread sync_thread;
+	//std::thread sync_thread;
 	engine.status = engine_status_menu;
 	engine.height = 480;
 	engine.width = 720;
 	engine.camera.zoom = 2.0f;
 	t_player player = defaultPlayerInit({0, 0, 0});
 
-	unsigned int max_thread = sync_thread.hardware_concurrency();
-	if (max_thread%2 == 0) {
-		max_thread *= 0.5;
-	}
-	if (max_thread < 8) {
-		max_thread = 2;
-	}
-	#ifdef DEBUG
-		std::cout << max_thread;
-	#endif
-	sync_thread = std::thread(syncThread, max_thread);
-	#ifdef DEBUG
-		std::cout << "Sync Thread Started!" << __LINE__ << std::endl;
-	#endif
+	engine.players = loadAllSave();
+	engine.players.push_back(player);
+
+	//unsigned int max_thread = sync_thread.hardware_concurrency();
+	//if (max_thread%2 == 0) {
+	//	max_thread *= 0.5;
+	//}
+	//if (max_thread < 8) {
+	//	max_thread = 2;
+	//}
+	//#ifdef DEBUG
+	//	std::cout << max_thread;
+	//#endif
+	//sync_thread = std::thread(syncThread, max_thread);
+	//#ifdef DEBUG
+	//	std::cout << "Sync Thread Started!" << __LINE__ << std::endl;
+	//#endif
 
 	InitWindow(engine.width, engine.height, "noheaven");
 	SetTargetFPS(120);
 
 	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
 	engine.fbo = LoadRenderTexture(engine.width, engine.height);
-//	SetTextureFilter(engine.fbo.texture, TEXTURE_FILTER_TRILINEAR);
 
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
@@ -142,7 +149,10 @@ int main(void) {
 		EndDrawing();
 	}
 
-	sync_thread.join();
+	//sync_thread.join();
+	for (int i = 0; i < engine.players.size(); i++) {
+		savePlayerData(engine.players[i], i+1);
+	}
 	UnloadRenderTexture(engine.fbo);
 	CloseWindow();
 }

@@ -33,6 +33,7 @@ enum player_token_e {
 	player_token_max_life		= 16,
 	player_token_health_regen	= 17,
 	player_token_mana_regen		= 18,
+	player_token_name			= 19,
 };
 
 std::unordered_map<std::string, player_token_e> player_dictionnary{
@@ -53,6 +54,7 @@ std::unordered_map<std::string, player_token_e> player_dictionnary{
 	{"max_life", player_token_max_life},
 	{"health_regen", player_token_health_regen},
 	{"mana_regen", player_token_mana_regen},
+	{"name", player_token_name},
 };
 
 typedef struct s_token {
@@ -81,14 +83,12 @@ char *readFile(const char *filepath) {
 }
 
 void writeFile(const char *filepath, const char *data, size_t n) {
-	std::ofstream file;
+	std::fstream file(filepath, std::fstream::trunc | std::fstream::out);
 
-	if (FileExists(filepath)) {
-		file.open(filepath);
-		file.write(data, n);
-		file.close();
-	}
+	file.write(data, n);
+	file.close();
 }
+
 
 template <typename T>
 std::vector<t_token> tokenizer(std::string str, const char *delim, std::unordered_map<std::string, T> &dictionnary) {
@@ -113,7 +113,7 @@ t_player loadPlayerSave(u32 slotIdx) {
 	if (slotIdx == 0) {
 		return (ret);
 	}
-	char *player_data = readFile(TextFormat("save/player/%i.player", slotIdx));
+	char *player_data = readFile(TextFormat("save/%i.player", slotIdx));
 	
 	std::vector<t_token> token = tokenizer(player_data, "\n", player_dictionnary);
 
@@ -175,6 +175,10 @@ t_player loadPlayerSave(u32 slotIdx) {
 				ret.xp = std::atof(token[i].value.c_str());
 				break;
 			}
+			case (player_token_name): {
+				ret.name = token[i].value;
+				break;
+			}
 			default:
 				std::cerr << "Save File Is Corrupted!\n";
 				break;
@@ -184,13 +188,24 @@ t_player loadPlayerSave(u32 slotIdx) {
 	return (ret);
 }
 
+std::vector<t_player> loadAllSave(void) {
+	std::vector<t_player> player_data;
+
+	for (int i = 0; FileExists(TextFormat("save/%i.player", i)); i++) {
+		player_data.push_back(loadPlayerSave(i));	
+	}
+	return (player_data);
+}
+
+//if idx =0 then it's a new save
 void savePlayerData(t_player player, u32 slotIdx) {
 	if (slotIdx == 0) {
 		return;
 	}
 	std::stringstream data;
 
-	data << "lvl:" << player.lvl \
+	data << "name:" << player.name.c_str() \
+		<< "\nlvl:" << player.lvl \
 		<< "\nxp:" << player.xp \
 		<< "\nstatus:" << player.status \
 		<< "\narmor:" << player.stats.armor \
@@ -208,6 +223,5 @@ void savePlayerData(t_player player, u32 slotIdx) {
 		<< "\nmagic_affinity:" << player.stats.magic_affinity \
 		<< "\nlife_steal:" << player.stats.life_steal \
 		;
-
-	writeFile(TextFormat("save/player/%i.player", slotIdx), data.str().c_str(), data.str().size());
+	writeFile(TextFormat("save/%i.player", slotIdx), data.str().c_str(), data.str().size());
 }

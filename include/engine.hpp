@@ -135,6 +135,7 @@ typedef struct s_player {
 	t_stats stats;
 	Rectangle hitbox;
 	Rectangle frame;
+	std::string name;
 } t_player;
 
 typedef struct s_engine {
@@ -142,6 +143,8 @@ typedef struct s_engine {
 	Font font;
 	Camera2D camera;
 	RenderTexture fbo;
+	std::vector<t_player> players;
+	u32 current_save;
 } t_engine;
 
 typedef struct s_level {
@@ -179,5 +182,8 @@ void travelTarget(Vector2 *current, const Vector2 target, const f32 velocity, co
 bool IsInBond(Vector2 pos, Vector2 hi, Vector2 low);
 
 t_player defaultPlayerInit(const Vector3 spawn);
+std::vector<t_player> loadAllSave(void);
+void savePlayerData(t_player player, u32 slotIdx);
+
 
 #endif

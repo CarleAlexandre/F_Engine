@@ -1,4 +1,5 @@
 # include <engine.hpp>
+# include <raylib.h>
 # define RAYGUI_IMPLEMENTATION
 # include <raygui.h>
 
@@ -56,7 +57,9 @@ void settingUi() {
 }
 
 void saveUi() {
-		static int stats = 0;
+	static int stats = 0;
+	static Vector2 scroll;
+	static Rectangle view;
 
 	switch (stats) {
 		case (0): {
@@ -76,21 +79,19 @@ void saveUi() {
 			break;
 		}
 		case (1):{
-			if (GuiButton({40, 90, 100, 50}, "Slot1")){
-				engine.status.store(engine_status_solo);
-				//load player slot1
-				stats = 0;
-			}
-			if (GuiButton({40, 180, 100, 50}, "Slot2")){
-				engine.status.store(engine_status_solo);
-				//load player slot2
-				stats = 0;
-			}
-			if (GuiButton({40, 270, 100, 50}, "Slot3")){
-				engine.status.store(engine_status_solo);
-				//load player slot3
-				stats = 0;
-			}	
+			GuiScrollPanel({40, 90, 100, 300}, "Save", {40, 90, 100, 300}, &scroll, &view);
+
+			BeginDrawing();
+			BeginScissorMode(view.x, view.y, view.width, view.height);
+				for (int i = 0; i < engine.players.size(); i++) {
+					if (GuiButton({40 + scroll.x, 90 + scroll.y, 100, 50}, TextFormat("Save %i", i + 1))) {
+						engine.current_save = i;
+						engine.status.store(engine_status_solo);
+						stats = 0;
+					}
+				}
+			EndScissorMode();
+
 			if (GuiButton({40, 360, 100, 50}, "Back")){
 				stats = 0;
 			}
@@ -109,7 +110,7 @@ void saveUi() {
 			}
 			if (GuiButton({40, 270, 100, 50}, "Slot3")){
 				engine.status.store(engine_status_solo);
-				//if exist ask if replace then init default player into slot;
+				//if exist ask if replace then init default player into slot; 
 				stats = 0;
 			}	
 			if (GuiButton({40, 360, 100, 50}, "Back")){
