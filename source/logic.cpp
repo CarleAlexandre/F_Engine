@@ -13,6 +13,21 @@ Vector2 getBlockPos(Vector2 pos) {
 	return (result);
 }
 
+const float getXpos(const u32 idx, const int width) {
+	return (idx % width);
+}
+
+const float getYpos(const u32 idx, const int width) {
+	return ((float)idx / width);
+}
+const u32 getLinearIndex(const float x, const float y, const int width) {
+	return (x + y * width);
+}
+
+const Vector2 getVector2Pos(const u32 index, const int width) {
+	return ((Vector2){getXpos(index, width), getYpos(index, width)});
+}
+
 bool isWall(Vector2 pos, const t_level &level) {
 	Vector2 tmp = getBlockPos(pos);
 	tmp.x /= 32;

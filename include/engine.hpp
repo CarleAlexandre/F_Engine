@@ -6,11 +6,12 @@
 # include <rlgl.h>
 # include <raymath.h>
 
-# include <vector>
 # include <atomic>
-
 # include <thread>
 # include <mutex>
+
+# include <vector>
+# include <unordered_map>
 
 # ifdef DEBUG
 	# include <iostream>
@@ -27,15 +28,6 @@ typedef uint8_t u8;
 typedef int8_t i8;
 typedef uint16_t u16;
 typedef int16_t i16;
-
-enum texture_index_e {
-	texture_index_ui = 1,
-	texture_index_character = 2,
-	texture_index_mods = 3,
-	texture_index_blocks = 4,
-	texture_index_effect = 5,
-	texture_index_entity = 6,
-};
 
 enum entity_type_e {
 	entity_type_mobs,
@@ -136,16 +128,9 @@ typedef struct s_player {
 	Rectangle hitbox;
 	Rectangle frame;
 	std::string name;
+	u32 skin;
 } t_player;
 
-typedef struct s_engine {
-	std::atomic_int height, width, status;
-	Font font;
-	Camera2D camera;
-	RenderTexture fbo;
-	std::vector<t_player> players;
-	u32 current_save;
-} t_engine;
 
 typedef struct s_level {
 	int *terrain;
@@ -160,6 +145,23 @@ typedef struct s_thread_handle {
 	bool available = true;
 } t_thread_handle;
 
+typedef struct s_token {
+	std::string	key;
+	std::string value;
+	uint32_t	identifier;
+} t_token;
+
+typedef struct s_engine {
+	std::atomic_int height, width, status;
+	Font font;
+	Camera2D camera;
+	RenderTexture fbo;
+	std::vector<t_player> players;
+	u32 current_save;
+	std::vector<Texture2D> textures;
+	std::vector<t_level> levels;
+	std::unordered_map<std::string, int> texture_dictionnary;
+} t_engine;
 
 void renderMenu(void);
 void renderOnline(void);
@@ -185,5 +187,13 @@ t_player defaultPlayerInit(const Vector3 spawn);
 std::vector<t_player> loadAllSave(void);
 void savePlayerData(t_player player, u32 slotIdx);
 
+const float getXpos(const u32 idx, const int width);
+const float getYpos(const u32 idx, const int width);
+const u32 getLinearIndex(const float x, const float y, const int width);
+const Vector2 getVector2Pos(const u32 index, const int width);
+
+std::vector<t_level> loadAllLevel(void);
+void freeLevel(t_level *level);
+std::vector<Texture2D> loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary);
 
 #endif

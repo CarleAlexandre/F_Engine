@@ -6,13 +6,30 @@
 #include <sstream>
 #include <cstring>
 #include <iostream>
-#include <unordered_map>
+# include <unordered_map>
 
-enum TOKEN_IDENTIFIER {
-	TOKEN_CMD		= 1,
-	TOKEN_ARG		= 2,
-	TOKEN_CONTEXT	= 3,
-	TOKEN_INT		= 4,
+enum parse_context_e {
+	parse_context_none			= 0,
+	parse_context_bracket		= 1,
+	parse_context_simple_quote	= 2,
+	parse_context_double_quote	= 3,
+	parse_context_error			= 4,
+};
+
+enum level_token_e {
+	level_token_width	= 1,
+	level_token_height	= 2,
+	level_token_terrain	= 3,
+	level_token_wall	= 4,
+	level_token_event	= 5,
+};
+
+std::unordered_map<std::string, level_token_e> level_dictionnary{
+	{"width", level_token_width},
+	{"height", level_token_height},
+	{"terrain", level_token_terrain},
+	{"wall", level_token_wall},
+	{"event", level_token_event},
 };
 
 enum player_token_e {
@@ -34,6 +51,7 @@ enum player_token_e {
 	player_token_health_regen	= 17,
 	player_token_mana_regen		= 18,
 	player_token_name			= 19,
+	player_token_skin			= 20,
 };
 
 std::unordered_map<std::string, player_token_e> player_dictionnary{
@@ -55,13 +73,8 @@ std::unordered_map<std::string, player_token_e> player_dictionnary{
 	{"health_regen", player_token_health_regen},
 	{"mana_regen", player_token_mana_regen},
 	{"name", player_token_name},
+	{"skin", player_token_skin},
 };
-
-typedef struct s_token {
-	std::string	key;
-	std::string value;
-	uint32_t	identifier;
-} t_token;
 
 char *readFile(const char *filepath) {
 	std::ifstream file;
@@ -85,38 +98,244 @@ char *readFile(const char *filepath) {
 void writeFile(const char *filepath, const char *data, size_t n) {
 	std::fstream file(filepath, std::fstream::trunc | std::fstream::out);
 
+# ifdef DEBUG
+	std::cout << data << "\n";
+# endif
+
 	file.write(data, n);
 	file.close();
 }
 
+void getParseContext(const char data, parse_context_e *context) {
+	switch (data){
+		case('{'): {
+			if (*context == parse_context_none) {
+				*context = parse_context_bracket;
+			}
+			//else error
+		}
+		break;
+		case('}'): {
+			if (*context == parse_context_bracket) {
+				*context = parse_context_none;
+			}
+			//else error
+		}
+		break;
+		case('\''): {
+			if (*context == parse_context_none) {
+				*context = parse_context_simple_quote;
+			} else if (*context == parse_context_simple_quote) {
+				*context = parse_context_none;
+			}
+			//else error
+		}
+		break;
+		case('\"'): {
+			if (*context == parse_context_none) {
+				*context = parse_context_double_quote;
+			} else if (*context == parse_context_double_quote) {
+				*context = parse_context_none;
+			}
+			//else error
+		}
+		break;
+		//case(): {
+		//}
+		//break;
+		default:
+			break;
+	};
+}
+
+const char *getNextDelim(const char *str, const char *delim, size_t str_size, size_t delim_size) {
+	parse_context_e context = parse_context_none;
+	for (u32 i = 0; i < str_size; i++) {
+		getParseContext(str[i], &context);
+		if (context == parse_context_error) {
+			return (delim);
+		}
+		if (context == parse_context_none) {
+			for (u32 k = 0; k < delim_size; k++) {
+				if (str[i] == delim[k]) {
+					return (str + i);
+				}
+			}
+		}
+	}
+	return (0x00);
+}
+
+const char *stringSpliter(const char *str, const char *delim, size_t str_size, u32 delim_size) {
+	const char *iterator = 0x00;
+
+	iterator = str;
+	while (iterator - str < str_size) {
+		for (int i = 0; i < delim_size; i++) {
+			if (*iterator == delim[i]) {
+				return (iterator);
+			}
+		}
+		iterator++;
+	}
+	iterator = 0x00;
+	return (iterator);
+}
 
 template <typename T>
-std::vector<t_token> tokenizer(std::string str, const char *delim, std::unordered_map<std::string, T> &dictionnary) {
+std::vector<t_token> tokenizer(std::string str, const char *delim, size_t delim_size, std::unordered_map<std::string, T> &dictionnary) {
 	std::vector<t_token> token_list;
 	t_token tok;
-	const char *tmp;
+	const char *span;
+	const char *data = str.c_str();
 
 	for (size_t i = 0; i < str.size(); i++) {
-		tmp = strstr(str.c_str(), delim);
-		for (int k = 0; str.c_str() + k < tmp; k++) {
-			tok.key += *(str.c_str() + k);
+		span = getNextDelim(data + i, delim, str.size() - i, delim_size);
+		if (!span) {
+			break;
+		}
+		if (span == delim) {
+# ifdef DEBUG
+			std::cout << "tokenizer context Error: " << str[i] << "at: " << i << " !\n";
+# endif
+			token_list.clear();
+			break;
+		}
+		const char *tmp = stringSpliter(data + i, ":", span - data + i, 1);
+		for (int k = i; data + k < tmp; k++) {
+			tok.key += *(data + k);
+			i++;
+		}
+		if (data[i] == ':')
+			i++;
+		for (int k = i; data + k < span; k++){
+			tok.value += *(data + k);
 			i++;
 		}
 		tok.identifier = dictionnary[tok.key];
-		token_list.push_back(tok);
+		if (!tok.value.empty()) {
+			token_list.push_back(tok);
+			std::cout << "tok: " << tok.key << "; value: " << tok.value << "\n";
+			tok.value.clear();
+			tok.key.clear();
+			tok.identifier = 0;
+		}
+		i++;
 	}
 	return (token_list);
 }
 
+void clearToken(std::vector<t_token> &token_list) {
+	for (size_t i = 0; i < token_list.size(); i++) {
+		token_list[i].key.clear();
+		token_list[i].value.clear();
+	}
+	token_list.clear();
+}
+
+t_level loadLevel(const char *level_name) {
+	t_level level = {};
+	bool alloc = false;
+# ifdef DEBUG
+	int step = 0;
+# endif
+	char *level_data = readFile(TextFormat("level/%s.map", level_name));
+
+	std::vector<t_token> token = tokenizer(level_data, ",\n", 2, level_dictionnary);
+	if (!token.size()) {
+		#ifdef DEBUG 
+			std::cout << "level file Parse Error: " << __LINE__ << " name: " << level_name << ".!\n";
+		#endif
+		MemFree(level_data);
+		abort();
+	}
+	for (u32 i = 0; i < token.size(); i++) {
+		switch (token[i].identifier) {
+			case(level_token_width):{
+				level.dimension.x = atoi(token[i].value.c_str());
+				break;
+			}
+			case(level_token_height):{
+				level.dimension.y = atoi(token[i].value.c_str());
+				break;
+			}
+			case(level_token_terrain):{
+				for (int k = 0; k < level.dimension.x * level.dimension.y; k++) {
+					const char *tmp = stringSpliter(token[i].value.c_str(), ", \n", token[i].value.size(), 3);
+					if (!tmp){break;}
+					level.terrain[k] = atoi(tmp);
+				}
+				break;
+			}
+			case(level_token_wall):{
+				for (int k = 0; k < level.dimension.x * level.dimension.y; k++) {
+					const char *tmp = stringSpliter(token[i].value.c_str(), ", \n", token[i].value.size(), 3);
+					if (!tmp){break;}
+					level.wall[k] = atoi(tmp);
+				}
+				break;
+			}
+			case(level_token_event):{
+				for (int k = 0; k < level.dimension.x * level.dimension.y; k++) {
+					const char *tmp = stringSpliter(token[i].value.c_str(), ", \n", token[i].value.size(), 3);
+					if (!tmp){break;}
+					level.event[k] = atoi(tmp);
+				}
+				break;
+			}
+			default:break;
+		};
+		if (level.dimension.x && level.dimension.y && !alloc) {
+			int size = level.dimension.x * level.dimension.y;
+			level.event = (int *)MemAlloc(size * 3 * sizeof(int));
+			level.terrain = level.event + size * sizeof(int);
+			level.wall = level.terrain + size * sizeof(int);
+# ifdef DEBUG
+			std::cout << "alloc chunk size level: " << level_name << "size: " << size * 3 << "\n";
+# endif
+			alloc = true;
+		}
+# ifdef DEBUG
+		step++;
+# endif
+	}
+	if (level.dimension.x == 0) {
+#ifdef DEBUG
+		std::cout << "couldn't load level, token error : " << __LINE__ << ", step : " << step << "\n";
+#endif
+		clearToken(token);
+		MemFree(level_data);
+		abort();
+	}
+	clearToken(token);
+	MemFree(level_data);
+	return (level);
+}
+
+std::vector<t_level> loadAllLevel(void) {
+	std::vector<t_level> levels;
+
+	levels.push_back(loadLevel("debug"));
+	return (levels);
+}
+
 t_player loadPlayerSave(u32 slotIdx) {
 	t_player ret = defaultPlayerInit(Vector3Zero());
+
 	if (slotIdx == 0) {
 		return (ret);
 	}
 	char *player_data = readFile(TextFormat("save/%i.player", slotIdx));
 	
-	std::vector<t_token> token = tokenizer(player_data, "\n", player_dictionnary);
+	std::vector<t_token> token = tokenizer(player_data, ",\n", 2, player_dictionnary);
 
+	if (token.size() == 0){
+#ifdef DEBUG 
+	std::cout << "Player file Parse Error: " << slotIdx << ".!\n";
+#endif
+		MemFree(player_data);
+		return (ret);
+	}
 	for (int i = 0; i < token.size(); i++) {
 		switch (token[i].identifier) {
 			case (player_token_move_speed):{
@@ -179,11 +398,17 @@ t_player loadPlayerSave(u32 slotIdx) {
 				ret.name = token[i].value;
 				break;
 			}
+			case (player_token_skin): {
+				ret.skin = atoi(token[i].value.c_str());
+			}
 			default:
+#ifdef DEBUG
 				std::cerr << "Save File Is Corrupted!\n";
+#endif
 				break;
 		}
 	}
+	clearToken(token);
 	MemFree(player_data);
 	return (ret);
 }
@@ -191,7 +416,7 @@ t_player loadPlayerSave(u32 slotIdx) {
 std::vector<t_player> loadAllSave(void) {
 	std::vector<t_player> player_data;
 
-	for (int i = 0; FileExists(TextFormat("save/%i.player", i)); i++) {
+	for (int i = 1; FileExists(TextFormat("save/%i.player", i)); i++) {
 		player_data.push_back(loadPlayerSave(i));	
 	}
 	return (player_data);
@@ -205,23 +430,38 @@ void savePlayerData(t_player player, u32 slotIdx) {
 	std::stringstream data;
 
 	data << "name:" << player.name.c_str() \
-		<< "\nlvl:" << player.lvl \
-		<< "\nxp:" << player.xp \
-		<< "\nstatus:" << player.status \
-		<< "\narmor:" << player.stats.armor \
-		<< "\nattack_speed:" << player.stats.attack_speed \
-		<< "\nmove_speed:" << player.stats.move_speed \
-		<< "\ncrit_chance:" << player.stats.crit_chance \
-		<< "\ncrit_dmg:" << player.stats.crit_dmg \
-		<< "\ndmg_reduction:" << player.stats.dmg_reduction \
-		<< "\nhealth_regen:" << player.stats.health_regen \
-		<< "\nmana_regen:" << player.stats.mana_regen \
-		<< "\nmax_life:" << player.stats.max_life \
-		<< "\nlife:" << player.stats.life \
-		<< "\nmana:" << player.stats.mana \
-		<< "\nraw_dmg:" << player.stats.raw_dmg \
-		<< "\nmagic_affinity:" << player.stats.magic_affinity \
-		<< "\nlife_steal:" << player.stats.life_steal \
+		<< ",\nlvl:" << player.lvl \
+		<< ",\nxp:" << player.xp \
+		<< ",\nstatus:" << player.status \
+		<< ",\narmor:" << player.stats.armor \
+		<< ",\nattack_speed:" << player.stats.attack_speed \
+		<< ",\nmove_speed:" << player.stats.move_speed \
+		<< ",\ncrit_chance:" << player.stats.crit_chance \
+		<< ",\ncrit_dmg:" << player.stats.crit_dmg \
+		<< ",\ndmg_reduction:" << player.stats.dmg_reduction \
+		<< ",\nhealth_regen:" << player.stats.health_regen \
+		<< ",\nmana_regen:" << player.stats.mana_regen \
+		<< ",\nmax_life:" << player.stats.max_life \
+		<< ",\nlife:" << player.stats.life \
+		<< ",\nmana:" << player.stats.mana \
+		<< ",\nraw_dmg:" << player.stats.raw_dmg \
+		<< ",\nmagic_affinity:" << player.stats.magic_affinity \
+		<< ",\nlife_steal:" << player.stats.life_steal \
+		<< ",\nskin:" << player.skin \
 		;
 	writeFile(TextFormat("save/%i.player", slotIdx), data.str().c_str(), data.str().size());
+}
+
+std::vector<Texture2D> loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary) {
+	FilePathList textures_directory;
+	std::vector<Texture2D> textures;
+
+	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/"));
+
+	for (int i = 0; i < textures_directory.count; i++) {
+		textures.push_back(LoadTexture(textures_directory.paths[i]));
+		texture_dictionnary.emplace(GetFileNameWithoutExt(textures_directory.paths[i]), i);
+	}
+	UnloadDirectoryFiles(textures_directory);
+	return (textures);
 }

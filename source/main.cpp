@@ -1,9 +1,7 @@
-
-# define DEBUG
 # include <engine.hpp>
-# include <queue>
 # include <raygui.h>
 
+//#include <queue>
 //std::queue<t_thread_queue> thread_queue;
 t_engine engine;
 
@@ -83,10 +81,6 @@ int main(void) {
 	engine.height = 480;
 	engine.width = 720;
 	engine.camera.zoom = 2.0f;
-	t_player player = defaultPlayerInit({0, 0, 0});
-
-	engine.players = loadAllSave();
-	engine.players.push_back(player);
 
 	//unsigned int max_thread = sync_thread.hardware_concurrency();
 	//if (max_thread%2 == 0) {
@@ -108,7 +102,9 @@ int main(void) {
 
 	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
 	engine.fbo = LoadRenderTexture(engine.width, engine.height);
-
+	engine.textures = loadAllTexture(engine.texture_dictionnary);
+	engine.players = loadAllSave();
+	engine.levels = loadAllLevel();
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
 			engine.status.store(engine_status_close);
@@ -152,6 +148,11 @@ int main(void) {
 	//sync_thread.join();
 	for (int i = 0; i < engine.players.size(); i++) {
 		savePlayerData(engine.players[i], i+1);
+		engine.players[i].name.clear();
+	}
+	engine.players.clear();
+	for (int i = 0; i < engine.levels.size(); i++) {
+		freeLevel(&engine.levels[i]);
 	}
 	UnloadRenderTexture(engine.fbo);
 	CloseWindow();
