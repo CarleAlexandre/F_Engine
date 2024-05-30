@@ -117,18 +117,19 @@ typedef struct s_entity {
 }	t_entity;
 
 typedef struct s_player {
-	Vector3 pos;
+	Vector2 pos;
 	char dir;
 	int	status;
 	unsigned int lvl;
 	float xp;
+	char y;
 	std::vector<t_item> inventory;
 	u32 inventory_size;
 	t_stats stats;
 	Rectangle hitbox;
 	Rectangle frame;
 	std::string name;
-	u32 skin;
+	int skin;
 } t_player;
 
 
@@ -157,7 +158,7 @@ typedef struct s_engine {
 	Camera2D camera;
 	RenderTexture fbo;
 	std::vector<t_player> players;
-	u32 current_save;
+	t_player *current_save;
 	std::vector<Texture2D> textures;
 	std::vector<t_level> levels;
 	std::unordered_map<std::string, int> texture_dictionnary;
@@ -185,7 +186,7 @@ bool IsInBond(Vector2 pos, Vector2 hi, Vector2 low);
 
 t_player defaultPlayerInit(const Vector3 spawn);
 std::vector<t_player> loadAllSave(void);
-void savePlayerData(t_player player, u32 slotIdx);
+void savePlayerData(t_player player);
 
 const float getXpos(const u32 idx, const int width);
 const float getYpos(const u32 idx, const int width);
@@ -195,5 +196,6 @@ const Vector2 getVector2Pos(const u32 index, const int width);
 std::vector<t_level> loadAllLevel(void);
 void freeLevel(t_level *level);
 std::vector<Texture2D> loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary);
+void drawLevel(t_level &level);
 
 #endif

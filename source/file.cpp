@@ -319,19 +319,19 @@ std::vector<t_level> loadAllLevel(void) {
 	return (levels);
 }
 
-t_player loadPlayerSave(u32 slotIdx) {
+t_player loadPlayerSave(const char *savepath) {
 	t_player ret = defaultPlayerInit(Vector3Zero());
 
-	if (slotIdx == 0) {
+	if (savepath == 0) {
 		return (ret);
 	}
-	char *player_data = readFile(TextFormat("save/%i.player", slotIdx));
+	char *player_data = readFile(savepath);
 	
 	std::vector<t_token> token = tokenizer(player_data, ",\n", 2, player_dictionnary);
 
 	if (token.size() == 0){
 #ifdef DEBUG 
-	std::cout << "Player file Parse Error: " << slotIdx << ".!\n";
+	std::cout << "Player file Parse Error: " << savepath << ".!\n";
 #endif
 		MemFree(player_data);
 		return (ret);
@@ -400,6 +400,10 @@ t_player loadPlayerSave(u32 slotIdx) {
 			}
 			case (player_token_skin): {
 				ret.skin = atoi(token[i].value.c_str());
+#ifdef DEBUG
+						std::cout << ret.skin << "\n";
+#endif
+				break;
 			}
 			default:
 #ifdef DEBUG
@@ -416,17 +420,16 @@ t_player loadPlayerSave(u32 slotIdx) {
 std::vector<t_player> loadAllSave(void) {
 	std::vector<t_player> player_data;
 
-	for (int i = 1; FileExists(TextFormat("save/%i.player", i)); i++) {
-		player_data.push_back(loadPlayerSave(i));	
+	FilePathList save_directory = LoadDirectoryFiles(GetDirectoryPath("save/"));
+
+	for (int i = 0; i < save_directory.count; i++) {
+		player_data.push_back(loadPlayerSave(save_directory.paths[i]));	
 	}
 	return (player_data);
 }
 
 //if idx =0 then it's a new save
-void savePlayerData(t_player player, u32 slotIdx) {
-	if (slotIdx == 0) {
-		return;
-	}
+void savePlayerData(t_player player) {
 	std::stringstream data;
 
 	data << "name:" << player.name.c_str() \
@@ -447,9 +450,12 @@ void savePlayerData(t_player player, u32 slotIdx) {
 		<< ",\nraw_dmg:" << player.stats.raw_dmg \
 		<< ",\nmagic_affinity:" << player.stats.magic_affinity \
 		<< ",\nlife_steal:" << player.stats.life_steal \
-		<< ",\nskin:" << player.skin \
+		<< ",\nskin:" << player.skin << ",\n"\
 		;
-	writeFile(TextFormat("save/%i.player", slotIdx), data.str().c_str(), data.str().size());
+#ifdef DEBUG
+						std::cout << player.skin << "\n";
+#endif
+	writeFile(TextFormat("save/%s.player", player.name.c_str()), data.str().c_str(), data.str().size());
 }
 
 std::vector<Texture2D> loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary) {

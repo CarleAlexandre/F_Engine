@@ -50,11 +50,12 @@ t_player defaultPlayerInit(const Vector3 spawn) {
 
 	ret.name = "default";
 	ret.status = player_status_well;
-	ret.pos = spawn;
+	ret.pos = {spawn.x, spawn.z};
 	ret.xp = 0.0f;
 	ret.lvl = 1;
+	ret.y = spawn.y;
 	ret.dir = NORTH;
-	ret.hitbox = {ret.pos.x + 6, ret.pos.z - 8, 12, 12};
+	ret.hitbox = {ret.pos.x + 6, ret.pos.y - 8, 12, 12};
 	ret.inventory.clear();
 	ret.inventory_size = 36;
 	ret.frame = (Rectangle){0, 0, 32, 32};
@@ -81,7 +82,8 @@ int main(void) {
 	engine.height = 480;
 	engine.width = 720;
 	engine.camera.zoom = 2.0f;
-
+	engine.camera.offset = {(float)(engine.width * 0.5 - 16), (float)(engine.height * 0.5 - 16)};
+	engine.camera.target = {0, 0};
 	//unsigned int max_thread = sync_thread.hardware_concurrency();
 	//if (max_thread%2 == 0) {
 	//	max_thread *= 0.5;
@@ -147,7 +149,7 @@ int main(void) {
 
 	//sync_thread.join();
 	for (int i = 0; i < engine.players.size(); i++) {
-		savePlayerData(engine.players[i], i+1);
+		savePlayerData(engine.players[i]);
 		engine.players[i].name.clear();
 	}
 	engine.players.clear();

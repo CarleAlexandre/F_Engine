@@ -95,8 +95,8 @@ void saveUi() {
 			BeginDrawing();
 			BeginScissorMode(view.x, view.y, view.width, view.height);
 				for (int i = 0; i < engine.players.size(); i++) {
-					if (GuiButton({panelrec.x + 20 + scroll.x, panelrec.y + 20 + scroll.y, contentrec.width - 20, 60}, engine.players[i].name.c_str())) {
-						engine.current_save = i;
+					if (GuiButton({panelrec.x + 20 + scroll.x, panelrec.y + 30 + 70 * i + scroll.y, contentrec.width - 20, 60}, engine.players[i].name.c_str())) {
+						engine.current_save = &engine.players[i];
 						engine.status.store(engine_status_solo);
 						stats = 0;
 					}
@@ -104,6 +104,7 @@ void saveUi() {
 			EndScissorMode();
 
 			if (GuiButton({40, 360, 100, 50}, "Back")){
+				scroll.y = 0;
 				stats = 0;
 			}
 			break;
@@ -134,14 +135,15 @@ void saveUi() {
 			if (GuiButton({200, 360, 100, 50}, "Create!")) {
 				t_player new_player = defaultPlayerInit(Vector3Zero());
 				new_player.name = player_name;
-				new_player.skin = player_skinidx;
+				new_player.skin = engine.texture_dictionnary[TextFormat("Hero_%02i", player_skinidx)];
 				engine.players.push_back(new_player);
-				engine.current_save = engine.players.size() - 1;
+				engine.current_save = engine.players.data() + ((engine.players.size() - 1) * sizeof(t_player));
 				engine.status.store(engine_status_solo);
 				stats = 0;
 			}
 			if (GuiButton({40, 360, 100, 50}, "Back")){
 				stats = 0;
+				scroll.y = 0;
 			}
 			DrawTextureRec(engine.textures[engine.texture_dictionnary[TextFormat("Hero_%02i", player_skinidx)]], {0, 0, 32, 32}, {40, 100}, WHITE);
 			break;
@@ -152,7 +154,7 @@ void saveUi() {
 			BeginDrawing();
 			BeginScissorMode(view.x, view.y, view.width, view.height);
 				for (int i = 0; i < engine.players.size(); i++) {
-					if (GuiButton({panelrec.x + 20 + scroll.x, panelrec.y + 20 + scroll.y, contentrec.width - 20, 60}, engine.players[i].name.c_str())) {
+					if (GuiButton({panelrec.x + 20 + scroll.x, panelrec.y + 30 + 70 * i + scroll.y, contentrec.width - 20, 60}, engine.players[i].name.c_str())) {
 						promptdelete = true;
 						deleteidx = i;
 					}
@@ -162,7 +164,7 @@ void saveUi() {
 			if (promptdelete) {
 				int result = GuiMessageBox({100, 100, 200, 200}, "#152#DELETE", "#152#Are you sure ??", "#152#;NO!!");
 					if (result == 1) {
-						std::remove(TextFormat("save/%i.player", deleteidx + 1));
+						std::remove(TextFormat("save/%s.player", engine.players[deleteidx].name.c_str()));
 						engine.players.erase(engine.players.begin() + deleteidx);
 						stats = 0;
 					}
@@ -174,6 +176,7 @@ void saveUi() {
 
 			if (GuiButton({40, 360, 100, 50}, "Back")){
 				stats = 0;
+				scroll.y = 0;
 			}
 			break;
 		}
@@ -200,7 +203,12 @@ void renderSolo(void) {
 	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
-		
+			//engine.camera.target = engine.current_save->pos;
+#ifdef DEBUG
+						std::cout << engine.current_save->skin << "\n";
+#endif
+			DrawTextureRec(engine.textures[engine.current_save->skin], engine.current_save->frame, engine.current_save->pos, WHITE);
+			//drawLevel(engine.levels[0]);
 		EndMode2D();
 	EndTextureMode();
 }
