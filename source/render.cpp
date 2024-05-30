@@ -5,10 +5,6 @@
 
 extern t_engine engine;
 
-void mapBuilder() {
-
-}
-
 void menuUi(void) {
 	if (GuiButton({40, 90, 100, 50}, "Solo")){
 		engine.status.store(engine_status_save); 
@@ -203,13 +199,12 @@ void renderSolo(void) {
 	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
-			//engine.camera.target = engine.current_save->pos;
-#ifdef DEBUG
-						std::cout << engine.current_save->skin << "\n";
-#endif
+			engine.camera.target = {engine.current_save->pos.x + 16, engine.current_save->pos.y + 24};
+			//DrawRectangle(engine.current_save->pos.x - 1, engine.current_save->pos.y - 1, 34, 34, RED);
 			DrawTextureRec(engine.textures[engine.current_save->skin], engine.current_save->frame, engine.current_save->pos, WHITE);
 			//drawLevel(engine.levels[0]);
 		EndMode2D();
+		//DrawPixel(engine.width * 0.5, engine.height * 0.5, PINK);
 	EndTextureMode();
 }
 

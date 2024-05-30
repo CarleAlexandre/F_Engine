@@ -134,10 +134,10 @@ typedef struct s_player {
 
 
 typedef struct s_level {
-	int *terrain;
+	int **terrain;
 	int *wall;
 	int *event;
-	Vector2 dimension;
+	Vector3 dimension;
 } t_level;
 
 typedef struct s_thread_handle {

@@ -82,8 +82,8 @@ int main(void) {
 	engine.height = 480;
 	engine.width = 720;
 	engine.camera.zoom = 2.0f;
-	engine.camera.offset = {(float)(engine.width * 0.5 - 16), (float)(engine.height * 0.5 - 16)};
-	engine.camera.target = {0, 0};
+	engine.camera.offset = {(float)(engine.width * 0.5), (float)(engine.height * 0.5)};
+	engine.camera.target = Vector2Zero();
 	//unsigned int max_thread = sync_thread.hardware_concurrency();
 	//if (max_thread%2 == 0) {
 	//	max_thread *= 0.5;

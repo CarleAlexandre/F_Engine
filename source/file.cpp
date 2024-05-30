@@ -22,6 +22,7 @@ enum level_token_e {
 	level_token_terrain	= 3,
 	level_token_wall	= 4,
 	level_token_event	= 5,
+	level_token_depth	= 6,
 };
 
 std::unordered_map<std::string, level_token_e> level_dictionnary{
@@ -30,6 +31,7 @@ std::unordered_map<std::string, level_token_e> level_dictionnary{
 	{"terrain", level_token_terrain},
 	{"wall", level_token_wall},
 	{"event", level_token_event},
+	{"depth", level_token_depth},
 };
 
 enum player_token_e {
@@ -259,11 +261,20 @@ t_level loadLevel(const char *level_name) {
 				level.dimension.y = atoi(token[i].value.c_str());
 				break;
 			}
+			case(level_token_depth):{
+				level.dimension.z = atoi(token[i].value.c_str());
+				break;
+			}
 			case(level_token_terrain):{
-				for (int k = 0; k < level.dimension.x * level.dimension.y; k++) {
-					const char *tmp = stringSpliter(token[i].value.c_str(), ", \n", token[i].value.size(), 3);
-					if (!tmp){break;}
-					level.terrain[k] = atoi(tmp);
+				for (int layer = 0; layer < level.dimension.y; layer++) {
+					const char *layer_tmp = getNextDelim(token[i].value.c_str(), ";", token[i].value.size(), 1);
+					if (!layer_tmp){break;}
+					std::cout << layer_tmp << "\n";
+					for (int k = 0; k < level.dimension.x * level.dimension.z; k++) {
+						const char *tmp = stringSpliter(token[i].value.c_str(), ", \n", layer_tmp - token[i].value.c_str(), 4);
+						if (!tmp){break;}
+						level.terrain[layer][k] = atoi(tmp);
+					}
 				}
 				break;
 			}
@@ -285,11 +296,11 @@ t_level loadLevel(const char *level_name) {
 			}
 			default:break;
 		};
-		if (level.dimension.x && level.dimension.y && !alloc) {
-			int size = level.dimension.x * level.dimension.y;
-			level.event = (int *)MemAlloc(size * 3 * sizeof(int));
-			level.terrain = level.event + size * sizeof(int);
-			level.wall = level.terrain + size * sizeof(int);
+		if (level.dimension.x && level.dimension.z && level.dimension.y && !alloc) {
+			int size = level.dimension.x * level.dimension.z;
+			level.terrain = (int **)MemAlloc(size * level.dimension.y * sizeof(int));
+			level.event = (int *)MemAlloc(size * sizeof(int));
+			level.wall = (int *)MemAlloc(size * sizeof(int));
 # ifdef DEBUG
 			std::cout << "alloc chunk size level: " << level_name << "size: " << size * 3 << "\n";
 # endif
