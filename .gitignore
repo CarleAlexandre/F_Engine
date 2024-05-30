@@ -11,3 +11,4 @@ build/*
 assets/*
 save/*
 level/*
+config/*

@@ -60,7 +60,7 @@ t_player defaultPlayerInit(const Vector3 spawn) {
 	ret.inventory_size = 36;
 	ret.frame = (Rectangle){0, 0, 32, 32};
 	ret.stats = {
-		.move_speed = 80,
+		.move_speed = 20,
 		.crit_chance = 0.0f,
 		.crit_dmg = 1.2f,
 		.raw_dmg = 0.0f,
@@ -107,12 +107,16 @@ int main(void) {
 	engine.textures = loadAllTexture(engine.texture_dictionnary);
 	engine.players = loadAllSave();
 	engine.levels = loadAllLevel();
+	loadInput(engine.input);
+
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
 			engine.status.store(engine_status_close);
 		}
 		switch (engine.status.load()) {
 			case (engine_status_solo): {
+				updateInput();
+				updatePlayer();
 				renderSolo();
 				break;
 			}

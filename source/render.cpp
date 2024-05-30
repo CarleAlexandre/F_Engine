@@ -93,6 +93,7 @@ void saveUi() {
 				for (int i = 0; i < engine.players.size(); i++) {
 					if (GuiButton({panelrec.x + 20 + scroll.x, panelrec.y + 30 + 70 * i + scroll.y, contentrec.width - 20, 60}, engine.players[i].name.c_str())) {
 						engine.current_save = &engine.players[i];
+						engine.current_save->to = engine.current_save->pos;
 						engine.status.store(engine_status_solo);
 						stats = 0;
 					}
@@ -132,6 +133,7 @@ void saveUi() {
 				t_player new_player = defaultPlayerInit(Vector3Zero());
 				new_player.name = player_name;
 				new_player.skin = engine.texture_dictionnary[TextFormat("Hero_%02i", player_skinidx)];
+				new_player.to = new_player.pos;
 				engine.players.push_back(new_player);
 				engine.current_save = engine.players.data() + ((engine.players.size() - 1) * sizeof(t_player));
 				engine.status.store(engine_status_solo);
@@ -199,12 +201,12 @@ void renderSolo(void) {
 	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
-			engine.camera.target = {engine.current_save->pos.x + 16, engine.current_save->pos.y + 24};
 			//DrawRectangle(engine.current_save->pos.x - 1, engine.current_save->pos.y - 1, 34, 34, RED);
 			DrawTextureRec(engine.textures[engine.current_save->skin], engine.current_save->frame, engine.current_save->pos, WHITE);
 			//drawLevel(engine.levels[0]);
 		EndMode2D();
 		//DrawPixel(engine.width * 0.5, engine.height * 0.5, PINK);
+		DrawText(TextFormat("x: %.1f, y:%.1f", engine.current_save->pos.x, engine.current_save->pos.y), 20, 40, 20, GREEN);
 	EndTextureMode();
 }
 

@@ -78,6 +78,20 @@ std::unordered_map<std::string, player_token_e> player_dictionnary{
 	{"skin", player_token_skin},
 };
 
+std::unordered_map<std::string, player_input_e> input_dictionnary{
+	{"move", move},
+	{"autoattack", autoattack},
+	{"interact", interact},
+	{"hotbar1", hotbar1},
+	{"hotbar2", hotbar2},
+	{"hotbar3", hotbar3},
+	{"hotbar4", hotbar4},
+	{"hotbar5", hotbar5},
+	{"hotbar6", hotbar6},
+	{"toggleinventory", toggleinventory},
+	{"centercamera", centercamera},
+};
+
 char *readFile(const char *filepath) {
 	std::ifstream file;
 	std::stringstream str;
@@ -182,6 +196,16 @@ const char *stringSpliter(const char *str, const char *delim, size_t str_size, u
 	}
 	iterator = 0x00;
 	return (iterator);
+}
+
+void eraseFromString(std::string &str, const char *delim, u32 delim_size) {
+	for (int i = 0; i < str.size(); i++) {
+		for (int k = 0; k < delim_size; k++) {
+			if (str[i] == delim[k]) {
+				str.erase(str.begin() + i);
+			}
+		}
+	}
 }
 
 template <typename T>
@@ -481,4 +505,28 @@ std::vector<Texture2D> loadAllTexture(std::unordered_map<std::string, int> &text
 	}
 	UnloadDirectoryFiles(textures_directory);
 	return (textures);
+}
+
+void loadInput(t_input *inputlist) {
+	char *inputfile = readFile("config/input.cfg");
+	u32 current_input_idx = 0;
+
+	if (!inputfile){return;}
+	std::vector<t_token> inputtoken = tokenizer(inputfile, ";", 1, input_dictionnary);
+
+	if (!inputtoken.size()){return;}
+	for (int i = 0; i < inputtoken.size(); i++) {
+		eraseFromString(inputtoken[i].value, "{}\n", 3);
+		const char *nextdelim = getNextDelim(inputtoken[i].value.c_str(), ",", inputtoken[i].value.size(), 1);
+		inputlist[inputtoken[i].identifier - 1].key = atoi(inputtoken[i].value.c_str() + 4);
+		inputlist[inputtoken[i].identifier - 1].ismouse = (strncmp(nextdelim + 9, "true", 4) == 0) ? true : false;
+		inputlist[inputtoken[i].identifier - 1].id = input_dictionnary[inputtoken[i].key];
+#ifdef DEBUG
+		std::cout << "key: " << inputlist[inputtoken[i].identifier - 1].key << " ismouse: " << inputlist[inputtoken[i].identifier - 1].ismouse << " id: " <<  inputlist[inputtoken[i].identifier - 1].id << "\n";
+#endif
+	}
+	clearToken(inputtoken);
+
+	MemFree(inputfile);
+	inputtoken.clear();
 }

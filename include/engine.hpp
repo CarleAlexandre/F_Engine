@@ -17,6 +17,8 @@
 	# include <iostream>
 #endif
 
+#define MAX_INPUT 11
+
 typedef uint32_t u32;
 typedef int32_t i32;
 typedef uint64_t u64;
@@ -29,33 +31,33 @@ typedef int8_t i8;
 typedef uint16_t u16;
 typedef int16_t i16;
 
-enum entity_type_e {
+typedef enum {
 	entity_type_mobs,
 	entity_type_bullet,
 	entity_type_effect,
 	entity_type_gathering,
 	entity_type_plant,
-};
+}entity_type_e;
 
-enum item_type_e {
+typedef enum {
 	item_type_weapon,
 	item_type_tool,
 	item_type_material,
 	item_type_structure,
 	item_type_machine,
 	item_type_useable,
-};
+}item_type_e;
 
-enum engine_status_e {
+typedef enum {
 	engine_status_menu = 0,
 	engine_status_close = 1,
 	engine_status_online = 2,
 	engine_status_solo = 3,
 	engine_status_setting = 4,
 	engine_status_save = 5,
-};
+}engine_status_e;
 
-enum player_status_e {
+typedef enum {
 	player_status_well = 0,
 	player_status_sick = 1,
 	player_status_dead = 2,
@@ -66,14 +68,34 @@ enum player_status_e {
 	player_status_cursed = 7,
 	player_status_blessed = 8,
 	player_status_god = 9,
-};
+}player_status_e;
 
-enum diraction_e {
+typedef enum {
 	SOUTH	= 1 << 0,
 	NORTH	= 1 << 1,
 	EAST	= 1 << 2,
 	WEST	= 1 << 3,
-};
+}diraction_e;
+
+typedef enum {
+	move			= 1,
+	autoattack		= 2,
+	interact		= 3,
+	hotbar1			= 4,
+	hotbar2			= 5,
+	hotbar3			= 6,
+	hotbar4			= 7,
+	hotbar5			= 8,
+	hotbar6			= 9,
+	toggleinventory	= 10,
+	centercamera	= 11,
+}player_input_e;
+
+typedef struct s_input {
+	int key;
+	bool ismouse;
+	player_input_e id;
+}t_input;
 
 typedef struct s_stats {
 	float move_speed;
@@ -118,6 +140,7 @@ typedef struct s_entity {
 
 typedef struct s_player {
 	Vector2 pos;
+	Vector2 to;
 	char dir;
 	int	status;
 	unsigned int lvl;
@@ -162,6 +185,7 @@ typedef struct s_engine {
 	std::vector<Texture2D> textures;
 	std::vector<t_level> levels;
 	std::unordered_map<std::string, int> texture_dictionnary;
+	t_input	input[MAX_INPUT];
 } t_engine;
 
 void renderMenu(void);
@@ -197,5 +221,9 @@ std::vector<t_level> loadAllLevel(void);
 void freeLevel(t_level *level);
 std::vector<Texture2D> loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary);
 void drawLevel(t_level &level);
+void loadInput(t_input *inputlist);
+
+void updateInput(void);
+void updatePlayer(void);
 
 #endif
