@@ -46,20 +46,20 @@ void audioFun() {
 }
 
 t_player defaultPlayerInit(const Vector3 spawn) {
-	t_player ret;
+	t_player default_player;
 
-	ret.name = "default";
-	ret.status = player_status_well;
-	ret.pos = {spawn.x, spawn.z};
-	ret.xp = 0.0f;
-	ret.lvl = 1;
-	ret.y = spawn.y;
-	ret.dir = NORTH;
-	ret.hitbox = {ret.pos.x + 6, ret.pos.y - 8, 12, 12};
-	ret.inventory.clear();
-	ret.inventory_size = 36;
-	ret.frame = (Rectangle){0, 0, 32, 32};
-	ret.stats = {
+	default_player.name = "default";
+	default_player.status = player_status_well;
+	default_player.pos = {spawn.x, spawn.z};
+	default_player.xp = 0.0f;
+	default_player.lvl = 1;
+	default_player.y = spawn.y;
+	default_player.dir = NORTH;
+	default_player.hitbox = {default_player.pos.x + 6, default_player.pos.y - 8, 12, 12};
+	default_player.inventory.clear();
+	default_player.inventory_size = 36;
+	default_player.frame = (Rectangle){0, 0, 32, 32};
+	default_player.stats = {
 		.move_speed = 20,
 		.crit_chance = 0.0f,
 		.crit_dmg = 1.2f,
@@ -73,7 +73,7 @@ t_player defaultPlayerInit(const Vector3 spawn) {
 		.life = 600,
 		.max_life = 600,
 	};
-	return (ret);
+	return (default_player);
 }
 
 int main(void) {
