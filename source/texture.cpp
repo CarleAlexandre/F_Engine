@@ -5,17 +5,11 @@ extern t_engine engine;
 const Rectangle getTextureRec(const u32 idx, const Texture2D &texture) {
 	float x = getXpos(idx, texture.width / 32) * 32;
 	float y = getYpos(idx, texture.width / 32) * 32;
-#ifdef DEBUG
-	std::cout << "DEBUG: player animation frame pos: x: " << x << ", y: " << y << "\n";
-#endif
 	return ((const Rectangle){x, y, 32, 32});
 }
 
 void renderTextureChunk(const u32 idx, const Texture2D &texture, Vector2 pos) {
 	DrawTextureRec(texture, getTextureRec(idx, texture), pos, WHITE);
-#ifdef DEBUG
-	std::cout << "DEBUG: player animation frame idx: " << idx << "\n";
-#endif
 }
 
 void renderAnimationFrame(t_animation &animationframe) {
