@@ -7,12 +7,10 @@ void updateInput(void) {
 		if (engine.input[i].ismouse && IsMouseButtonDown(engine.input[i].key)) {
 			switch(engine.input[i].id){
 				case(move):{
-					engine.current_save->to = GetScreenToWorld2D(GetMousePosition(), engine.camera);
-					engine.current_save->to.x -= 16;
-					engine.current_save->to.y -= 24;
-#ifdef DEBUG
-					//std::cout << engine.current_save->to.x << ", " <<  engine.current_save->to.y, "\n";
-#endif
+					Vector2 to;
+					to = GetScreenToWorld2D(GetMousePosition(), engine.camera);
+					engine.current_save->to.x = to.x - 16;
+					engine.current_save->to.z = to.y - 24;
 					break;
 				}
 				case(autoattack):{
@@ -49,7 +47,7 @@ void updateInput(void) {
 					break;
 				}
 				case(centercamera):{
-					engine.camera.target = {engine.current_save->pos.x + 16, engine.current_save->pos.y + 24};
+					engine.camera.target = {engine.current_save->pos.x + 16, engine.current_save->pos.z + 24};
 					break;
 				}
 				default:
@@ -59,9 +57,27 @@ void updateInput(void) {
 	}
 }
 
-void updatePlayer(void) {
-	if (Vector2Distance(engine.current_save->pos, engine.current_save->to) > 0.1) {
-		travelTarget(&engine.current_save->pos, engine.current_save->to, engine.current_save->stats.move_speed, GetFrameTime());
-	}
-}
+int updatePlayer(void) {
+	static player_action_e last_action = player_action_default;
+	int ret = 0;
+	Vector2 from = {engine.current_save->pos.x, engine.current_save->pos.z};
+	Vector2 to = {engine.current_save->to.x, engine.current_save->to.z};
 
+	if (Vector2Distance(from, to) > 0.1) {
+		travelTarget(&from, to, engine.current_save->stats.move_speed, GetFrameTime());
+		engine.current_save->pos.x = from.x;
+		engine.current_save->pos.z = from.y;
+		if (last_action != player_action_moving) {
+			engine.current_save->action = player_action_moving;
+			last_action = engine.current_save->action;
+			ret = 1;
+		}
+	} else {
+		if (last_action != player_action_idle) {
+			engine.current_save->action = player_action_idle;
+			last_action = engine.current_save->action;
+			ret = 1;
+		}
+	}
+	return (ret);
+}

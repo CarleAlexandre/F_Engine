@@ -11,7 +11,7 @@ void freeLevel(t_level *level) {
 
 void drawLevel(t_level &level) {
 	Vector2 beg = GetScreenToWorld2D({0,0}, engine. camera);
-	Vector2 end = GetScreenToWorld2D({(float)engine.width, (float)engine.height}, engine. camera);
+	Vector2 end = GetScreenToWorld2D({(float)GetScreenWidth(), (float)GetScreenHeight()}, engine. camera);
 
 	for (float y = beg.y; y < level.dimension.y && y < end.y; y ++) {
 		for (float z = 0; z < level.dimension.z; z += 32){

@@ -71,6 +71,14 @@ typedef enum {
 }player_status_e;
 
 typedef enum {
+	player_action_default	= -1,
+	player_action_idle		= 0,
+	player_action_moving	= 1,
+	player_action_hurt		= 2,
+	playar_action_interact	= 3,
+} player_action_e;
+
+typedef enum {
 	SOUTH	= 1 << 0,
 	NORTH	= 1 << 1,
 	EAST	= 1 << 2,
@@ -146,13 +154,13 @@ typedef struct s_entity {
 }	t_entity;
 
 typedef struct s_player {
-	Vector2 pos;
-	Vector2 to;
+	Vector3 pos;
+	Vector3 to;
 	char dir;
-	int	status;
+	player_status_e	status;
+	player_action_e action;
 	unsigned int lvl;
 	float xp;
-	char y;
 	std::vector<t_item> inventory;
 	u32 inventory_size;
 	t_stats stats;
@@ -160,6 +168,7 @@ typedef struct s_player {
 	Rectangle frame;
 	std::string name;
 	int skin;
+	int animation_idx;
 } t_player;
 
 
@@ -183,18 +192,19 @@ typedef struct s_token {
 } t_token;
 
 typedef struct s_animation {
-	u32 maxframe;
-	char *texturename;
-	u32 currentframe;
-	u32 frameidx;
-	double frametime;
-	frame_loop_e looptype;
-	double maxtime;
+	u32 max_frame;
+	int texture_idx;
+	u32 current_frame;
+	u32 frame_idx;
+	double frame_time;
+	frame_loop_e loop_type;
+	double max_time;
 	int incr = 1;
+	Vector3 pos;
 } t_animation;
 
 typedef struct s_engine {
-	std::atomic_int height, width, status;
+	std::atomic_int status;
 	Font font;
 	Camera2D camera;
 	RenderTexture fbo;
@@ -204,6 +214,8 @@ typedef struct s_engine {
 	std::vector<t_level> levels;
 	std::unordered_map<std::string, int> texture_dictionnary;
 	t_input	input[MAX_INPUT];
+	std::vector<t_animation> animation_queue;
+	u32 level_idx;
 } t_engine;
 
 void renderMenu(void);
@@ -242,6 +254,14 @@ void drawLevel(t_level &level);
 void loadInput(t_input *inputlist);
 
 void updateInput(void);
-void updatePlayer(void);
+int updatePlayer(void);
+
+int updateAnimation(t_animation *animationframe, const Vector3 *pos);
+void renderAnimationFrame(t_animation &animationframe);
+void renderTextureChunk(const u32 idx, const Texture2D &texture, Vector2 pos);
+const Rectangle getTextureRec(const u32 idx, const Texture2D &texture);
+int addAnimationToQueue(const int texture_idx, std::vector<t_animation> &animation_queue, const Vector3 pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype);
+void deleteAnimationFromQueue(std::vector<t_animation> &animation_queue, u32 idx);
+void updatePlayerAnimation(t_animation *player_animation, const player_action_e player_stats);
 
 #endif

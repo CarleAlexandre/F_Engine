@@ -50,10 +50,9 @@ t_player defaultPlayerInit(const Vector3 spawn) {
 
 	default_player.name = "default";
 	default_player.status = player_status_well;
-	default_player.pos = {spawn.x, spawn.z};
+	default_player.pos = spawn;
 	default_player.xp = 0.0f;
 	default_player.lvl = 1;
-	default_player.y = spawn.y;
 	default_player.dir = NORTH;
 	default_player.hitbox = {default_player.pos.x + 6, default_player.pos.y - 8, 12, 12};
 	default_player.inventory.clear();
@@ -79,10 +78,7 @@ t_player defaultPlayerInit(const Vector3 spawn) {
 int main(void) {
 	//std::thread sync_thread;
 	engine.status = engine_status_menu;
-	engine.height = 480;
-	engine.width = 720;
 	engine.camera.zoom = 2.0f;
-	engine.camera.offset = {(float)(engine.width * 0.5), (float)(engine.height * 0.5)};
 	engine.camera.target = Vector2Zero();
 	//unsigned int max_thread = sync_thread.hardware_concurrency();
 	//if (max_thread%2 == 0) {
@@ -99,15 +95,16 @@ int main(void) {
 	//	std::cout << "Sync Thread Started!" << __LINE__ << std::endl;
 	//#endif
 
-	InitWindow(engine.width, engine.height, "noheaven");
+	InitWindow(720, 480, "noheaven");
 	SetTargetFPS(120);
 
 	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
-	engine.fbo = LoadRenderTexture(engine.width, engine.height);
+	engine.fbo = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 	engine.textures = loadAllTexture(engine.texture_dictionnary);
 	engine.players = loadAllSave();
 	engine.levels = loadAllLevel();
 	loadInput(engine.input);
+	engine.camera.offset = {(float)(GetScreenWidth() * 0.5), (float)(GetScreenHeight() * 0.5)};
 
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
@@ -116,7 +113,11 @@ int main(void) {
 		switch (engine.status.load()) {
 			case (engine_status_solo): {
 				updateInput();
-				updatePlayer();
+				if (updatePlayer()) {
+					updatePlayerAnimation(&engine.animation_queue[engine.current_save->animation_idx], engine.current_save->action);
+				} else {
+					updatePlayerAnimation(&engine.animation_queue[engine.current_save->animation_idx], player_action_default);
+				}
 				renderSolo();
 				break;
 			}
@@ -141,7 +142,7 @@ int main(void) {
 		}
 		BeginDrawing();
 			ClearBackground(BLACK);
-			DrawTextureRec(engine.fbo.texture, {0, 0, (float)engine.width.load(), -(float)engine.height.load()}, {0, 0}, WHITE);
+			DrawTextureRec(engine.fbo.texture, {0, 0, (float)GetScreenWidth(), -(float)GetScreenHeight()}, {0, 0}, WHITE);
 			/*if (enviroenment == Darkness) {	
 				BeginShaderMode(engine.shader);
 					DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);

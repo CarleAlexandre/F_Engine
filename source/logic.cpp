@@ -18,7 +18,7 @@ const float getXpos(const u32 idx, const int width) {
 }
 
 const float getYpos(const u32 idx, const int width) {
-	return ((float)idx / width);
+	return (floor((float)idx / width));
 }
 const u32 getLinearIndex(const float x, const float y, const int width) {
 	return (x + y * width);
@@ -195,6 +195,7 @@ void travelTarget(Vector2 *current, const Vector2 target, const f32 velocity, co
 	return;
 }
 
+
 bool IsInBond(Vector2 pos, Vector2 hi, Vector2 low) {
 	return (!(pos.x < low.x || pos.x > hi.x || pos.y < low.y || pos.y > hi.y));
 }
@@ -202,4 +203,29 @@ bool IsInBond(Vector2 pos, Vector2 hi, Vector2 low) {
 bool IsMouseInBound(Rectangle bound, Vector2 pos, Vector2 mousePos) {
 	return (mousePos.x >= pos.x && mousePos.x <= pos.x + bound.width
 		&& mousePos.y >= pos.y && mousePos.y <= pos.y + bound.height);
+}
+
+int getRenderIdx(const Vector3 pos, const Vector3 level_dim, const Camera2D camera) {
+	static int idx = 0;
+	static int y = 0;
+	static int z = 0;
+
+	int ret = -1;
+
+	for (; y < level_dim.y; y++) {
+		for (; z < level_dim.z; z++) {
+			if (pos.y == y) {
+				if (pos.z == z) {
+					if (IsInBond({pos.x, pos.z}, GetScreenToWorld2D({(float)GetScreenWidth(), (float)GetScreenHeight()}, camera),  GetScreenToWorld2D({0,0}, camera))) {
+						ret = idx;
+						idx++;
+						return (ret);
+					} else {
+						return (ret);
+					}
+				}
+			}
+		}
+	}
+	return (ret);
 }

@@ -95,6 +95,7 @@ void saveUi() {
 						engine.current_save = &engine.players[i];
 						engine.current_save->to = engine.current_save->pos;
 						engine.status.store(engine_status_solo);
+						engine.current_save->animation_idx = addAnimationToQueue(engine.current_save->skin, engine.animation_queue, engine.current_save->pos, 6, 0, frame_loop_enable);
 						stats = 0;
 					}
 				}
@@ -137,6 +138,7 @@ void saveUi() {
 				engine.players.push_back(new_player);
 				engine.current_save = engine.players.data() + ((engine.players.size() - 1) * sizeof(t_player));
 				engine.status.store(engine_status_solo);
+				engine.current_save->animation_idx = addAnimationToQueue(engine.current_save->skin, engine.animation_queue, engine.current_save->pos, 6, 0, frame_loop_enable);
 				stats = 0;
 			}
 			if (GuiButton({40, 360, 100, 50}, "Back")){
@@ -201,12 +203,18 @@ void renderSolo(void) {
 	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
-			//DrawRectangle(engine.current_save->pos.x - 1, engine.current_save->pos.y - 1, 34, 34, RED);
-			DrawTextureRec(engine.textures[engine.current_save->skin], engine.current_save->frame, engine.current_save->pos, WHITE);
+			for (int i = 0; i < engine.animation_queue.size(); i++) {
+				if (updateAnimation(&engine.animation_queue[i], NULL) == -1) {
+					deleteAnimationFromQueue(engine.animation_queue, i);
+				} else {
+					renderAnimationFrame(engine.animation_queue[i]);
+				}
+			}
+			renderAnimationFrame(engine.animation_queue[engine.current_save->animation_idx]);
 			//drawLevel(engine.levels[0]);
 		EndMode2D();
-		//DrawPixel(engine.width * 0.5, engine.height * 0.5, PINK);
-		DrawText(TextFormat("x: %.1f, y:%.1f", engine.current_save->pos.x, engine.current_save->pos.y), 20, 40, 20, GREEN);
+		//DrawPixel(GetScreenWidth() * 0.5, GetScreenHeight() * 0.5, PINK);
+		DrawText(TextFormat("x: %.1f, z:%.1f", engine.current_save->pos.x, engine.current_save->pos.z), 20, 40, 20, GREEN);
 	EndTextureMode();
 }
 

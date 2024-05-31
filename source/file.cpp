@@ -418,7 +418,7 @@ t_player loadPlayerSave(const char *savepath) {
 				break;
 			}
 			case (player_token_status):{
-				ret.status = std::atoi(token[i].value.c_str());
+				ret.status = (player_status_e)std::atoi(token[i].value.c_str());
 				break;
 			}
 			case (player_token_lvl):{
