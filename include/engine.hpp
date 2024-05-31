@@ -91,6 +91,13 @@ typedef enum {
 	centercamera	= 11,
 }player_input_e;
 
+typedef enum {
+	frame_loop_none = 0,
+	frame_loop_enable = 1,
+	frame_loop_reverse = 2,
+	frame_loop_updown = 3,
+} frame_loop_e;
+
 typedef struct s_input {
 	int key;
 	bool ismouse;
@@ -174,6 +181,17 @@ typedef struct s_token {
 	std::string value;
 	uint32_t	identifier;
 } t_token;
+
+typedef struct s_animation {
+	u32 maxframe;
+	char *texturename;
+	u32 currentframe;
+	u32 frameidx;
+	double frametime;
+	frame_loop_e looptype;
+	double maxtime;
+	int incr = 1;
+} t_animation;
 
 typedef struct s_engine {
 	std::atomic_int height, width, status;
