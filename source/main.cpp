@@ -59,7 +59,7 @@ t_player defaultPlayerInit(const Vector3 spawn) {
 	default_player.inventory_size = 36;
 	default_player.frame = (Rectangle){0, 0, 32, 32};
 	default_player.stats = {
-		.move_speed = 20,
+		.move_speed = 10,
 		.crit_chance = 0.0f,
 		.crit_dmg = 1.2f,
 		.raw_dmg = 0.0f,
@@ -148,7 +148,6 @@ int main(void) {
 					DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
 				EndShaderMode();
 			}*/
-			DrawFPS(0, 0);
 		EndDrawing();
 	}
 

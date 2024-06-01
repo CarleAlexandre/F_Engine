@@ -25,7 +25,7 @@ void settingUi() {
 
 	switch (stats) {
 		case (0): {
-			if (GuiButton({40, 90, 100, 50}, "Video")){
+			if (GuiButton({40, 90, 100, 50}, "MAP_BUILDER")){
 				stats = 1;
 			}
 			if (GuiButton({40, 180, 100, 50}, "Sound")){
@@ -38,15 +38,22 @@ void settingUi() {
 				engine.status.store(engine_status_menu);
 				stats = 0;
 			}
+			break;
 		}
 		case (1):{
-
+			if (IsKeyPressed(KEY_ESCAPE)) {
+				stats = 0;
+				engine.status.store(engine_status_menu);
+				ShowCursor();
+			}
+			mapBuilder();
+			break;
 		}
 		case (2):{
-
+			break;
 		}
 		case (3):{
-
+			break;
 		}
 		default: break;
 	}
@@ -215,6 +222,7 @@ void renderSolo(void) {
 		EndMode2D();
 		//DrawPixel(GetScreenWidth() * 0.5, GetScreenHeight() * 0.5, PINK);
 		DrawText(TextFormat("x: %.1f, z:%.1f", engine.current_save->pos.x, engine.current_save->pos.z), 20, 40, 20, GREEN);
+		DrawFPS(0, 0);
 	EndTextureMode();
 }
 

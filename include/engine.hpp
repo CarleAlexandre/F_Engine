@@ -263,5 +263,6 @@ const Rectangle getTextureRec(const u32 idx, const Texture2D &texture);
 int addAnimationToQueue(const int texture_idx, std::vector<t_animation> &animation_queue, const Vector3 pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype);
 void deleteAnimationFromQueue(std::vector<t_animation> &animation_queue, u32 idx);
 void updatePlayerAnimation(t_animation *player_animation, const player_action_e player_stats);
+void mapBuilder(void);
 
 #endif
