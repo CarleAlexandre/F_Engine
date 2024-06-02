@@ -1,14 +1,8 @@
 #include <engine.hpp>
 #include <raygui.h>
+#include <cstring>
 
 extern t_engine engine;
-
-void freeLevel(t_level *level) {
-	MemFree(level->event);
-	MemFree(level->terrain);
-	MemFree(level->wall);
-	level->dimension = {0, 0, 0};
-}
 
 void drawLevel(t_level &level) {
 	Vector2 beg = GetScreenToWorld2D({0,0}, engine. camera);
@@ -17,7 +11,7 @@ void drawLevel(t_level &level) {
 	for (float y = beg.y; y < level.dimension.y && y < end.y; y ++) {
 		for (float z = 0; z < level.dimension.z; z += 32){
 			for (float x = beg.x; x < level.dimension.x && x < end.x; x += 32) {
-				DrawTextureRec(engine.textures[engine.texture_dictionnary["RA_Ground_Tiles"]], {(float)level.terrain[(int)y][getLinearIndex(x, z, level.dimension.x)], }, {x, z}, WHITE);
+				//DrawTextureRec(engine.textures[engine.texture_dictionnary["RA_Ground_Tiles"]], {(float)level.terrain[(int)y][getLinearIndex(x, z, level.dimension.x)], }, {x, z}, WHITE);
 			}
 		}
 	}
@@ -37,15 +31,90 @@ typedef struct s_builder_ctx {
 	char tileset_input[20];
 	Rectangle tile_view;
 	Rectangle layer_view;
-	std::vector<int *> layer;
 	Vector2 draw_scroll;
 	Rectangle draw_view;
 	int selected_layer;
 	int selected_tile;
-	t_level level;
+	bool saved;
+	char *filename;
+	bool show_properties;
+	Rectangle properties_bound;
+	bool file_open;
+	Rectangle file_bound;
 } t_builder_ctx;
 
-void mapBuilder(void) {
+
+void addNewLayer(t_level *level, const Vector3 new_dim) {
+	int *new_terrain;
+
+	new_terrain = (int*)MemAlloc(sizeof(int) * new_dim.x * new_dim.z * new_dim.y);
+	if (!memcpy(new_terrain, level->terrain, (level->dimension.x * level->dimension.z * level->dimension.y)))
+		abort();
+
+	MemFree(level->terrain);
+	level->dimension = new_dim;
+	level->terrain = new_terrain;
+}
+
+void clearLevel(t_level *level) {
+	memset(level->terrain, 0, sizeof(int) * (level->dimension.x * level->dimension.z * level->dimension.y - 1));
+	memset(level->wall, 0, sizeof(int) * (level->dimension.x * level->dimension.z - 1));
+	memset(level->event, 0, sizeof(int) * (level->dimension.x * level->dimension.z - 1));
+}
+
+t_level CreateNewLevel(const Vector3 dim, const char *filename) {
+	t_level new_level;
+
+	new_level.dimension = dim;
+	new_level.wall = (int *)MemAlloc(sizeof(int) * dim.x * dim.z);
+	new_level.event = (int *)MemAlloc(sizeof(int) * dim.x * dim.z);
+	new_level.terrain = (int *)MemAlloc(sizeof(int) * dim.x * dim.z * dim.y);
+	clearLevel(&new_level);
+	new_level.filename = _strdup(filename);
+	return (new_level);
+}
+
+void freeLevel(t_level *level) {
+	clearLevel(level);
+	MemFree(level->filename);
+	MemFree(level->terrain);
+	MemFree(level->event);
+	MemFree(level->wall);
+	level->dimension = {0, 0, 0};
+}
+
+void openFile(t_level *level, const char *filename) {
+	freeLevel(level);
+	*level = loadLevel(filename);
+}
+
+void saveMap(t_level level) {
+	writeToLevel(level);
+}
+
+//not recommandeed as it realloc new memory and can take some time for big map
+void resizeMap(t_level *level, const Vector3 new_dim) {
+	int *new_wall;
+	int *new_event;
+	int *new_terrain;
+
+	new_terrain = (int*)MemAlloc(sizeof(int) * new_dim.x * new_dim.z * new_dim.y);
+	if (!memcpy(new_terrain, level->terrain, (level->dimension.x * level->dimension.z * level->dimension.y - 1) * sizeof(int)))
+		abort();
+	new_event = (int *)MemAlloc(sizeof(int) * new_dim.x * new_dim.z);
+	if (!memcpy(new_event, level->event, (level->dimension.x * level->dimension.z - 1) * sizeof(int)))
+		abort();
+	new_wall = (int *)MemAlloc(sizeof(int) * new_dim.x * new_dim.z);
+	if (!memcpy(new_wall, level->wall, (level->dimension.x * level->dimension.z - 1) * sizeof(int)))
+		abort();
+	freeLevel(level);
+	level->dimension = new_dim;
+	level->terrain = new_terrain;
+	level->wall = new_wall;
+	level->event = new_event;
+}
+
+int mapBuilder(void) {
 	static t_builder_ctx ctx{
 		.tileset_active = false,
 		.tile_bound = { 0, 20, 100, 0},
@@ -53,7 +122,16 @@ void mapBuilder(void) {
 		.tileset_input = "\0",
 		.selected_layer = 0,
 		.selected_tile = -1,
+		.saved = true,
+		.properties_bound = {20, 20, 300, 200},
+		.file_open = false,
+		.file_bound = {20, 20, 300, 200},
 	};
+
+	if (engine.level.filename == 0x00) {
+		engine.level = CreateNewLevel({20, 2, 20}, "new");
+	}
+
 	int width = GetScreenWidth();
 
 	if (!ctx.tile_bound.height) {
@@ -78,27 +156,24 @@ void mapBuilder(void) {
 		//}
 	}
 
-	if (GuiButton({0, ctx.layer_bound.y - 18, (float)(ctx.layer_bound.width * 0.5), 16}, "ADD")) {
-		int *tab = (int *)MemAlloc(sizeof(int) * ctx.level.dimension.x * ctx.level.dimension.z);
-		ctx.layer.push_back({0});
-	}
-	if (!ctx.layer.empty() && GuiButton({(float)(ctx.layer_bound.width * 0.5), ctx.layer_bound.y - 18, (float)(ctx.layer_bound.width * 0.5), 16}, "DEL")) {
-		MemFree(ctx.layer[ctx.layer.size() - 1]);
-		ctx.layer.pop_back();
-	}
-	GuiScrollPanel(ctx.layer_bound, NULL, {ctx.layer_bound.x, ctx.layer_bound.y, ctx.layer_bound.width - 20, (float)(ctx.layer.size() * 20)}, &ctx.layer_scroll, &ctx.layer_view);
-	BeginScissorMode(ctx.layer_view.x, ctx.layer_view.y, ctx.layer_view.width, ctx.layer_view.height);
-		for (int i = 0; i < ctx.layer.size(); i++) {
-			if (GuiButton({1, ctx.layer_bound.y + 20 * i  + ctx.layer_scroll.y, ctx.layer_bound.width - 21, 20}, TextFormat("Layer %i", i))) {
-				ctx.layer[i] = 0;
-			}
-		}
-	EndScissorMode();
+	//if (GuiButton({0, ctx.layer_bound.y - 18, (float)(ctx.layer_bound.width * 0.5), 16}, "ADD")) {
+	//	int *tab = (int *)MemAlloc(sizeof(int) * ctx.level->dimension.x * ctx.level->dimension.z);
+	//}
+	//if (!ctx.layer.empty() && GuiButton({(float)(ctx.layer_bound.width * 0.5), ctx.layer_bound.y - 18, (float)(ctx.layer_bound.width * 0.5), 16}, "DEL")) {
+	//	MemFree(ctx.layer[ctx.layer.size() - 1]);
+	//}
+	//GuiScrollPanel(ctx.layer_bound, NULL, {ctx.layer_bound.x, ctx.layer_bound.y, ctx.layer_bound.width - 20, (float)(ctx.layer.size() * 20)}, &ctx.layer_scroll, &ctx.layer_view);
+	//BeginScissorMode(ctx.layer_view.x, ctx.layer_view.y, ctx.layer_view.width, ctx.layer_view.height);
+	//	for (int i = 0; i < ctx.layer.size(); i++) {
+	//		if (GuiButton({1, ctx.layer_bound.y + 20 * i  + ctx.layer_scroll.y, ctx.layer_bound.width - 21, 20}, TextFormat("Layer %i", i))) {
+	//		}
+	//	}
+	//EndScissorMode();
 
 	//	zone pencil
 	GuiScrollPanel({ctx.tile_bound.width, 20, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, NULL, {0, 0, 0, 0}, &ctx.draw_scroll, &ctx.draw_view);
 	Vector2 mouse_pos = GetMousePosition();
-	if (!ctx.tool_active && IsMouseInBound({0, 0, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, {ctx.tile_bound.width, 20}, mouse_pos)) {
+	if (!ctx.tool_active && !ctx.show_properties && !ctx.file_open && IsMouseInBound({0, 0, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, {ctx.tile_bound.width, 20}, mouse_pos)) {
 		HideCursor();
 		mouse_pos.x += ctx.draw_scroll.x;
 		mouse_pos.y += ctx.draw_scroll.y;
@@ -107,18 +182,19 @@ void mapBuilder(void) {
 				case (0): {
 #ifdef DEBUG
 					std::cout << "BRUSHIIIIIIIIIING !!\n";
+					std::cout << engine.level.wall[(int)floor(mouse_pos.x + mouse_pos.y * engine.level.dimension.x)] << " at: " << mouse_pos.x  << ", " << mouse_pos.y << "\n";
 #endif
 					//at pos on current layer
 					if (ctx.selected_tile != -1) {
-						ctx.layer[ctx.selected_layer][(int)floor(mouse_pos.x + mouse_pos.y * ctx.level.dimension.x)] = ctx.selected_tile;
+//						ctx.layer[ctx.selected_layer][(int)floor(mouse_pos.x + mouse_pos.y * ctx.level->dimension.x)] = ctx.selected_tile;
 					}
 					break;
 				}
 				case (1): {
 #ifdef DEBUG
 					std::cout << "ERAAASINNNNNNNNG !!\n";
+					std::cout << engine.level.event[(int)floor(mouse_pos.x + mouse_pos.y * engine.level.dimension.x)] << " at: " << mouse_pos.x  << ", " << mouse_pos.y << "\n";
 #endif
-					ctx.layer[ctx.selected_layer][(int)floor(mouse_pos.x + mouse_pos.y * ctx.level.dimension.x)] = -1;
 					//erase at pos on current layer
 					break;
 				}
@@ -127,9 +203,11 @@ void mapBuilder(void) {
 					std::cout << "FEELIIING !!\n";
 #endif
 					if (ctx.selected_tile != -1) {
-						for (int y = 0; y < ctx.level.dimension.y; y++){
-							for (int x = 0; x < ctx.level.dimension.x; x++){
-								ctx.layer[ctx.selected_layer][x + y * (int)ctx.level.dimension.x] = ctx.selected_tile;
+						for (int y = 0; y < engine.level.dimension.y; y++){
+							for (int x = 0; x < engine.level.dimension.x; x++){
+#ifdef DEBUG
+								std::cout << engine.level.terrain[x + y * (int)engine.level.dimension.x] << "\n";
+#endif
 							}
 						}
 					}
@@ -149,29 +227,39 @@ void mapBuilder(void) {
 	//GuiTabBar(Rectangle bounds, const char **text, int count, int *active);
 	if (GuiDropdownBox({0, 0, 100, 20}, "FILE;SAVE;NEW;OPEN;CLOSE", &ctx.file_action, ctx.file_active))
 		ctx.file_active = !ctx.file_active;
-	if (!ctx.file_active) {
-		ctx.file_action = 0;
-	} else  {
-		switch (ctx.file_action) {
-			case (1): {
-				break;
-			}
-			case (2): {
-				break;
-			}
-			case (3): {
-				break;
-			}
-			case(4): {
-				break;
-			}
-			default:break;
+	switch (ctx.file_action) {
+		case (1): {
+			//save map to file
+			writeToLevel(engine.level);
+			ctx.saved = true;
+			ctx.file_action = 0;
+			break;
+		}
+		case (2): {
+			//show properties of map
+			ctx.show_properties = true;
+			ctx.file_action = 0;
+			break;
+		}
+		case (3): {
+			ctx.file_open = true;
+			ctx.file_action = 0;
+			break;
+		}
+		case(4): {
+			freeLevel(&engine.level);
+			ctx.file_action = 0;
+			return (1);
+			break;
+		}
+		default: {
+			ctx.file_action = 0;
+			break;
 		}
 	}
 
-	MouseCursor mscurs;
 	if (GuiButton({100, 0, 100, 20}, "SETTING")) {
-
+		ctx.show_properties = true;
 	}
 	if (GuiDropdownBox({200, 0, 100, 20}, "BRUSH;ERASER;FILL", &ctx.tool_action, ctx.tool_active))
 		ctx.tool_active = !ctx.tool_active;
@@ -179,19 +267,92 @@ void mapBuilder(void) {
 		switch (ctx.tool_action) {
 			case (0): {
 				DrawTextureRec(engine.textures[engine.texture_dictionnary["BRUSH"]], {0, 0, 32, 32}, {mouse_pos.x, mouse_pos.y}, WHITE);
+				ctx.saved = false;
 				break;
 			}
 			case (1): {
 				DrawTextureRec(engine.textures[engine.texture_dictionnary["ERASE"]], {0, 0, 32, 32}, {mouse_pos.x, mouse_pos.y}, WHITE);
+				ctx.saved = false;
 				break;
 			}
 			case (2): {
 				DrawTextureRec(engine.textures[engine.texture_dictionnary["FILL"]], {0, 0, 32, 32}, {mouse_pos.x, mouse_pos.y}, WHITE);
+				ctx.saved = false;
 				break;
 			}
 			default:break;
 		}
 	}
+
+	static Vector2 old;
+	static bool move_window = false;
+
+	if (ctx.show_properties) {
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && IsMouseInBound(ctx.properties_bound, {ctx.properties_bound.x, ctx.properties_bound.y} , mouse_pos)) {
+			move_window = true;
+			old = mouse_pos;
+		}
+		if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && move_window) {
+			move_window = false;
+		}
+		if (move_window) {
+			if (Vector2Distance(mouse_pos, old)) {
+				ctx.properties_bound.x += mouse_pos.x - old.x;
+				ctx.properties_bound.y += mouse_pos.y - old.y;
+				old = mouse_pos;
+			}
+		}
+		if (GuiWindowBox(ctx.properties_bound, "Level Properties")) {
+			ctx.show_properties = false;
+			ctx.properties_bound = {20, 20, 300, 200};
+		}
+		//height, width, number of layer/depth
+		//Name
+		//tileset of map 
+		//
+		if (GuiButton({ctx.properties_bound.x + 220, ctx.properties_bound.y + 150, 30, 20}, "YAY!")) {
+
+		}
+		if (GuiButton({ctx.properties_bound.x + 260, ctx.properties_bound.y + 150, 30, 20}, "#152#")) {
+			ctx.show_properties = false;
+			ctx.properties_bound = {20, 20, 300, 200};
+		}
+	}
+
+	if (ctx.file_open) {
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && IsMouseInBound(ctx.file_bound, {ctx.file_bound.x, ctx.file_bound.y} , mouse_pos)) {
+			move_window = true;
+			old = mouse_pos;
+		}
+		if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && move_window) {
+			move_window = false;
+		}
+		if (move_window) {
+			if (Vector2Distance(mouse_pos, old)) {
+				ctx.file_bound.x += mouse_pos.x - old.x;
+				ctx.file_bound.y += mouse_pos.y - old.y;
+				old = mouse_pos;
+			}
+		}
+		if (GuiWindowBox(ctx.file_bound, "LoadLevel")) {
+			ctx.file_open = false;
+			ctx.file_bound = {20, 20, 300, 200};
+		}
+		//height, width, number of layer/depth
+		//Name
+		//tileset of map 
+		//
+		if (GuiButton({ctx.file_bound.x + 220, ctx.file_bound.y + 150, 30, 20}, "YAY!")) {
+			ctx.file_open = false;
+			openFile(&engine.level, "test");
+		}
+		if (GuiButton({ctx.file_bound.x + 260, ctx.file_bound.y + 150, 30, 20}, "#152#")) {
+			ctx.file_open = false;
+			ctx.file_bound = {20, 20, 300, 200};
+		}
+	}
+
 	//GuiDropdownBox(Rectangle bounds, const char *text, int *active, bool editMode);
 	//GuiDropdownBox(Rectangle bounds, const char *text, int *active, bool editMode);
+	return (0);
 }

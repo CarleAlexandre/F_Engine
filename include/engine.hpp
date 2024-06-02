@@ -173,10 +173,11 @@ typedef struct s_player {
 
 
 typedef struct s_level {
-	int **terrain;
+	int *terrain;
 	int *wall;
 	int *event;
 	Vector3 dimension;
+	char *filename;
 } t_level;
 
 typedef struct s_thread_handle {
@@ -216,6 +217,7 @@ typedef struct s_engine {
 	t_input	input[MAX_INPUT];
 	std::vector<t_animation> animation_queue;
 	u32 level_idx;
+	t_level level;
 } t_engine;
 
 void renderMenu(void);
@@ -263,6 +265,8 @@ const Rectangle getTextureRec(const u32 idx, const Texture2D &texture);
 int addAnimationToQueue(const int texture_idx, std::vector<t_animation> &animation_queue, const Vector3 pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype);
 void deleteAnimationFromQueue(std::vector<t_animation> &animation_queue, u32 idx);
 void updatePlayerAnimation(t_animation *player_animation, const player_action_e player_stats);
-void mapBuilder(void);
+int mapBuilder(void);
+t_level loadLevel(const char *level_name);
+void writeToLevel(t_level level);
 
 #endif

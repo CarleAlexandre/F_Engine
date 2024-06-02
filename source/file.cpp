@@ -259,12 +259,44 @@ void clearToken(std::vector<t_token> &token_list) {
 	token_list.clear();
 }
 
+void writeToLevel(t_level level) {
+	std::fstream output;
+
+	output.open(TextFormat("level/%s.map", level.filename), std::ios_base::out | std::ios_base::trunc);
+
+	std::stringstream terrain;
+	std::stringstream wall;
+	std::stringstream event;
+	std::stringstream dim;
+	dim << "width:"<< level.dimension.x << ",\nheight:"<< level.dimension.y << ",\ndepth:" << level.dimension.z << ",\n";
+	terrain << "terrain:{\n";
+	for (int k = 0; k < level.dimension.y;) {
+		for (int i = 0; i < level.dimension.x * level.dimension.z; i++) {
+			terrain << level.terrain[(int)(k + i * level.dimension.y)] << ",";
+		}
+		k++;
+		if (k < level.dimension.y)
+			terrain << "\n;\n";
+	}
+	terrain << "\n},\n";
+	wall << "wall:{\n";
+	event << "event:{\n";
+	for (int i = 0; i < level.dimension.x * level.dimension.z; i++) {
+		wall << level.wall[i] << ", ";
+		event << level.event[i] << ", ";
+	}
+	wall << "\n},\n";
+	event << "\n},\n";
+	output << dim.rdbuf() << wall.rdbuf() << event.rdbuf() << terrain.rdbuf();
+}
+
 t_level loadLevel(const char *level_name) {
 	t_level level = {};
 	bool alloc = false;
 # ifdef DEBUG
 	int step = 0;
 # endif
+	level.filename = _strdup(level_name);
 	char *level_data = readFile(TextFormat("level/%s.map", level_name));
 
 	std::vector<t_token> token = tokenizer(level_data, ",\n", 2, level_dictionnary);
@@ -295,16 +327,16 @@ t_level loadLevel(const char *level_name) {
 					if (!layer_tmp){break;}
 					std::cout << layer_tmp << "\n";
 					for (int k = 0; k < level.dimension.x * level.dimension.z; k++) {
-						const char *tmp = stringSpliter(token[i].value.c_str(), ", \n", layer_tmp - token[i].value.c_str(), 4);
+						const char *tmp = stringSpliter(token[i].value.c_str(), ", ", layer_tmp - token[i].value.c_str(), 2);
 						if (!tmp){break;}
-						level.terrain[layer][k] = atoi(tmp);
+						level.terrain[layer + (int)(k * level.dimension.y)] = atoi(tmp);
 					}
 				}
 				break;
 			}
 			case(level_token_wall):{
 				for (int k = 0; k < level.dimension.x * level.dimension.y; k++) {
-					const char *tmp = stringSpliter(token[i].value.c_str(), ", \n", token[i].value.size(), 3);
+					const char *tmp = stringSpliter(token[i].value.c_str(), ", ", token[i].value.size(), 2);
 					if (!tmp){break;}
 					level.wall[k] = atoi(tmp);
 				}
@@ -312,7 +344,7 @@ t_level loadLevel(const char *level_name) {
 			}
 			case(level_token_event):{
 				for (int k = 0; k < level.dimension.x * level.dimension.y; k++) {
-					const char *tmp = stringSpliter(token[i].value.c_str(), ", \n", token[i].value.size(), 3);
+					const char *tmp = stringSpliter(token[i].value.c_str(), ", ", token[i].value.size(), 2);
 					if (!tmp){break;}
 					level.event[k] = atoi(tmp);
 				}
@@ -322,11 +354,11 @@ t_level loadLevel(const char *level_name) {
 		};
 		if (level.dimension.x && level.dimension.z && level.dimension.y && !alloc) {
 			int size = level.dimension.x * level.dimension.z;
-			level.terrain = (int **)MemAlloc(size * level.dimension.y * sizeof(int));
+			level.terrain = (int *)MemAlloc(size * level.dimension.y * sizeof(int));
 			level.event = (int *)MemAlloc(size * sizeof(int));
 			level.wall = (int *)MemAlloc(size * sizeof(int));
 # ifdef DEBUG
-			std::cout << "alloc chunk size level: " << level_name << "size: " << size * 3 << "\n";
+			std::cout << "alloc chunk size level: " << level_name << "size: " << size * 3 + size * level.dimension.y << "\n";
 # endif
 			alloc = true;
 		}
@@ -335,13 +367,13 @@ t_level loadLevel(const char *level_name) {
 # endif
 	}
 	if (level.dimension.x == 0) {
-#ifdef DEBUG
-		std::cout << "couldn't load level, token error : " << __LINE__ << ", step : " << step << "\n";
-#endif
 		clearToken(token);
 		MemFree(level_data);
 		abort();
 	}
+#ifdef DEBUG
+		std::cout << "couldn't load level, token error : " << __LINE__ << ", step : " << step << "\n";
+#endif
 	clearToken(token);
 	MemFree(level_data);
 	return (level);

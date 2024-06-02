@@ -41,12 +41,10 @@ void settingUi() {
 			break;
 		}
 		case (1):{
-			if (IsKeyPressed(KEY_ESCAPE)) {
+			if (mapBuilder()) {
 				stats = 0;
-				engine.status.store(engine_status_menu);
 				ShowCursor();
 			}
-			mapBuilder();
 			break;
 		}
 		case (2):{
