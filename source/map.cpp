@@ -24,6 +24,7 @@ typedef enum {
 	error_file_exist = 3,
 	error_file_corrupted = 4,
 	error_tileset_not_found = 5,
+	error_bad_dimension = 6,
 } map_error_e;
 
 typedef struct s_builder_ctx {
@@ -409,10 +410,14 @@ int mapBuilder(void) {
 		GuiTextBox({ctx.file_bound.x + 90, ctx.file_bound.y + 90, 50, 16}, ctx.dim_z, 3, dimz);
 		GuiTextBox({ctx.file_bound.x + 150, ctx.file_bound.y + 90, 30, 16}, ctx.dim_y, 2, dimy);
 		if (GuiButton({ctx.file_bound.x + 200, ctx.file_bound.y + 140, 60, 20}, "Create")) {
+			Vector3 dim = {(float)atoi(ctx.dim_x), (float)atoi(ctx.dim_y), (float)atoi(ctx.dim_z)};
 			if (FileExists(TextFormat("level/%s.map", ctx.filename))) {
 				ctx.error = error_file_exist;
+			} else if (!dim.x || !dim.y || !dim.z){
+				ctx.error = error_bad_dimension;
+			} else if (!strnlen(ctx.filename, 19)) {
+				ctx.error = error_file_empty;
 			} else {
-				Vector3 dim = {(float)atoi(ctx.dim_x), (float)atoi(ctx.dim_y), (float)atoi(ctx.dim_z)};
 				engine.level = CreateNewLevel(dim, ctx.filename);
 				ctx.new_file = false;
 			}
@@ -431,19 +436,25 @@ int mapBuilder(void) {
 		}
 	}
 	if (ctx.error == error_file_empty) {
-		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this file doesn't exist!!", "OK");
+		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "Name Empty!!", "OK");
 		if (result == 1) {
 			ctx.error = error_dummy;
 		}
 	}
 	if (ctx.error == error_file_corrupted) {
-		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this file doesn't exist!!", "OK");
+		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this file is corrupted!!", "OK");
 		if (result == 1) {
 			ctx.error = error_dummy;
 		}
 	}
 	if (ctx.error == error_file_exist) {
 		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this filename already exist!!", "OK");
+		if (result == 1) {
+			ctx.error = error_dummy;
+		}
+	}
+	if (ctx.error == error_bad_dimension) {
+		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "Level Dimension are not possible!!", "OK");
 		if (result == 1) {
 			ctx.error = error_dummy;
 		}
