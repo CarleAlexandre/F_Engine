@@ -6,7 +6,7 @@ BUILDDIR	=	build/
 
 CC			=	gcc
 
-CFLAGS		=	-g -DDEBUG#fsanitize=address #
+CFLAGS		=	-g -DDEBUG 
 
 OBJ			=	$(SRC:%.cpp=%.o)
 
@@ -22,7 +22,8 @@ LIBS		=	-lopengl32 -lgdi32 -lwinmm -lstdc++ -latomic
 RAYLIB		=	libs/win_libraylib.a
 endif
 ifeq ($(shell uname -s), Linux)
-LIBS		=	-lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lstdc++
+CFLAGS		+=	-fsanitize=address
+LIBS		=	-lasan -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lstdc++
 endif
 ifeq ($(shell uname -s), Darwin)
 LIBS        =   -framework CoreVideo -framework IOKit -framework Coc
