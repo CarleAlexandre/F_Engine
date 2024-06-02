@@ -296,7 +296,11 @@ t_level loadLevel(const char *level_name) {
 # ifdef DEBUG
 	int step = 0;
 # endif
+	#ifdef __linux__
+	level.filename = strdup(level_name);
+	#else
 	level.filename = _strdup(level_name);
+	#endif
 	char *level_data = readFile(TextFormat("level/%s.map", level_name));
 
 	std::vector<t_token> token = tokenizer(level_data, ",\n", 2, level_dictionnary);

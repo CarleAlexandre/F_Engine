@@ -84,7 +84,11 @@ t_level CreateNewLevel(const Vector3 dim, const char *filename) {
 	new_level.event = (int *)MemAlloc(sizeof(int) * dim.x * dim.z);
 	new_level.terrain = (int *)MemAlloc(sizeof(int) * dim.x * dim.z * dim.y);
 	clearLevel(&new_level);
+	#ifdef __linux__
+	new_level.filename = strdup(filename);
+	#else
 	new_level.filename = _strdup(filename);
+	#endif
 	return (new_level);
 }
 
