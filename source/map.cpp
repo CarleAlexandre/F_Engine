@@ -17,6 +17,15 @@ void drawLevel(t_level &level) {
 	}
 }
 
+typedef enum {
+	error_dummy = 0,
+	error_file_not_found = 1,
+	error_file_empty = 2,
+	error_file_exist = 3,
+	error_file_corrupted = 4,
+	error_tileset_not_found = 5,
+} map_error_e;
+
 typedef struct s_builder_ctx {
 	bool file_active;
 	int file_action;
@@ -36,11 +45,16 @@ typedef struct s_builder_ctx {
 	int selected_layer;
 	int selected_tile;
 	bool saved;
-	char *filename;
+	char filename[20];
 	bool show_properties;
 	Rectangle properties_bound;
 	bool file_open;
 	Rectangle file_bound;
+	map_error_e error;
+	bool new_file;
+	char dim_x[4];
+	char dim_z[4];
+	char dim_y[3];
 } t_builder_ctx;
 
 
@@ -123,14 +137,15 @@ int mapBuilder(void) {
 		.selected_layer = 0,
 		.selected_tile = -1,
 		.saved = true,
+		.filename = "\0",
 		.properties_bound = {20, 20, 300, 200},
 		.file_open = false,
 		.file_bound = {20, 20, 300, 200},
+		.new_file = true,
+		.dim_x = "\0",
+		.dim_z = "\0",
+		.dim_y = "\0",
 	};
-
-	if (engine.level.filename == 0x00) {
-		engine.level = CreateNewLevel({20, 2, 20}, "new");
-	}
 
 	int width = GetScreenWidth();
 
@@ -173,7 +188,9 @@ int mapBuilder(void) {
 	//	zone pencil
 	GuiScrollPanel({ctx.tile_bound.width, 20, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, NULL, {0, 0, 0, 0}, &ctx.draw_scroll, &ctx.draw_view);
 	Vector2 mouse_pos = GetMousePosition();
-	if (!ctx.tool_active && !ctx.show_properties && !ctx.file_open && IsMouseInBound({0, 0, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, {ctx.tile_bound.width, 20}, mouse_pos)) {
+	if (!ctx.new_file && !ctx.error && !ctx.tool_active && !ctx.show_properties && !ctx.file_open && \
+		IsMouseInBound({0, 0, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, \
+			{ctx.tile_bound.width, 20}, mouse_pos)) {
 		HideCursor();
 		mouse_pos.x += ctx.draw_scroll.x;
 		mouse_pos.y += ctx.draw_scroll.y;
@@ -237,7 +254,8 @@ int mapBuilder(void) {
 		}
 		case (2): {
 			//show properties of map
-			ctx.show_properties = true;
+			ctx.new_file = true;
+			//ctx.show_properties = true;
 			ctx.file_action = 0;
 			break;
 		}
@@ -319,7 +337,7 @@ int mapBuilder(void) {
 		}
 	}
 
-	if (ctx.file_open) {
+	if (ctx.file_open && !ctx.new_file) {
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && IsMouseInBound(ctx.file_bound, {ctx.file_bound.x, ctx.file_bound.y} , mouse_pos)) {
 			move_window = true;
 			old = mouse_pos;
@@ -338,20 +356,94 @@ int mapBuilder(void) {
 			ctx.file_open = false;
 			ctx.file_bound = {20, 20, 300, 200};
 		}
-		//height, width, number of layer/depth
-		//Name
-		//tileset of map 
-		//
-		if (GuiButton({ctx.file_bound.x + 220, ctx.file_bound.y + 150, 30, 20}, "YAY!")) {
-			ctx.file_open = false;
-			openFile(&engine.level, "test");
+		//interface
+		GuiTextBox({ctx.file_bound.x + 30, ctx.file_bound.y + 70, 200, 24}, ctx.filename, 20, true);
+		if (GuiButton({ctx.file_bound.x + 220, ctx.file_bound.y + 140, 30, 20}, "Open")) {
+			if (FileExists(TextFormat("level/%s.map", ctx.filename))) {
+				ctx.file_open = false;
+				openFile(&engine.level, ctx.filename);
+			} else {
+				ctx.error = error_file_not_found;
+			}
 		}
-		if (GuiButton({ctx.file_bound.x + 260, ctx.file_bound.y + 150, 30, 20}, "#152#")) {
+		if (GuiButton({ctx.file_bound.x + 260, ctx.file_bound.y + 140, 30, 20}, "cancel")) {
 			ctx.file_open = false;
 			ctx.file_bound = {20, 20, 300, 200};
 		}
 	}
 
+	if (ctx.new_file && !ctx.file_open) {
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && IsMouseInBound(ctx.file_bound, {ctx.file_bound.x, ctx.file_bound.y} , mouse_pos)) {
+			move_window = true;
+			old = mouse_pos;
+		}
+		if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && move_window) {
+			move_window = false;
+		}
+		if (move_window) {
+			if (Vector2Distance(mouse_pos, old)) {
+				ctx.file_bound.x += mouse_pos.x - old.x;
+				ctx.file_bound.y += mouse_pos.y - old.y;
+				old = mouse_pos;
+			}
+		}
+		if (GuiWindowBox(ctx.file_bound, "New Level")) {
+			ctx.new_file = false;
+			ctx.file_bound = {20, 20, 300, 200};
+		}
+		bool name = false, dimx = false, dimz = false, dimy = false;
+		if (IsMouseInBound({0, 0, 200, 16}, {ctx.file_bound.x + 30, ctx.file_bound.y + 70}, mouse_pos))
+			name = true;
+		if (IsMouseInBound({0, 0, 50, 16}, {ctx.file_bound.x + 30, ctx.file_bound.y + 90}, mouse_pos))
+			dimx = true;
+		if (IsMouseInBound({0, 0, 50, 16}, {ctx.file_bound.x + 90, ctx.file_bound.y + 90}, mouse_pos))
+			dimz = true;
+		if (IsMouseInBound({0, 0, 50, 16}, {ctx.file_bound.x + 150, ctx.file_bound.y + 90}, mouse_pos))
+			dimy = true;
+		GuiTextBox({ctx.file_bound.x + 30, ctx.file_bound.y + 70, 200, 16}, ctx.filename, 19, name);
+		GuiTextBox({ctx.file_bound.x + 30, ctx.file_bound.y + 90, 50, 16}, ctx.dim_x, 3, dimx);
+		GuiTextBox({ctx.file_bound.x + 90, ctx.file_bound.y + 90, 50, 16}, ctx.dim_z, 3, dimz);
+		GuiTextBox({ctx.file_bound.x + 150, ctx.file_bound.y + 90, 30, 16}, ctx.dim_y, 2, dimy);
+		if (GuiButton({ctx.file_bound.x + 200, ctx.file_bound.y + 140, 60, 20}, "Create")) {
+			if (FileExists(TextFormat("level/%s.map", ctx.filename))) {
+				ctx.error = error_file_exist;
+			} else {
+				Vector3 dim = {(float)atoi(ctx.dim_x), (float)atoi(ctx.dim_y), (float)atoi(ctx.dim_z)};
+				engine.level = CreateNewLevel(dim, ctx.filename);
+				ctx.new_file = false;
+			}
+		}
+	}
+
+	if (ctx.new_file && ctx.file_open) {
+		ctx.new_file = false;
+		ctx.file_open = false;
+	}
+
+	if (ctx.error == error_file_not_found) {
+		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this file doesn't exist!!", "OK");
+		if (result == 1) {
+			ctx.error = error_dummy;
+		}
+	}
+	if (ctx.error == error_file_empty) {
+		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this file doesn't exist!!", "OK");
+		if (result == 1) {
+			ctx.error = error_dummy;
+		}
+	}
+	if (ctx.error == error_file_corrupted) {
+		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this file doesn't exist!!", "OK");
+		if (result == 1) {
+			ctx.error = error_dummy;
+		}
+	}
+	if (ctx.error == error_file_exist) {
+		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this filename already exist!!", "OK");
+		if (result == 1) {
+			ctx.error = error_dummy;
+		}
+	}
 	//GuiDropdownBox(Rectangle bounds, const char *text, int *active, bool editMode);
 	//GuiDropdownBox(Rectangle bounds, const char *text, int *active, bool editMode);
 	return (0);

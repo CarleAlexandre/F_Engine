@@ -4,9 +4,9 @@ SERVER_NAME	=	server
 
 BUILDDIR	=	build/
 
-CC			=	g++
+CC			=	gcc
 
-CFLAGS		=	-std=c++20 -g -DDEBUG
+CFLAGS		=	-g -DDEBUG#fsanitize=address #
 
 OBJ			=	$(SRC:%.cpp=%.o)
 

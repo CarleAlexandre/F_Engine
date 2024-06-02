@@ -4,9 +4,11 @@
 *.png
 *.txt
 *.exe
+*.d
 
 build/*
 .cache/*
+.vs
 
 assets/*
 save/*
