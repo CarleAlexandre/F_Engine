@@ -55,7 +55,6 @@ typedef struct s_builder_ctx {
 	char dim_x[4];
 	char dim_z[4];
 	char dim_y[3];
-	RenderTexture2D draw_buffer;
 	bool draw_ready;
 	float zoom;
 	bool tileset_ok;
@@ -141,8 +140,8 @@ void resizeMap(t_level *level, const Vector3 new_dim) {
 int mapBuilder(void) {
 	static t_builder_ctx ctx{
 		.tileset = "\0",
-		.tile_bound = { 0, 20, 100, 0},
-		.layer_bound = { 0, 0, 100, 0},
+		.tile_bound = { 0, 20, 200, 0},
+		.layer_bound = { 0, 0, 200, 0},
 		.tileset_input = "\0",
 		.selected_layer = 0,
 		.selected_tile = 1,
@@ -161,6 +160,8 @@ int mapBuilder(void) {
 
 	Texture2D current_tileset;
 
+	Vector2 mouse_pos = GetMousePosition();
+
 	int width = GetScreenWidth();
 	if (!ctx.new_file) {
 		ctx.tileset_ok = engine.texture_dictionnary.contains(engine.level.tileset);
@@ -178,10 +179,13 @@ int mapBuilder(void) {
 	ctx.layer_bound.height = width - ctx.tile_bound.height - 20;
 
 	if (!ctx.file_active) {
-		GuiScrollPanel(ctx.tile_bound, NULL, {0, 0, (float)current_tileset.width, (float)current_tileset.height}, &ctx.tileset_scroll, &ctx.tile_view);//tileset
+		GuiScrollPanel(ctx.tile_bound, NULL, {0, 0, (float)current_tileset.width + 32, (float)current_tileset.height + 32}, &ctx.tileset_scroll, &ctx.tile_view);//tileset
 		if (ctx.tileset_ok) {
 			BeginScissorMode(ctx.tile_view.x, ctx.tile_view.y, ctx.tile_view.width, ctx.tile_view.height);
-				DrawTextureRec(current_tileset, {0, 0, (float)current_tileset.width, (float)current_tileset.height}, {ctx.tileset_scroll.x, ctx.tileset_scroll.y}, WHITE);//DrawTileset
+				DrawTextureRec(current_tileset, {0, 0, (float)current_tileset.width, (float)current_tileset.height}, {ctx.tileset_scroll.x + 16, ctx.tileset_scroll.y + 16}, WHITE);//DrawTileset
+				Vector2 tmp = getBlockPos(mouse_pos);
+				DrawRectangle(tmp.x + 16, tmp.y - 16, 32, 32, ColorAlpha(GRAY, 0.2));
+				DrawRectangleLines(tmp.x + 16, tmp.y - 16, 32, 32, WHITE);
 			EndScissorMode();
 		}
 		//if (GuiTextBox({}, ctx.tileset_input, 20, true)) {
@@ -189,6 +193,7 @@ int mapBuilder(void) {
 		//	ctx.tileset_active = true;
 		//}
 	}
+
 
 	//if (GuiButton({0, ctx.layer_bound.y - 18, (float)(ctx.layer_bound.width * 0.5), 16}, "ADD")) {
 	//	int *tab = (int *)MemAlloc(sizeof(int) * ctx.level->dimension.x * ctx.level->dimension.z);
@@ -208,24 +213,7 @@ int mapBuilder(void) {
 
 
 	//	zone pencil
-	GuiScrollPanel({ctx.tile_bound.width, 20, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, NULL, {0, 0, engine.level.dimension.x * 32, engine.level.dimension.z * 32}, &ctx.draw_scroll, &ctx.draw_view);
-
-	if (ctx.draw_ready && !ctx.new_file && ctx.tileset_ok) {
-		BeginTextureMode(ctx.draw_buffer);
-			for (int i = 0; i < engine.level.dimension.x * engine.level.dimension.z; i ++) {
-				Vector2 tmp = getVector2Pos(i, engine.level.dimension.x);
-				DrawTextureRec(current_tileset, getTextureRec(engine.level.terrain[i], current_tileset), {tmp.x * 32, tmp.y * 32}, WHITE);
-			}
-		EndTextureMode();
-	}
-	if (ctx.draw_ready) {
-		BeginScissorMode(ctx.draw_view.x, ctx.draw_view.y, ctx.draw_view.width, ctx.draw_view.height);
-			//DrawTextureEx(ctx.draw_buffer.texture, {ctx.draw_scroll.x + ctx.tile_bound.width, ctx.draw_scroll.y + 20}, 0, ctx.zoom, WHITE);
-			//DrawTexturePro(ctx.draw_buffer.texture, {0, 0, (float)ctx.draw_buffer.texture.width, (float)ctx.draw_buffer.texture.height}, {0, 0, (float)ctx.draw_buffer.texture.width, -(float)ctx.draw_buffer.texture.height}, {ctx.draw_scroll.x + ctx.tile_bound.width, ctx.draw_scroll.y + 20}, 0, WHITE);
-			DrawTextureRec(ctx.draw_buffer.texture, {0, 0, (float)ctx.draw_buffer.texture.width, -(float)ctx.draw_buffer.texture.height}, {ctx.draw_scroll.x + ctx.tile_bound.width, ctx.draw_scroll.y + 20}, WHITE);
-		EndScissorMode();
-	}
-	Vector2 mouse_pos = GetMousePosition();
+	//mouse_pos = GetMousePosition();
 	if (!ctx.new_file && !ctx.error && !ctx.tool_active && !ctx.show_properties && !ctx.file_open && \
 		IsMouseInBound({0, 0, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, \
 			{ctx.tile_bound.width, 20}, mouse_pos)) {
@@ -244,7 +232,7 @@ int mapBuilder(void) {
 						std::cout << "BRUSHIIIIIIIIIING !!\n";
 						std::cout << engine.level.terrain[linearIndexFromCoordinate({mouse_pos.x, mouse_pos.y, (float)ctx.selected_layer}, engine.level.dimension.z, engine.level.dimension.y)] << " at: " << mouse_pos.x  << ", " << mouse_pos.y << "\n";
 #endif
-						engine.level.terrain[linearIndexFromCoordinate({mouse_pos.x, mouse_pos.y, (float)ctx.selected_layer}, engine.level.dimension.z, engine.level.dimension.y)] = 2;
+						engine.level.terrain[linearIndexFromCoordinate({mouse_pos.x, mouse_pos.y, (float)ctx.selected_layer}, engine.level.dimension.z, engine.level.dimension.y)] = ctx.selected_tile;
 					}
 					//}
 					break;
@@ -278,6 +266,30 @@ int mapBuilder(void) {
 		}
 	} else if (IsCursorHidden()) {
 		ShowCursor();
+	}
+	GuiScrollPanel({ctx.tile_bound.width, 20, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, NULL, {0, 0, (engine.level.dimension.x + 2) * 32, (engine.level.dimension.z + 2) * 32}, &ctx.draw_scroll, &ctx.draw_view);
+
+	if (ctx.draw_ready && !ctx.new_file && ctx.tileset_ok) {
+		BeginScissorMode(ctx.draw_view.x, ctx.draw_view.y, ctx.draw_view.width, ctx.draw_view.height);
+			Vector2 end = {ctx.draw_view.width, ctx.draw_view.height};
+			//DrawTexture(current_tileset, 100, 30, WHITE);
+			for (int y = 0; y <= engine.level.dimension.z; y ++){
+				for (int x = 0; x <= engine.level.dimension.x; x ++){
+					//DrawPixel(x, y, RED);
+					if (y != engine.level.dimension.z) {
+						if (x != engine.level.dimension.x) {
+							DrawTextureRec(current_tileset, {2 * 32,  2 * 32, 32, 32}, {ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y}, WHITE);
+						}
+						DrawLine(ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + (y + 1) * 32 + ctx.draw_scroll.y, WHITE);
+					}
+					DrawLine(ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, ctx.draw_view.x + 32 + (x + 1) * 32 + ctx.draw_scroll.x *32, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, WHITE);
+//#ifdef DEBUG
+//					std::cout << "x: " << x << ", y: " << y << "\n";
+//#endif
+				}
+			}
+			DrawGrid((engine.level.dimension.x > engine.level.dimension.z) ? engine.level.dimension.x : engine.level.dimension.z , 32);
+		EndScissorMode();
 	}
 
 	mouse_pos = GetMousePosition();
@@ -404,7 +416,6 @@ int mapBuilder(void) {
 			if (FileExists(TextFormat("level/%s.map", ctx.filename))) {
 				ctx.file_open = false;
 				openFile(&engine.level, ctx.filename);
-				ctx.draw_buffer = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 				ctx.draw_ready = true;
 			} else {
 				ctx.error = error_file_not_found;
@@ -462,7 +473,6 @@ int mapBuilder(void) {
 			} else {
 				engine.level = CreateNewLevel(dim, ctx.filename, ctx.tileset);
 				ctx.new_file = false;
-				ctx.draw_buffer = LoadRenderTexture(engine.level.dimension.x * 32, engine.level.dimension.y * 32);
 				ctx.draw_ready = true;
 			}
 		}
@@ -473,41 +483,50 @@ int mapBuilder(void) {
 		ctx.file_open = false;
 	}
 
-	if (ctx.error == error_file_not_found) {
-		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this file doesn't exist!!", "OK");
-		if (result == 1) {
-			ctx.error = error_dummy;
+	switch (ctx.error) {
+		case (error_file_not_found): {
+			int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this file doesn't exist!!", "OK");
+			if (result == 1) {
+				ctx.error = error_dummy;
+			}
+			break;
 		}
-	}
-	if (ctx.error == error_file_empty) {
-		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "Name Empty!!", "OK");
-		if (result == 1) {
-			ctx.error = error_dummy;
+		case (error_file_empty): {
+			int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "Name Empty!!", "OK");
+			if (result == 1) {
+				ctx.error = error_dummy;
+			}
+			break;
 		}
-	}
-	if (ctx.error == error_file_corrupted) {
-		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this file is corrupted!!", "OK");
-		if (result == 1) {
-			ctx.error = error_dummy;
+		case (error_file_corrupted): {
+			int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this file is corrupted!!", "OK");
+			if (result == 1) {
+				ctx.error = error_dummy;
+			}
+			break;
 		}
-	}
-	if (ctx.error == error_file_exist) {
-		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this filename already exist!!", "OK");
-		if (result == 1) {
-			ctx.error = error_dummy;
+		case (error_file_exist): {
+			int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "this filename already exist!!", "OK");
+			if (result == 1) {
+				ctx.error = error_dummy;
+			}
+			break;
 		}
-	}
-	if (ctx.error == error_bad_dimension) {
-		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "Level Dimension are not possible!!", "OK");
-		if (result == 1) {
-			ctx.error = error_dummy;
+		case (error_bad_dimension): {
+			int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "Level Dimension are not possible!!", "OK");
+			if (result == 1) {
+				ctx.error = error_dummy;
+			}
+			break;
 		}
-	}
-	if (ctx.error == error_tileset_not_found) {
-		int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "TileSetNotFound!!", "OK");
-		if (result == 1) {
-			ctx.error = error_dummy;
+		case (error_tileset_not_found): {
+			int result = GuiMessageBox(ctx.file_bound, "#152#ERROR!", "TileSetNotFound!!", "OK");
+			if (result == 1) {
+				ctx.error = error_dummy;
+			}
+			break;
 		}
+		default:break;
 	}
 	return (0);
 }

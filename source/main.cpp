@@ -106,13 +106,13 @@ int main(void) {
 	loadInput(engine.input);
 	engine.camera.offset = {(float)(GetScreenWidth() * 0.5), (float)(GetScreenHeight() * 0.5)};
 
-	EnableEventWaiting();
+	//EnableEventWaiting();
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
 			engine.status.store(engine_status_close);
 		}
 		switch (engine.status.load()) {
-			DisableEventWaiting();
+			//DisableEventWaiting();
 			case (engine_status_solo): {
 				updateInput();
 				if (updatePlayer()) {
