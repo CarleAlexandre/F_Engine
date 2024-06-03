@@ -4,17 +4,17 @@
 
 int linearIndexFromCoordinate(Vector3 dim, int max_x, int max_y) {
     int a = 1;
-    int b = max_x + 1;
-    int c = (max_x + 1) * (max_y + 1);
+    int b = max_x;
+    int c = (max_x) * (max_y);
     int d = 0;
     return (a * dim.x + b * dim.y + c * dim.z + d);
 }
 
 Vector3 coordinateFromLinearIndex(int idx, float max_x, float max_y) {
-    float x =  idx % (int)(max_x + 1);
-    idx /= (max_x+1);
-    float y = idx % (int)(max_y + 1);
-    idx /= (max_y+1);
+    float x =  idx % (int)(max_x);
+    idx /= (max_x);
+    float y = idx % (int)(max_y);
+    idx /= (max_y);
     float z = idx;
     return ((Vector3){x,y,z});
 }
@@ -32,11 +32,11 @@ Vector2 getBlockPos(Vector2 pos) {
 }
 
 const float getXpos(const u32 idx, const int width) {
-	return (idx % (width + 1));
+	return (idx % (width));
 }
 
 const float getYpos(const u32 idx, const int width) {
-	return (floor((float)idx / (width + 1)));
+	return (floor((float)idx / (width)));
 }
 const u32 getLinearIndex(const float x, const float y, const int width) {
 	return (x + y * width);

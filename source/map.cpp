@@ -170,28 +170,35 @@ int mapBuilder(void) {
 		}
 	}
 	if (!ctx.tile_bound.height) {
-		ctx.tile_bound.height = (float)(GetScreenHeight() * 0.5) - 20;
-		ctx.layer_bound.y = (float)(GetScreenHeight() * 0.5) + 20;
-		ctx.layer_bound.height = (float)(GetScreenHeight() * 0.5) - 20;
+		ctx.tile_bound.height = (float)(GetScreenHeight() * 0.5) - 10;
+		ctx.layer_bound.y = (float)(GetScreenHeight() * 0.5) + 10;
+		ctx.layer_bound.height = (float)(GetScreenHeight() * 0.5) - 10;
 	}
 	
 	ctx.layer_bound.width = ctx.tile_bound.width;
-	ctx.layer_bound.height = width - ctx.tile_bound.height - 20;
+	ctx.layer_bound.height = width - ctx.tile_bound.height - 10;
 
 	if (!ctx.file_active) {
-		GuiScrollPanel(ctx.tile_bound, NULL, {0, 0, (float)current_tileset.width + 32, (float)current_tileset.height + 32}, &ctx.tileset_scroll, &ctx.tile_view);//tileset
+		GuiScrollPanel(ctx.tile_bound, NULL, {0, 20, (float)current_tileset.width + 32, (float)current_tileset.height + 32}, &ctx.tileset_scroll, &ctx.tile_view);//tileset
 		if (ctx.tileset_ok) {
+			if (IsMouseInBound(ctx.tile_bound, {0, 20}, mouse_pos)) {
+				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+				Vector2 block_pos = {mouse_pos.x, mouse_pos.y - 20};
+				block_pos.x -= ctx.tileset_scroll.x;
+				block_pos.y -= ctx.tileset_scroll.y;
+				int idx = getLinearIndex(floor(block_pos.x / 32), floor(block_pos.y / 32), current_tileset.width / 32);
+					ctx.selected_tile = idx;
+				}
+			}
 			BeginScissorMode(ctx.tile_view.x, ctx.tile_view.y, ctx.tile_view.width, ctx.tile_view.height);
-				DrawTextureRec(current_tileset, {0, 0, (float)current_tileset.width, (float)current_tileset.height}, {ctx.tileset_scroll.x + 16, ctx.tileset_scroll.y + 16}, WHITE);//DrawTileset
-				Vector2 tmp = getBlockPos(mouse_pos);
-				DrawRectangle(tmp.x + 16, tmp.y - 16, 32, 32, ColorAlpha(GRAY, 0.2));
-				DrawRectangleLines(tmp.x + 16, tmp.y - 16, 32, 32, WHITE);
+				DrawTextureRec(current_tileset, {0, 0, (float)current_tileset.width, (float)current_tileset.height}, {ctx.tileset_scroll.x, ctx.tileset_scroll.y + 20}, WHITE);//DrawTileset
+			if (ctx.selected_tile != -1) {
+				Vector2 block_pos = getVector2Pos(ctx.selected_tile, current_tileset.width / 32);
+				DrawRectangle(ctx.tileset_scroll.x + block_pos.x * 32, ctx.tileset_scroll.y + 20 + block_pos.y * 32, 32, 32, ColorAlpha(GRAY, 0.2));
+				DrawRectangleLines(ctx.tileset_scroll.x + block_pos.x * 32, ctx.tileset_scroll.y + 20 + block_pos.y * 32, 32, 32, RAYWHITE);
+			}
 			EndScissorMode();
 		}
-		//if (GuiTextBox({}, ctx.tileset_input, 20, true)) {
-		//	ctx.tileset = &engine.textures[engine.texture_dictionnary[ctx.tileset_input]];
-		//	ctx.tileset_active = true;
-		//}
 	}
 
 
@@ -218,45 +225,37 @@ int mapBuilder(void) {
 		IsMouseInBound({0, 0, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, \
 			{ctx.tile_bound.width, 20}, mouse_pos)) {
 		HideCursor();
-		mouse_pos.x -= ctx.tile_bound.width;
-		mouse_pos.y -= 20;
-		mouse_pos.x += ctx.draw_scroll.x;
-		mouse_pos.y += ctx.draw_scroll.y;
+		Vector2 block_pos = mouse_pos;
+		block_pos.x -= ctx.tile_bound.width + 32;
+		block_pos.y -= 20 + 32;
+		block_pos.x -= ctx.draw_scroll.x;
+		block_pos.y -= ctx.draw_scroll.y;
+		block_pos.y = floor(block_pos.y / 32);
+		block_pos.x = floor(block_pos.x / 32);
 		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 			switch (ctx.tool_action) {
 				case (0): {
 					//at pos on current layer
 					//if (ctx.selected_tile != -1) {
-					if (IsInBond(mouse_pos, {engine.level.dimension.x, engine.level.dimension.z}, {0, 0})) {
+					if (IsInBond(block_pos, {engine.level.dimension.x, engine.level.dimension.z}, {0, 0})) {
 #ifdef DEBUG
-						std::cout << "BRUSHIIIIIIIIIING !!\n";
-						std::cout << engine.level.terrain[linearIndexFromCoordinate({mouse_pos.x, mouse_pos.y, (float)ctx.selected_layer}, engine.level.dimension.z, engine.level.dimension.y)] << " at: " << mouse_pos.x  << ", " << mouse_pos.y << "\n";
+		std::cout << "x: "<< block_pos.x << ", y: " << block_pos.y << "; idx: " << linearIndexFromCoordinate({block_pos.x, block_pos.y, (float)ctx.selected_layer}, engine.level.dimension.x, engine.level.dimension.z) << "\n";
 #endif
-						engine.level.terrain[linearIndexFromCoordinate({mouse_pos.x, mouse_pos.y, (float)ctx.selected_layer}, engine.level.dimension.z, engine.level.dimension.y)] = ctx.selected_tile;
+						engine.level.terrain[linearIndexFromCoordinate({block_pos.x, block_pos.y, (float)ctx.selected_layer}, engine.level.dimension.x, engine.level.dimension.z)] = ctx.selected_tile;
 					}
 					//}
 					break;
 				}
 				case (1): {
-#ifdef DEBUG
-					std::cout << "ERAAASINNNNNNNNG !!\n";
-					std::cout << engine.level.event[(int)floor(mouse_pos.x + mouse_pos.y * engine.level.dimension.x)] << " at: " << mouse_pos.x  << ", " << mouse_pos.y << "\n";
-#endif
 					//erase at pos on current layer
 					break;
 				}
 				case (2): {
-#ifdef DEBUG
-					std::cout << "FEELIIING !!\n";
-#endif
 					if (ctx.selected_tile != -1) {
-						for (int y = 0; y < engine.level.dimension.y; y++){
-							for (int x = 0; x < engine.level.dimension.x; x++){
-#ifdef DEBUG
-								std::cout << engine.level.terrain[linearIndexFromCoordinate({x, y, (float)ctx.selected_layer}, engine.level.dimension.z, engine.level.dimension.y)] << "\n";
-#endif
-							}
-						}
+						//for (int y = 0; y < engine.level.dimension.y; y++){
+						//	for (int x = 0; x < engine.level.dimension.x; x++){
+						//	}
+						//}
 					}
 					//fill current layer
 					break;
@@ -271,24 +270,25 @@ int mapBuilder(void) {
 
 	if (ctx.draw_ready && !ctx.new_file && ctx.tileset_ok) {
 		BeginScissorMode(ctx.draw_view.x, ctx.draw_view.y, ctx.draw_view.width, ctx.draw_view.height);
-			Vector2 end = {ctx.draw_view.width, ctx.draw_view.height};
-			//DrawTexture(current_tileset, 100, 30, WHITE);
-			for (int y = 0; y <= engine.level.dimension.z; y ++){
-				for (int x = 0; x <= engine.level.dimension.x; x ++){
-					//DrawPixel(x, y, RED);
-					if (y != engine.level.dimension.z) {
-						if (x != engine.level.dimension.x) {
-							DrawTextureRec(current_tileset, {2 * 32,  2 * 32, 32, 32}, {ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y}, WHITE);
-						}
-						DrawLine(ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + (y + 1) * 32 + ctx.draw_scroll.y, WHITE);
-					}
-					DrawLine(ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, ctx.draw_view.x + 32 + (x + 1) * 32 + ctx.draw_scroll.x *32, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, WHITE);
-//#ifdef DEBUG
-//					std::cout << "x: " << x << ", y: " << y << "\n";
-//#endif
+			for (int y = 0; y < engine.level.dimension.y; y++) {
+				int beg = linearIndexFromCoordinate({0, 0, (float)y}, engine.level.dimension.x, engine.level.dimension.z);
+				int end = linearIndexFromCoordinate({engine.level.dimension.y, engine.level.dimension.z, (float)y}, engine.level.dimension.x, engine.level.dimension.z);
+				//DrawTexture(current_tileset, 100, 30, WHITE);
+
+				for (int idx = beg ; idx < end; idx++) {
+					DrawTextureRec(current_tileset, getTextureRec(engine.level.terrain[idx], current_tileset), {ctx.draw_view.x + 32 + getXpos(idx, engine.level.dimension.x) * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + getYpos(idx, engine.level.dimension.x) * 32 + ctx.draw_scroll.y}, WHITE);
 				}
 			}
-			DrawGrid((engine.level.dimension.x > engine.level.dimension.z) ? engine.level.dimension.x : engine.level.dimension.z , 32);
+
+			for (int y = 0; y <= engine.level.dimension.z; y ++){
+				for (int x = 0; x <= engine.level.dimension.x; x ++){
+					if (y != engine.level.dimension.z) {
+						DrawLine(ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + (y + 1) * 32 + ctx.draw_scroll.y, ColorAlpha(GRAY, 0.5));
+					}
+					DrawLine(ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, ctx.draw_view.x + 32 + (x + 1) * 32 + ctx.draw_scroll.x *32, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, ColorAlpha(GRAY, 0.5));
+
+				}
+			}
 		EndScissorMode();
 	}
 
