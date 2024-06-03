@@ -2,6 +2,24 @@
 # include <cfloat>
 # include <iostream>
 
+int linearIndexFromCoordinate(Vector3 dim, int max_x, int max_y) {
+    int a = 1;
+    int b = max_x + 1;
+    int c = (max_x + 1) * (max_y + 1);
+    int d = 0;
+    return (a * dim.x + b * dim.y + c * dim.z + d);
+}
+
+Vector3 coordinateFromLinearIndex(int idx, float max_x, float max_y) {
+    float x =  idx % (int)(max_x + 1);
+    idx /= (max_x+1);
+    float y = idx % (int)(max_y + 1);
+    idx /= (max_y+1);
+    float z = idx;
+    return ((Vector3){x,y,z});
+}
+
+
 Vector2 getBlockPos(Vector2 pos) {
 	Vector2 result;
 

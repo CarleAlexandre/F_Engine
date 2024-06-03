@@ -268,5 +268,7 @@ void updatePlayerAnimation(t_animation *player_animation, const player_action_e 
 int mapBuilder(void);
 t_level loadLevel(const char *level_name);
 void writeToLevel(t_level level);
+int linearIndexFromCoordinate(Vector3 dim, int max_x, int max_y);
+Vector3 coordinateFromLinearIndex(int idx, float max_x, float max_y);
 
 #endif

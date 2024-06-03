@@ -271,8 +271,9 @@ void writeToLevel(t_level level) {
 	dim << "width:"<< level.dimension.x << ",\nheight:"<< level.dimension.y << ",\ndepth:" << level.dimension.z << ",\n";
 	terrain << "terrain:{\n";
 	for (int k = 0; k < level.dimension.y;) {
-		for (int i = 0; i < level.dimension.x * level.dimension.z; i++) {
-			terrain << level.terrain[(int)(k + i * level.dimension.y)] << ",";
+		for (int i = 0; i < level.dimension.z; i++) {
+			for (int j = 0; j < level.dimension.x; j++)
+			terrain << level.terrain[linearIndexFromCoordinate({(float)j, (float)i, (float)k}, level.dimension.z, level.dimension.y)] << ", ";
 		}
 		k++;
 		if (k < level.dimension.y)

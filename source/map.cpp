@@ -197,19 +197,23 @@ int mapBuilder(void) {
 		IsMouseInBound({0, 0, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, \
 			{ctx.tile_bound.width, 20}, mouse_pos)) {
 		HideCursor();
+		mouse_pos.x -= ctx.tile_bound.width;
+		mouse_pos.y -= 20;
 		mouse_pos.x += ctx.draw_scroll.x;
 		mouse_pos.y += ctx.draw_scroll.y;
 		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 			switch (ctx.tool_action) {
 				case (0): {
-#ifdef DEBUG
-					std::cout << "BRUSHIIIIIIIIIING !!\n";
-					std::cout << engine.level.wall[(int)floor(mouse_pos.x + mouse_pos.y * engine.level.dimension.x)] << " at: " << mouse_pos.x  << ", " << mouse_pos.y << "\n";
-#endif
 					//at pos on current layer
-					if (ctx.selected_tile != -1) {
-//						ctx.layer[ctx.selected_layer][(int)floor(mouse_pos.x + mouse_pos.y * ctx.level->dimension.x)] = ctx.selected_tile;
+					//if (ctx.selected_tile != -1) {
+					if (IsInBond(mouse_pos, {engine.level.dimension.x, engine.level.dimension.z}, {0, 0})) {
+#ifdef DEBUG
+						std::cout << "BRUSHIIIIIIIIIING !!\n";
+						std::cout << engine.level.terrain[linearIndexFromCoordinate({mouse_pos.x, mouse_pos.y, (float)ctx.selected_layer}, engine.level.dimension.z, engine.level.dimension.y)] << " at: " << mouse_pos.x  << ", " << mouse_pos.y << "\n";
+#endif
+						engine.level.terrain[linearIndexFromCoordinate({mouse_pos.x, mouse_pos.y, (float)ctx.selected_layer}, engine.level.dimension.z, engine.level.dimension.y)] = 2;
 					}
+					//}
 					break;
 				}
 				case (1): {
@@ -228,7 +232,7 @@ int mapBuilder(void) {
 						for (int y = 0; y < engine.level.dimension.y; y++){
 							for (int x = 0; x < engine.level.dimension.x; x++){
 #ifdef DEBUG
-								std::cout << engine.level.terrain[x + y * (int)engine.level.dimension.x] << "\n";
+								std::cout << engine.level.terrain[linearIndexFromCoordinate({x, y, (float)ctx.selected_layer}, engine.level.dimension.z, engine.level.dimension.y)] << "\n";
 #endif
 							}
 						}
@@ -243,6 +247,7 @@ int mapBuilder(void) {
 		ShowCursor();
 	}
 
+	mouse_pos = GetMousePosition();
 
 	//menu bar
 	DrawRectangle(0, 0, width, 20, GRAY);
@@ -392,10 +397,7 @@ int mapBuilder(void) {
 				old = mouse_pos;
 			}
 		}
-		if (GuiWindowBox(ctx.file_bound, "New Level")) {
-			ctx.new_file = false;
-			ctx.file_bound = {20, 20, 300, 200};
-		}
+		GuiWindowBox(ctx.file_bound, "New Level");
 		bool name = false, dimx = false, dimz = false, dimy = false;
 		if (IsMouseInBound({0, 0, 200, 16}, {ctx.file_bound.x + 30, ctx.file_bound.y + 70}, mouse_pos))
 			name = true;
@@ -459,7 +461,5 @@ int mapBuilder(void) {
 			ctx.error = error_dummy;
 		}
 	}
-	//GuiDropdownBox(Rectangle bounds, const char *text, int *active, bool editMode);
-	//GuiDropdownBox(Rectangle bounds, const char *text, int *active, bool editMode);
 	return (0);
 }
