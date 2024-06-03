@@ -1,11 +1,33 @@
-# TODO
 
-render map,
-load wall,
-collision,
-pathfinding,
+# GAME ENGINE
+___
 
-# inspi
+See LICENSE file for license
+___
+
+## LEVEL CREATION TOOL
+___
+
+- render map
+
+beginTextureMode();
+	draw the layer;
+endTexutreMode();
+
+beginScissor(view);
+	darwtexturesacle();
+endScissor();
+
+- zoom and map displacement
+- texture render
+- add texture name to t_level
+
+
+___
+
+# music
+___
+
 
 SmalltownBoy cover:
  - https://www.beepbox.co/#9n62sbk0l00e0bt22a7g0fj09r1i200000000o432533T5v1u51f0qwx10n511d08H-IHyiih9999998h0E1b6T7v2u23f10q4q011d08H_RRtrAyAAAsArrh3IaE0T5v1ud2f10k8q83231d23HU0000000000000h0E0T0v1u00f10r7q801d03w5h3E0T1v1u63f0qww10n51d08A1F1B4Q50b0Pea3bE2b7628T0v1u58f0q0w10obd03w5h1E1b7T4v2uf0f0q011z6666ji8k8k3jSBKSJJAArriiiiii07JCABrzrrrrrrr00YrkqHrsrrrrjr005zrAqzrjzrrqr1jRjrqGGrrzsrsA099ijrABJJJIAzrrtirqrqjqixzsrAjrqjiqaqqysttAJqjikikrizrHtBJJAzArzrIsRCITKSS099ijrAJS____Qg99habbCAYrDzh00E0T4v1uf0f0q011z6666ji8k8k3jSBKSJJAArriiiiii07JCABrzrrrrrrr00YrkqHrsrrrrjr005zrAqzrjzrrqr1jRjrqGGrrzsrsA099ijrABJJJIAzrrtirqrqjqixzsrAjrqjiqaqqysttAJqjikikrizrHtBJJAzArzrIsRCITKSS099ijrAJS____Qg99habbCAYrDzh00E0b000i4x8i00004x8i4x80018i4w00000000004i4i00000100000000004x8i4w004h4h4h4h000h4h4h4h4000p23sFE-44hQQAt17j0Atd97ghWk4hQQAt17jmhQQAt160kQv0zE8W2ewzAiewzE8W2f2yewzE8W2eh8W2eg8W2c002CzXicyCFV5OasAn8FOhsyCHgGGOhsyD95OasAn8FJFBU5eMbIkDvQR_8YL0000bcFogmPNqI5sOBRMGpjhsKZ5St5HQmT1qZ5GQnbHhtQnbLhsQnrQk0mqYR5nttRTnttRTno0

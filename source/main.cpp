@@ -121,6 +121,15 @@ int main(void) {
 					updatePlayerAnimation(&engine.animation_queue[engine.current_save->animation_idx], player_action_default);
 				}
 				renderSolo();
+				BeginDrawing();
+					ClearBackground(BLACK);
+					DrawTextureRec(engine.fbo.texture, {0, 0, (float)GetScreenWidth(), -(float)GetScreenHeight()}, {0, 0}, WHITE);
+					/*if (enviroenment == Darkness) {	
+						BeginShaderMode(engine.shader);
+							DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
+						EndShaderMode();
+					}*/
+				EndDrawing();
 				break;
 			}
 			case (engine_status_menu): {
@@ -138,20 +147,20 @@ int main(void) {
 			case (engine_status_online): {
 				DisableEventWaiting();
 				renderOnline();
+				BeginDrawing();
+					ClearBackground(BLACK);
+					DrawTextureRec(engine.fbo.texture, {0, 0, (float)GetScreenWidth(), -(float)GetScreenHeight()}, {0, 0}, WHITE);
+					/*if (enviroenment == Darkness) {	
+						BeginShaderMode(engine.shader);
+							DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
+						EndShaderMode();
+					}*/
+				EndDrawing();
 				break;
 			}
 			default:
 				break;
 		}
-		BeginDrawing();
-			ClearBackground(BLACK);
-			DrawTextureRec(engine.fbo.texture, {0, 0, (float)GetScreenWidth(), -(float)GetScreenHeight()}, {0, 0}, WHITE);
-			/*if (enviroenment == Darkness) {	
-				BeginShaderMode(engine.shader);
-					DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
-				EndShaderMode();
-			}*/
-		EndDrawing();
 	}
 
 	//sync_thread.join();

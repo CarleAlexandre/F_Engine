@@ -178,6 +178,7 @@ typedef struct s_level {
 	int *event;
 	Vector3 dimension;
 	char *filename;
+	char *tileset;
 } t_level;
 
 typedef struct s_thread_handle {

@@ -23,6 +23,7 @@ enum level_token_e {
 	level_token_wall	= 4,
 	level_token_event	= 5,
 	level_token_depth	= 6,
+	level_token_tileset	= 7,
 };
 
 std::unordered_map<std::string, level_token_e> level_dictionnary{
@@ -32,6 +33,7 @@ std::unordered_map<std::string, level_token_e> level_dictionnary{
 	{"wall", level_token_wall},
 	{"event", level_token_event},
 	{"depth", level_token_depth},
+	{"tileset", level_token_tileset},
 };
 
 enum player_token_e {
@@ -268,7 +270,7 @@ void writeToLevel(t_level level) {
 	std::stringstream wall;
 	std::stringstream event;
 	std::stringstream dim;
-	dim << "width:"<< level.dimension.x << ",\nheight:"<< level.dimension.y << ",\ndepth:" << level.dimension.z << ",\n";
+	dim << "width:"<< level.dimension.x << ",\nheight:"<< level.dimension.y << ",\ndepth:" << level.dimension.z << ",\ntileset:" << level.tileset << ",\n";
 	terrain << "terrain:{\n";
 	for (int k = 0; k < level.dimension.y;) {
 		for (int i = 0; i < level.dimension.z; i++) {
@@ -324,6 +326,14 @@ t_level loadLevel(const char *level_name) {
 			}
 			case(level_token_depth):{
 				level.dimension.z = atoi(token[i].value.c_str());
+				break;
+			}
+			case(level_token_tileset):{
+#ifdef __linux__
+				level.tileset = strdup(token[i].value.c_str());
+#else
+				level.tileset = _strdup(token[i].value.c_str());
+#endif
 				break;
 			}
 			case(level_token_terrain):{

@@ -6,7 +6,7 @@ BUILDDIR	=	build/
 
 CC			=	gcc
 
-CFLAGS		=	-g -DDEBUG 
+CFLAGS		=	-std=c++20 -g -DDEBUG 
 
 OBJ			=	$(SRC:%.cpp=%.o)
 

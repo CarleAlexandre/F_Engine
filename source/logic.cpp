@@ -32,11 +32,11 @@ Vector2 getBlockPos(Vector2 pos) {
 }
 
 const float getXpos(const u32 idx, const int width) {
-	return (idx % width);
+	return (idx % (width + 1));
 }
 
 const float getYpos(const u32 idx, const int width) {
-	return (floor((float)idx / width));
+	return (floor((float)idx / (width + 1)));
 }
 const u32 getLinearIndex(const float x, const float y, const int width) {
 	return (x + y * width);
