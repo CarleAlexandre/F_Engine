@@ -417,9 +417,9 @@ int mapBuilder(void) {
 		//interface
 		GuiTextBox({ctx.file_bound.x + 30, ctx.file_bound.y + 70, 200, 24}, ctx.filename, 20, true);
 		if (GuiButton({ctx.file_bound.x + 220, ctx.file_bound.y + 140, 30, 20}, "Open")) {
-			if (FileExists(TextFormat("level/%s.map", ctx.filename))) {
+			if (FileExists(TextFormat("assets/maps/%s.map", ctx.filename))) {
 				ctx.file_open = false;
-				openFile(&engine.level, ctx.filename);
+				openFile(&engine.level, TextFormat("assets/maps/%s.map", ctx.filename));
 				ctx.draw_ready = true;
 			} else {
 				ctx.error = error_file_not_found;

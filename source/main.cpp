@@ -97,7 +97,6 @@ int main(void) {
 
 	InitWindow(720, 480, "noheaven");
 	SetTargetFPS(120);
-
 	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
 	engine.fbo = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 	engine.textures = loadAllTexture(engine.texture_dictionnary);

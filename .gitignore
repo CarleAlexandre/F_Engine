@@ -10,8 +10,4 @@ build/*
 .cache/*
 .vs
 
-assets/*
-save/*
-level/*
-config/*
 remedybg.exe

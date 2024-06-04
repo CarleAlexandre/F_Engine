@@ -304,8 +304,14 @@ t_level loadLevel(const char *level_name) {
 	#else
 	level.filename = _strdup(level_name);
 	#endif
-	char *level_data = readFile(TextFormat("level/%s.map", level_name));
+	char *level_data = readFile(level_name);
 
+	if (!level_data) {
+#ifdef DEBUG
+		std::cout << "COULD NOT READ FILE : " << level.filename << "\n";
+#endif
+		abort();
+	}
 	std::vector<t_token> token = tokenizer(level_data, ",\n", 2, level_dictionnary);
 	if (!token.size()) {
 		#ifdef DEBUG 
@@ -395,9 +401,15 @@ t_level loadLevel(const char *level_name) {
 }
 
 std::vector<t_level> loadAllLevel(void) {
+	FilePathList level_path;
 	std::vector<t_level> levels;
 
-	levels.push_back(loadLevel("debug"));
+	level_path = LoadDirectoryFiles(GetDirectoryPath("assets/maps/"));
+
+	for (int i = 0; i < level_path.count; i++) {
+		levels.push_back(loadLevel(level_path.paths[i]));
+	}
+	UnloadDirectoryFiles(level_path);
 	return (levels);
 }
 
@@ -502,7 +514,7 @@ t_player loadPlayerSave(const char *savepath) {
 std::vector<t_player> loadAllSave(void) {
 	std::vector<t_player> player_data;
 
-	FilePathList save_directory = LoadDirectoryFiles(GetDirectoryPath("save/"));
+	FilePathList save_directory = LoadDirectoryFiles(GetDirectoryPath("assets/save/"));
 
 	for (int i = 0; i < save_directory.count; i++) {
 		player_data.push_back(loadPlayerSave(save_directory.paths[i]));	
@@ -555,7 +567,7 @@ std::vector<Texture2D> loadAllTexture(std::unordered_map<std::string, int> &text
 }
 
 void loadInput(t_input *inputlist) {
-	char *inputfile = readFile("config/input.cfg");
+	char *inputfile = readFile("assets/config/input.cfg");
 	u32 current_input_idx = 0;
 
 	if (!inputfile){return;}
