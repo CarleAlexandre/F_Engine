@@ -19,6 +19,22 @@ Vector3 coordinateFromLinearIndex(int idx, float max_x, float max_y) {
     return ((Vector3){x,y,z});
 }
 
+const float getXpos3d(int idx, float max_x) {
+	idx %= (int)max_x;
+	return (idx);
+}
+
+const float getYpos3d(int idx, float max_x, float max_y) {
+	idx /= max_x;
+	idx %= (int)max_y;
+	return (idx);
+}
+
+const float getZpos3d(int idx, float max_x, float max_y) {
+	idx /= max_x;
+	idx /= max_y;
+	return (idx);
+}
 
 Vector2 getBlockPos(Vector2 pos) {
 	Vector2 result;

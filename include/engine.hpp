@@ -271,5 +271,9 @@ t_level loadLevel(const char *level_name);
 void writeToLevel(t_level level);
 int linearIndexFromCoordinate(Vector3 dim, int max_x, int max_y);
 Vector3 coordinateFromLinearIndex(int idx, float max_x, float max_y);
+const float getXpos3d(int idx, float max_x);
+const float getYpos3d(int idx, float max_x, float max_y);
+const float getZpos3d(int idx, float max_x, float max_y);
+
 
 #endif

@@ -214,6 +214,9 @@ int mapBuilder(void) {
 		for (int i = 0; i < engine.level.dimension.y; i++) {
 			if (GuiButton({1, ctx.layer_bound.y + 20 * i  + ctx.layer_scroll.y, ctx.layer_bound.width - 21, 20}, TextFormat("Layer %i", i))) {
 				ctx.selected_layer = i;
+#ifdef DEBUG
+				std::cout << "layer: " << ctx.selected_layer << "\n";
+#endif
 			}
 		}
 	EndScissorMode();
@@ -248,14 +251,17 @@ int mapBuilder(void) {
 				}
 				case (1): {
 					//erase at pos on current layer
+						engine.level.terrain[linearIndexFromCoordinate({block_pos.x, block_pos.y, (float)ctx.selected_layer}, engine.level.dimension.x, engine.level.dimension.z)] = 0;
 					break;
 				}
 				case (2): {
 					if (ctx.selected_tile != -1) {
-						//for (int y = 0; y < engine.level.dimension.y; y++){
-						//	for (int x = 0; x < engine.level.dimension.x; x++){
-						//	}
-						//}
+						int y = ctx.selected_layer;
+						int beg = linearIndexFromCoordinate({0, 0, (float)y}, engine.level.dimension.x, engine.level.dimension.z);
+						int end = linearIndexFromCoordinate({engine.level.dimension.y, engine.level.dimension.z, (float)y}, engine.level.dimension.x, engine.level.dimension.z);
+						for (int idx = beg ; idx < end; idx++) {
+							engine.level.terrain[idx] = ctx.selected_tile;
+						}
 					}
 					//fill current layer
 					break;
@@ -273,10 +279,8 @@ int mapBuilder(void) {
 			for (int y = 0; y < engine.level.dimension.y; y++) {
 				int beg = linearIndexFromCoordinate({0, 0, (float)y}, engine.level.dimension.x, engine.level.dimension.z);
 				int end = linearIndexFromCoordinate({engine.level.dimension.y, engine.level.dimension.z, (float)y}, engine.level.dimension.x, engine.level.dimension.z);
-				//DrawTexture(current_tileset, 100, 30, WHITE);
-
 				for (int idx = beg ; idx < end; idx++) {
-					DrawTextureRec(current_tileset, getTextureRec(engine.level.terrain[idx], current_tileset), {ctx.draw_view.x + 32 + getXpos(idx, engine.level.dimension.x) * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + getYpos(idx, engine.level.dimension.x) * 32 + ctx.draw_scroll.y}, WHITE);
+					DrawTextureRec(current_tileset, getTextureRec(engine.level.terrain[idx], current_tileset), {ctx.draw_view.x + 32 + getXpos3d(idx, engine.level.dimension.x) * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + getYpos3d(idx, engine.level.dimension.x, engine.level.dimension.z) * 32 + ctx.draw_scroll.y}, WHITE);
 				}
 			}
 
