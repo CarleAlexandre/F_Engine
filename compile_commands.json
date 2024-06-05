@@ -9,6 +9,8 @@
       "C:/mingw64/include",
       "-I",
       "include",
+      "-I",
+      "HavenLib/include",
       "-g",
       "-c",
       "-o",

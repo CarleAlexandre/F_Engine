@@ -225,7 +225,7 @@ int mapBuilder(void) {
 	//	zone pencil
 	//mouse_pos = GetMousePosition();
 	if (!ctx.new_file && !ctx.error && !ctx.tool_active && !ctx.show_properties && !ctx.file_open && \
-		IsMouseInBound({0, 0, width - ctx.tile_bound.width, (float)GetScreenHeight() - 20}, \
+		IsMouseInBound({0, 0, width - ctx.tile_bound.width - 20, (float)GetScreenHeight() - 40}, \
 			{ctx.tile_bound.width, 20}, mouse_pos)) {
 		HideCursor();
 		Vector2 block_pos = mouse_pos;
@@ -235,12 +235,12 @@ int mapBuilder(void) {
 		block_pos.y -= ctx.draw_scroll.y;
 		block_pos.y = floor(block_pos.y / 32);
 		block_pos.x = floor(block_pos.x / 32);
-		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+		if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
 			switch (ctx.tool_action) {
 				case (0): {
 					//at pos on current layer
 					//if (ctx.selected_tile != -1) {
-					if (IsInBond(block_pos, {engine.level.dimension.x, engine.level.dimension.z}, {0, 0})) {
+					if (IsInBond(block_pos, {engine.level.dimension.x - 1, engine.level.dimension.z - 1}, {0, 0})) {
 #ifdef DEBUG
 		std::cout << "x: "<< block_pos.x << ", y: " << block_pos.y << "; idx: " << linearIndexFromCoordinate({block_pos.x, block_pos.y, (float)ctx.selected_layer}, engine.level.dimension.x, engine.level.dimension.z) << "\n";
 #endif
@@ -286,11 +286,9 @@ int mapBuilder(void) {
 
 			for (int y = 0; y <= engine.level.dimension.z; y ++){
 				for (int x = 0; x <= engine.level.dimension.x; x ++){
-					if (y != engine.level.dimension.z) {
+					if (y != engine.level.dimension.z)
 						DrawLine(ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + (y + 1) * 32 + ctx.draw_scroll.y, ColorAlpha(GRAY, 0.5));
-					}
 					DrawLine(ctx.draw_view.x + 32 + x * 32 + ctx.draw_scroll.x, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, ctx.draw_view.x + 32 + (x + 1) * 32 + ctx.draw_scroll.x *32, ctx.draw_view.y + 32 + y * 32 + ctx.draw_scroll.y, ColorAlpha(GRAY, 0.5));
-
 				}
 			}
 		EndScissorMode();
@@ -458,11 +456,11 @@ int mapBuilder(void) {
 			dimy = true;
 		if (IsMouseInBound({0, 0, 200, 16}, {ctx.file_bound.x + 30, ctx.file_bound.y + 120}, mouse_pos))
 			tiles = true;
-		GuiTextBox({ctx.file_bound.x + 30, ctx.file_bound.y + 60, 200, 16}, ctx.filename, 19, name);
+		GuiTextBox({ctx.file_bound.x + 30, ctx.file_bound.y + 60, 200, 16}, ctx.filename, 20, name);
 		GuiTextBox({ctx.file_bound.x + 30, ctx.file_bound.y + 90, 50, 16}, ctx.dim_x, 3, dimx);
 		GuiTextBox({ctx.file_bound.x + 90, ctx.file_bound.y + 90, 50, 16}, ctx.dim_z, 3, dimz);
 		GuiTextBox({ctx.file_bound.x + 150, ctx.file_bound.y + 90, 30, 16}, ctx.dim_y, 2, dimy);
-		GuiTextBox({ctx.file_bound.x + 30, ctx.file_bound.y + 120, 200, 16}, ctx.tileset, 19, tiles);
+		GuiTextBox({ctx.file_bound.x + 30, ctx.file_bound.y + 120, 200, 16}, ctx.tileset, 20, tiles);
 		if (GuiButton({ctx.file_bound.x + 200, ctx.file_bound.y + 150, 60, 20}, "Create")) {
 			Vector3 dim = {(float)atoi(ctx.dim_x), (float)atoi(ctx.dim_y), (float)atoi(ctx.dim_z)};
 			if (FileExists(TextFormat("level/%s.map", ctx.filename))) {

@@ -10,8 +10,7 @@
 # include <thread>
 # include <mutex>
 
-# include <vector>
-# include <unordered_map>
+# include <haven.hpp>
 
 # ifdef DEBUG
 	# include <iostream>
@@ -187,12 +186,6 @@ typedef struct s_thread_handle {
 	bool available = true;
 } t_thread_handle;
 
-typedef struct s_token {
-	std::string	key;
-	std::string value;
-	uint32_t	identifier;
-} t_token;
-
 typedef struct s_animation {
 	u32 max_frame;
 	int texture_idx;
@@ -233,11 +226,6 @@ bool isWall(Vector2 pos, const t_level &level);
 Rectangle GetNearestWallBound(Vector2 pos, const t_level &level, Rectangle *bound);
 void CorrectWallCollision(t_player *player, const t_level &level, Rectangle *collision);
 
-i32 gcd(i32 a, i32 b);
-f32 rsqrt(f32 num);
-f64 pow(f64 number, long power);
-f32 smoothStep(f32 t);
-f32 clamp(f32 value, f32 lo, f32 hi);
 void travelTarget(Vector2 *current, const Vector2 target, const f32 velocity, const f32 deltaTime);
 bool IsInBond(Vector2 pos, Vector2 hi, Vector2 low);
 
@@ -245,8 +233,6 @@ t_player defaultPlayerInit(const Vector3 spawn);
 std::vector<t_player> loadAllSave(void);
 void savePlayerData(t_player player);
 
-const float getXpos(const u32 idx, const int width);
-const float getYpos(const u32 idx, const int width);
 const u32 getLinearIndex(const float x, const float y, const int width);
 const Vector2 getVector2Pos(const u32 index, const int width);
 
@@ -271,9 +257,5 @@ t_level loadLevel(const char *level_name);
 void writeToLevel(t_level level);
 int linearIndexFromCoordinate(Vector3 dim, int max_x, int max_y);
 Vector3 coordinateFromLinearIndex(int idx, float max_x, float max_y);
-const float getXpos3d(int idx, float max_x);
-const float getYpos3d(int idx, float max_x, float max_y);
-const float getZpos3d(int idx, float max_x, float max_y);
-
 
 #endif

@@ -191,10 +191,10 @@ void saveUi() {
 }
 
 void renderMenu(void) {
-	BeginDrawing();
+	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		menuUi();
-	EndDrawing();
+	EndTextureMode();
 }
 
 void renderOnline(void) {
@@ -225,16 +225,16 @@ void renderSolo(void) {
 }
 
 void renderSave() {
-	BeginDrawing();
+	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		saveUi();
-	EndDrawing();
+	EndTextureMode();
 }
 
 void renderSetting() {
-	BeginDrawing();
+	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		settingUi();
-	EndDrawing();
+	EndTextureMode();
 }
 

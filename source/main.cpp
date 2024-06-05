@@ -95,7 +95,7 @@ int main(void) {
 	//	std::cout << "Sync Thread Started!" << __LINE__ << std::endl;
 	//#endif
 
-	InitWindow(720, 480, "noheaven");
+	InitWindow(1920, 1080, "noheaven");
 	SetTargetFPS(120);
 	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
 	engine.fbo = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
@@ -105,13 +105,13 @@ int main(void) {
 	loadInput(engine.input);
 	engine.camera.offset = {(float)(GetScreenWidth() * 0.5), (float)(GetScreenHeight() * 0.5)};
 
-	//EnableEventWaiting();
+	EnableEventWaiting();
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
 			engine.status.store(engine_status_close);
 		}
 		switch (engine.status.load()) {
-			//DisableEventWaiting();
+			DisableEventWaiting();
 			case (engine_status_solo): {
 				updateInput();
 				if (updatePlayer()) {
@@ -120,15 +120,6 @@ int main(void) {
 					updatePlayerAnimation(&engine.animation_queue[engine.current_save->animation_idx], player_action_default);
 				}
 				renderSolo();
-				BeginDrawing();
-					ClearBackground(BLACK);
-					DrawTextureRec(engine.fbo.texture, {0, 0, (float)GetScreenWidth(), -(float)GetScreenHeight()}, {0, 0}, WHITE);
-					/*if (enviroenment == Darkness) {	
-						BeginShaderMode(engine.shader);
-							DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
-						EndShaderMode();
-					}*/
-				EndDrawing();
 				break;
 			}
 			case (engine_status_menu): {
@@ -146,20 +137,20 @@ int main(void) {
 			case (engine_status_online): {
 				DisableEventWaiting();
 				renderOnline();
-				BeginDrawing();
-					ClearBackground(BLACK);
-					DrawTextureRec(engine.fbo.texture, {0, 0, (float)GetScreenWidth(), -(float)GetScreenHeight()}, {0, 0}, WHITE);
-					/*if (enviroenment == Darkness) {	
-						BeginShaderMode(engine.shader);
-							DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
-						EndShaderMode();
-					}*/
-				EndDrawing();
 				break;
 			}
 			default:
 				break;
 		}
+		BeginDrawing();
+			ClearBackground(BLACK);
+			DrawTextureRec(engine.fbo.texture, {0, 0, (float)GetScreenWidth(), -(float)GetScreenHeight()}, {0, 0}, WHITE);
+			/*if (enviroenment == Darkness) {	
+				BeginShaderMode(engine.shader);
+					DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
+				EndShaderMode();
+			}*/
+		EndDrawing();
 	}
 
 	//sync_thread.join();

@@ -1,7 +1,5 @@
 NAME		=	noHeaven
 
-SERVER_NAME	=	server
-
 BUILDDIR	=	build/
 
 CC			=	gcc
@@ -14,7 +12,7 @@ DEPS		+=	$(wildcard include/*.hpp)
 
 SRC			+=	$(wildcard source/*.cpp)
 
-INCLUDE		=	-I include
+INCLUDE		=	-I include -I HavenLib/include
 
 ifeq ($(OS), Windows_NT)
 INCLUDE		+=	-I C:/mingw64/include
@@ -30,7 +28,9 @@ LIBS        =   -framework CoreVideo -framework IOKit -framework Coc
 RAYLIB      =   libs/mac_libraylib.a
 endif
 
-$(BUILDDIR)$(NAME)		:	$(OBJ) $(DEPS)
+LIBS		+=	-L HavenLib/build/ -l HavenLib
+
+$(BUILDDIR)$(NAME)		:	library $(OBJ) $(DEPS) 
 		mkdir -p $(BUILDDIR)
 		$(CC) $(OBJ) ${RAYLIB} ${LIBS} -g -o $@
 
@@ -39,13 +39,18 @@ $(BUILDDIR)$(NAME)		:	$(OBJ) $(DEPS)
 $(OBJ)		:	%.o	:	%.cpp $(DEPS)
 		$(CC) $(CFLAGS) ${INCLUDE} -g -c $< -o $@
 
+library	:
+	make -C HavenLib
+
 all		:	$(BUILDDIR)$(NAME)
 
 clean		:
 		rm -rf $(OBJ)
+#make clean -C HavenLib/
 
 fclean		:	clean
 		rm -rf $(BUILDDIR)
+#make fclean -C HavenLib/
 
 re		:	fclean all
 
