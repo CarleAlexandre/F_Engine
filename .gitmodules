@@ -1,3 +1,6 @@
 [submodule "HavenLib"]
 	path = HavenLib
 	url = git@github.com:CarleAlexandre/HavenLib.git
+[submodule "assets"]
+	path = assets
+	url = git@github.com:CarleAlexandre/assets.git
