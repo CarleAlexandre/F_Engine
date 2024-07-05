@@ -145,7 +145,6 @@ void travelTarget(Vector2 *current, const Vector2 target, const f32 velocity, co
 	return;
 }
 
-
 bool IsInBond(Vector2 pos, Vector2 hi, Vector2 low) {
 	return (!(pos.x < low.x || pos.x > hi.x || pos.y < low.y || pos.y > hi.y));
 }

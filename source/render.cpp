@@ -41,10 +41,6 @@ void settingUi() {
 			break;
 		}
 		case (1):{
-			if (mapBuilder()) {
-				stats = 0;
-				ShowCursor();
-			}
 			break;
 		}
 		case (2):{
@@ -216,7 +212,7 @@ void renderSolo(void) {
 				}
 			}
 			renderAnimationFrame(engine.animation_queue[engine.current_save->animation_idx]);
-			//drawLevel(engine.levels[0]);
+			//drawLevel(engine.level);
 		EndMode2D();
 		//DrawPixel(GetScreenWidth() * 0.5, GetScreenHeight() * 0.5, PINK);
 		DrawText(TextFormat("x: %.1f, z:%.1f", engine.current_save->pos.x, engine.current_save->pos.z), 20, 40, 20, GREEN);
