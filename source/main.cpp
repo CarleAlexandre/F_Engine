@@ -58,6 +58,7 @@ t_player defaultPlayerInit(const Vector3 spawn) {
 	default_player.inventory.clear();
 	default_player.inventory_size = 36;
 	default_player.frame = (Rectangle){0, 0, 32, 32};
+	default_player.animation_idx = 0;
 	default_player.stats = {
 		.move_speed = 10,
 		.crit_chance = 0.0f,
