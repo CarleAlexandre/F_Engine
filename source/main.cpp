@@ -105,14 +105,13 @@ int main(void) {
 	engine.levels = loadAllLevel();
 	loadInput(engine.input);
 	engine.camera.offset = {(float)(GetScreenWidth() * 0.5), (float)(GetScreenHeight() * 0.5)};
+	engine.level_idx = 0;
 
-	//EnableEventWaiting();
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
 			engine.status.store(engine_status_close);
 		}
 		switch (engine.status.load()) {
-			//DisableEventWaiting();
 			case (engine_status_solo): {
 				updateInput();
 				if (updatePlayer()) {
@@ -166,9 +165,9 @@ int main(void) {
 		engine.players[i].name.clear();
 	}
 	engine.players.clear();
-	//for (int i = 0; i < engine.levels.size(); i++) {
-	//	freeLevel(&engine.levels[i]);
-	//}
+	for (int i = 0; i < engine.levels.size(); i++) {
+		freeLevel(&engine.levels[i]);
+	}
 	UnloadRenderTexture(engine.fbo);
 	CloseWindow();
 }

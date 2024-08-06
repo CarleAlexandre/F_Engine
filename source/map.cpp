@@ -10,7 +10,7 @@ void drawLevel(t_level &level) {
 	for (float y = beg.y; y < level.dimension.y && y < end.y; y ++) {
 		for (float z = 0; z < level.dimension.z; z += 32){
 			for (float x = beg.x; x < level.dimension.x && x < end.x; x += 32) {
-				DrawTextureRec(engine.textures[engine.texture_dictionnary[engine.level.tileset]], {(float)level.terrain[linearIndexFromCoordinate({x, y, z}, level.dimension.x, level.dimension.z)], }, {x, z}, WHITE);
+				DrawTextureRec(engine.textures[engine.texture_dictionnary[level.tileset]], {(float)level.terrain[linearIndexFromCoordinate({x, y, z}, level.dimension.x, level.dimension.z)], }, {x, z}, WHITE);
 			}
 		}
 	}

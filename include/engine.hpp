@@ -233,7 +233,6 @@ typedef struct s_engine {
 	t_input	input[MAX_INPUT];
 	std::vector<t_animation> animation_queue;
 	u32 level_idx;
-	t_level level;
 } t_engine;
 
 void renderMenu(void);
@@ -259,7 +258,7 @@ const u32 getLinearIndex(const float x, const float y, const int width);
 const Vector2 getVector2Pos(const u32 index, const int width);
 
 std::vector<t_level> loadAllLevel(void);
-//void freeLevel(t_level *level);
+void freeLevel(t_level *level);
 std::vector<Texture2D> loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary);
 void drawLevel(t_level &level);
 void loadInput(t_input *inputlist);
