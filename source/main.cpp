@@ -105,13 +105,13 @@ int main(void) {
 	loadInput(engine.input);
 	engine.camera.offset = {(float)(GetScreenWidth() * 0.5), (float)(GetScreenHeight() * 0.5)};
 
-	EnableEventWaiting();
+	//EnableEventWaiting();
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
 			engine.status.store(engine_status_close);
 		}
 		switch (engine.status.load()) {
-			DisableEventWaiting();
+			//DisableEventWaiting();
 			case (engine_status_solo): {
 				updateInput();
 				if (updatePlayer()) {
@@ -139,6 +139,12 @@ int main(void) {
 				renderOnline();
 				break;
 			}
+			case (engine_status_level_editor): {
+				EnableEventWaiting();
+				engine.status = mapBuilder(engine.textures);
+				DisableEventWaiting();
+				break;
+			}
 			default:
 				break;
 		}
@@ -159,9 +165,9 @@ int main(void) {
 		engine.players[i].name.clear();
 	}
 	engine.players.clear();
-	for (int i = 0; i < engine.levels.size(); i++) {
-		freeLevel(&engine.levels[i]);
-	}
+	//for (int i = 0; i < engine.levels.size(); i++) {
+	//	freeLevel(&engine.levels[i]);
+	//}
 	UnloadRenderTexture(engine.fbo);
 	CloseWindow();
 }

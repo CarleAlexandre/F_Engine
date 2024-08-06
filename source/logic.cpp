@@ -2,6 +2,7 @@
 # include <cfloat>
 # include <iostream>
 
+
 int linearIndexFromCoordinate(Vector3 dim, int max_x, int max_y) {
     int a = 1;
     int b = max_x;

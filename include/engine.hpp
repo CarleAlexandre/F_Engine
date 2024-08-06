@@ -10,7 +10,7 @@
 # include <thread>
 # include <mutex>
 
-# include <haven.hpp>
+# include "../HavenLib/include/haven.hpp"
 
 # ifdef DEBUG
 	# include <iostream>
@@ -54,6 +54,7 @@ typedef enum {
 	engine_status_solo = 3,
 	engine_status_setting = 4,
 	engine_status_save = 5,
+	engine_status_level_editor = 6,
 }engine_status_e;
 
 typedef enum {
@@ -76,6 +77,28 @@ typedef enum {
 	player_action_hurt		= 2,
 	playar_action_interact	= 3,
 } player_action_e;
+
+typedef enum {
+	player_token_status			= 2,
+	player_token_lvl			= 3,
+	player_token_xp				= 4,
+	player_token_move_speed		= 5,
+	player_token_crit_chance	= 6,
+	player_token_crit_dmg		= 7,
+	player_token_raw_dmg		= 8,
+	player_token_dmg_reduction	= 9,
+	player_token_armor			= 10,
+	player_token_attack_speed	= 11,
+	player_token_life_steal		= 12,
+	player_token_mana			= 13,
+	player_token_magic_affinity	= 14,
+	player_token_life			= 15,
+	player_token_max_life		= 16,
+	player_token_health_regen	= 17,
+	player_token_mana_regen		= 18,
+	player_token_name			= 19,
+	player_token_skin			= 20,
+} player_token_e;
 
 typedef enum {
 	SOUTH	= 1 << 0,
@@ -170,7 +193,6 @@ typedef struct s_player {
 	int animation_idx;
 } t_player;
 
-
 typedef struct s_level {
 	int *terrain;
 	int *wall;
@@ -237,7 +259,7 @@ const u32 getLinearIndex(const float x, const float y, const int width);
 const Vector2 getVector2Pos(const u32 index, const int width);
 
 std::vector<t_level> loadAllLevel(void);
-void freeLevel(t_level *level);
+//void freeLevel(t_level *level);
 std::vector<Texture2D> loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary);
 void drawLevel(t_level &level);
 void loadInput(t_input *inputlist);
@@ -252,7 +274,7 @@ const Rectangle getTextureRec(const u32 idx, const Texture2D &texture);
 int addAnimationToQueue(const int texture_idx, std::vector<t_animation> &animation_queue, const Vector3 pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype);
 void deleteAnimationFromQueue(std::vector<t_animation> &animation_queue, u32 idx);
 void updatePlayerAnimation(t_animation *player_animation, const player_action_e player_stats);
-int mapBuilder(void);
+int mapBuilder(std::vector<Texture2D> textures);
 t_level loadLevel(const char *level_name);
 void writeToLevel(t_level level);
 int linearIndexFromCoordinate(Vector3 dim, int max_x, int max_y);

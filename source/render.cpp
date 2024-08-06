@@ -15,7 +15,10 @@ void menuUi(void) {
 	if (GuiButton({40, 270, 100, 50}, "Online")){
 		engine.status.store(engine_status_online);
 	}
-	if (GuiButton({40, 360, 100, 50}, "Exit")) {
+	if (GuiButton({40, 360, 100, 50}, "Map Editor")){
+		engine.status.store(engine_status_level_editor);
+	}
+	if (GuiButton({40, 450, 100, 50}, "Exit")) {
 		engine.status.store(engine_status_close);
 	}
 }

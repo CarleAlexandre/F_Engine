@@ -28,28 +28,6 @@ std::unordered_map<std::string, level_token_e> level_dictionnary{
 	{"tileset", level_token_tileset},
 };
 
-enum player_token_e {
-	player_token_status			= 2,
-	player_token_lvl			= 3,
-	player_token_xp				= 4,
-	player_token_move_speed		= 5,
-	player_token_crit_chance	= 6,
-	player_token_crit_dmg		= 7,
-	player_token_raw_dmg		= 8,
-	player_token_dmg_reduction	= 9,
-	player_token_armor			= 10,
-	player_token_attack_speed	= 11,
-	player_token_life_steal		= 12,
-	player_token_mana			= 13,
-	player_token_magic_affinity	= 14,
-	player_token_life			= 15,
-	player_token_max_life		= 16,
-	player_token_health_regen	= 17,
-	player_token_mana_regen		= 18,
-	player_token_name			= 19,
-	player_token_skin			= 20,
-};
-
 std::unordered_map<std::string, player_token_e> player_dictionnary{
 	{"status", player_token_status},
 	{"lvl", player_token_lvl},
