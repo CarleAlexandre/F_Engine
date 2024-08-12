@@ -22,7 +22,7 @@ endScissor();
 - texture render
 - add texture name to t_level
 
-
+- design inventory and item
 ___
 
 # music

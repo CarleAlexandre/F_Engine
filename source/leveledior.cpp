@@ -3,8 +3,8 @@
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
-#include <cstring>
 #include <iostream>
+#include <cstring>
 #include <unordered_map>
 
 std::unordered_map<std::string, int> texture_dictionnary;

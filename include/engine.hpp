@@ -128,6 +128,15 @@ typedef enum {
 	frame_loop_updown = 3,
 } frame_loop_e;
 
+typedef enum {
+	tile_tool_use_shovel,
+	tile_tool_use_pickaxe,
+	tile_tool_use_axe,
+	tile_tool_use_hoe,
+	tile_tool_use_wrench,
+	tile_tool_use_lockpick,
+} tile_tool_use;
+
 typedef struct s_input {
 	int key;
 	bool ismouse;
@@ -157,8 +166,9 @@ typedef struct s_thread_queue {
 } t_thread_queue;
 
 typedef struct s_item {
-	item_type_e id;
+	item_type_e type;
 	unsigned int texture_index;
+	void *modifiers;
 } t_item;
 
 typedef struct s_entity {
