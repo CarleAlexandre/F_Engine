@@ -1,6 +1,15 @@
 #ifndef ITEM_HPP
 # define ITEM_HPP
 
+typedef enum {
+	item_type_weapon,
+	item_type_tool,
+	item_type_material,
+	item_type_structure,
+	item_type_machine,
+	item_type_useable,
+}item_type_e;
+
 enum tool{
 	tool_shovel,
 	tool_axe,
@@ -56,41 +65,14 @@ enum material {
 
 class ITEM {
 	private:
-	public:
-		void use_item();
-		ITEM();
-		~ITEM();
-};
-
-class Weapon:ITEM {
-	private:
-	public:
 		int damage;
 		int durability;
-		Weapon();
-		~Weapon();
-};
-
-class Tool:Weapon {
-	private:
-	public:
 		int applied_block;
-		Tool();
-		~Tool();
-};
-
-class Structure:ITEM {
-	private:
 	public:
-		Structure();
-		~Structure();
-};
-
-class Machine:Structure {
-	private:
-	public:
-		Machine();
-		~Machine();
+		item_type_e type;
+		void use_item(){}
+		ITEM(){}
+		~ITEM(){}
 };
 
 #endif

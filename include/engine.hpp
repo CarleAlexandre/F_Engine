@@ -10,6 +10,7 @@
 # include <thread>
 # include <mutex>
 
+#include "inventory.hpp"
 # include "../HavenLib/include/haven.hpp"
 
 # ifdef DEBUG
@@ -37,15 +38,6 @@ typedef enum {
 	entity_type_gathering,
 	entity_type_plant,
 }entity_type_e;
-
-typedef enum {
-	item_type_weapon,
-	item_type_tool,
-	item_type_material,
-	item_type_structure,
-	item_type_machine,
-	item_type_useable,
-}item_type_e;
 
 typedef enum {
 	engine_status_menu = 0,
@@ -165,12 +157,6 @@ typedef struct s_thread_queue {
 	void *arg;
 } t_thread_queue;
 
-typedef struct s_item {
-	item_type_e type;
-	unsigned int texture_index;
-	void *modifiers;
-} t_item;
-
 typedef struct s_entity {
 	unsigned int textureId;
 	Vector2 pos;
@@ -193,8 +179,7 @@ typedef struct s_player {
 	player_action_e action;
 	unsigned int lvl;
 	float xp;
-	std::vector<t_item> inventory;
-	u32 inventory_size;
+	INVENTORY inv;
 	t_stats stats;
 	Rectangle hitbox;
 	Rectangle frame;

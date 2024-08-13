@@ -46,32 +46,31 @@ void audioFun() {
 }
 
 t_player defaultPlayerInit(const Vector3 spawn) {
-	t_player default_player;
-
-	default_player.name = "default";
-	default_player.status = player_status_well;
-	default_player.pos = spawn;
-	default_player.xp = 0.0f;
-	default_player.lvl = 1;
-	default_player.dir = NORTH;
-	default_player.hitbox = {default_player.pos.x + 6, default_player.pos.y - 8, 12, 12};
-	default_player.inventory.clear();
-	default_player.inventory_size = 36;
-	default_player.frame = (Rectangle){0, 0, 32, 32};
-	default_player.animation_idx = 0;
-	default_player.stats = {
-		.move_speed = 10,
-		.crit_chance = 0.0f,
-		.crit_dmg = 1.2f,
-		.raw_dmg = 0.0f,
-		.dmg_reduction = 0.0f,
-		.armor = 30,
-		.attack_speed = 0.6f,
-		.life_steal = 0.0f,
-		.mana = 300,
-		.magic_affinity = 1.0f,
-		.life = 600,
-		.max_life = 600,
+	t_player default_player = (t_player){
+		.pos = spawn,
+		.dir = NORTH,
+		.status = player_status_well,
+		.lvl = 1,
+		.xp = 0.0f,
+		.inv = INVENTORY(),
+		.stats = {
+			.move_speed = 10,
+			.crit_chance = 0.0f,
+			.crit_dmg = 1.2f,
+			.raw_dmg = 0.0f,
+			.dmg_reduction = 0.0f,
+			.armor = 30,
+			.attack_speed = 0.6f,
+			.life_steal = 0.0f,
+			.mana = 300,
+			.magic_affinity = 1.0f,
+			.life = 600,
+			.max_life = 600,
+		},
+		.hitbox = {spawn.x + 6, spawn.y - 8, 12, 12},
+		.frame = (Rectangle){0, 0, 32, 32},
+		.name = "default",
+		.animation_idx = 0,
 	};
 	return (default_player);
 }

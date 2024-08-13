@@ -44,6 +44,7 @@ void updateInput(void) {
 					break;
 				}
 				case(toggleinventory):{
+					engine.current_save->inv.toggle();
 					break;
 				}
 				case(centercamera):{
