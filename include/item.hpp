@@ -6,8 +6,7 @@ typedef enum {
 	item_type_tool,
 	item_type_material,
 	item_type_structure,
-	item_type_machine,
-	item_type_useable,
+	item_type_consumable,
 }item_type_e;
 
 enum tool{
@@ -29,24 +28,21 @@ enum weapon{
 	weapon_magic_staff,
 };
 
-enum useable {
-	useable_bandage,
-	useable_kit,
-	useable_food,
-	useable_drugs,
-	useable_potion,
-	useable_music_instrument,
-	useable_trap,
-	useable_bomb,
-	useable_scroll,
-};
-
-enum machine {
-	machine_pc,
-	machine_door,
+enum consumable {
+	consumable_bandage,
+	consumable_kit,
+	consumable_food,
+	consumable_drugs,
+	consumable_potion,
+	consumable_music_instrument,
+	consumable_trap,
+	consumable_bomb,
+	consumable_scroll,
 };
 
 enum structure {
+	machine_pc,
+	machine_door,
 	structure_wall,
 	structure_brick,
 	structure_fence,
@@ -65,14 +61,53 @@ enum material {
 
 class ITEM {
 	private:
+	public:
+		item_type_e type;
+		ITEM(){}
+		~ITEM(){}
+};
+
+class Structure:ITEM {
+	private:
+	public:
+		void place_structure(){}
+		Structure(){}
+		~Structure(){}
+};
+
+
+class Weapon:ITEM {
+	private:
 		int damage;
 		int durability;
 		int applied_block;
 	public:
-		item_type_e type;
-		void use_item(){}
-		ITEM(){}
-		~ITEM(){}
+		void primary(){}
+		Weapon(){}
+		~Weapon(){}
 };
+
+
+class Tool:ITEM {
+	private:
+		int damage;
+		int durability;
+		int applied_block;
+	public:
+		Tool(){}
+		~Tool(){}
+};
+
+class Consumable:ITEM {
+	private:
+		int damage;
+		int durability;
+		int applied_block;
+	public:
+		int effect;
+		Consumable(){}
+		~Consumable(){}
+};
+
 
 #endif
