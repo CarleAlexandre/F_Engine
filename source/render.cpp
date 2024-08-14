@@ -114,7 +114,7 @@ void saveUi() {
 		case (2):{
 			static char player_name[15] = "\0";
 			static char player_skinidx = 1;
-			Texture2D tmp =  engine.textures[engine.texture_dictionnary["skin"]];
+			Texture2D tmp =  engine.textures.hero[engine.texture_dictionnary["skin"]];
 
 			GuiTextBox({20, 50, 200, 20}, player_name, 15, true);
 			if (player_skinidx > 1) {
@@ -149,7 +149,7 @@ void saveUi() {
 				stats = 0;
 				scroll.y = 0;
 			}
-			DrawTextureRec(engine.textures[engine.texture_dictionnary[TextFormat("Hero_%02i", player_skinidx)]], {0, 0, 32, 32}, {40, 100}, WHITE);
+			DrawTextureRec(engine.textures.hero[engine.texture_dictionnary[TextFormat("Hero_%02i", player_skinidx)]], {0, 0, 32, 32}, {40, 100}, WHITE);
 			break;
 		}
 		case (3):{

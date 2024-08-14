@@ -129,6 +129,14 @@ typedef enum {
 	tile_tool_use_lockpick,
 } tile_tool_use;
 
+typedef enum {
+	text_hero,
+	text_env,
+	text_item,
+	text_mod,
+	text_ui,
+} text_type;
+
 typedef struct s_input {
 	int key;
 	bool ismouse;
@@ -215,6 +223,14 @@ typedef struct s_animation {
 	Vector3 pos;
 } t_animation;
 
+typedef struct s_texture{
+	std::vector<Texture2D> hero;
+	std::vector<Texture2D> env;
+	std::vector<Texture2D> item;
+	std::vector<Texture2D> mob;
+	std::vector<Texture2D> ui;
+}t_textures;
+
 typedef struct s_engine {
 	std::atomic_int status;
 	Font font;
@@ -222,7 +238,7 @@ typedef struct s_engine {
 	RenderTexture fbo;
 	std::vector<t_player> players;
 	t_player *current_save;
-	std::vector<Texture2D> textures;
+	t_textures textures;
 	std::vector<t_level> levels;
 	std::unordered_map<std::string, int> texture_dictionnary;
 	t_input	input[MAX_INPUT];
@@ -254,7 +270,7 @@ const Vector2 getVector2Pos(const u32 index, const int width);
 
 std::vector<t_level> loadAllLevel(void);
 void freeLevel(t_level *level);
-std::vector<Texture2D> loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary);
+t_textures loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary);
 void drawLevel(t_level &level);
 void loadInput(t_input *inputlist);
 

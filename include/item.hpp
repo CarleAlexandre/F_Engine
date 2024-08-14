@@ -62,6 +62,7 @@ enum material {
 class ITEM {
 	private:
 	public:
+		int textureid;
 		item_type_e type;
 		ITEM(){}
 		~ITEM(){}

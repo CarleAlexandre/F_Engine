@@ -140,7 +140,7 @@ int main(void) {
 			}
 			case (engine_status_level_editor): {
 				EnableEventWaiting();
-				engine.status = mapBuilder(engine.textures);
+				engine.status = mapBuilder(engine.textures.env);
 				DisableEventWaiting();
 				break;
 			}
