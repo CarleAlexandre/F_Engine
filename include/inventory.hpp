@@ -11,16 +11,24 @@ class TOOL_BAR {
 		int current_item;
 		bool gotonext;
 		bool gotoprev;
+		Vector2 pos;
 	public:
 
 		void render() {
-			if (gotonext) {
+			//if (gotonext) {
 
-			} else if (gotoprev) {
+			//} else if (gotoprev) {
 
-			} else {
+			//} else {
 
-			}
+			//}
+			pos.x = GetScreenWidth() - 160;
+			pos.y = GetScreenHeight() - 100;
+			BeginScissorMode(pos.x, pos.y, 120, 60);
+				DrawRectangle(pos.x - 20, pos.y + 10, 40, 40, RED);
+				DrawRectangle(pos.x + 40, pos.y + 10, 40, 40, RED);
+				DrawRectangle(pos.x + 100, pos.y + 10, 40, 40, RED);
+			EndScissorMode();
 		}
 		void update() {
 
@@ -83,7 +91,6 @@ class INVENTORY {
 					default: break;
 				}
 			}
-			tool_bar.render();
 		}
 		void addItem(ITEM &item) {
 			switch (item.type){

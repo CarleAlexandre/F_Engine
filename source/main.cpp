@@ -139,7 +139,7 @@ int main(void) {
 			}
 			case (engine_status_level_editor): {
 				EnableEventWaiting();
-				engine.status = mapBuilder(engine.textures->env);
+				//engine.status = mapBuilder(engine.textures);
 				DisableEventWaiting();
 				break;
 			}
@@ -163,9 +163,9 @@ int main(void) {
 		engine.players[i].name.clear();
 	}
 	engine.players.clear();
-	for (int i = 0; i < engine.levels.size(); i++) {
-		freeLevel(&engine.levels[i]);
-	}
+	//for (int i = 0; i < engine.levels.size(); i++) {
+	//	freeLevel(&engine.levels[i]);
+	//}
 	UnloadRenderTexture(engine.fbo);
 	//ShowCursor();
 	CloseWindow();

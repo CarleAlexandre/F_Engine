@@ -200,10 +200,9 @@ typedef struct s_level {
 	int *terrain;
 	int *wall;
 	int *event;
-	Vector3 dimension;
+	Vector2 dimension;
 	char *filename;
 	Texture2D tile_texture;
-	char *tileset;
 } t_level;
 
 typedef struct s_thread_handle {
@@ -226,7 +225,6 @@ typedef struct s_animation {
 
 typedef struct s_texture{
 	std::vector<Texture2D> hero;
-	std::vector<Texture2D> env;
 	std::vector<Texture2D> item;
 	std::vector<Texture2D> mob;
 	std::vector<Texture2D> ui;

@@ -218,6 +218,7 @@ void renderSolo(void) {
 		EndMode2D();
 		//DrawPixel(GetScreenWidth() * 0.5, GetScreenHeight() * 0.5, PINK);
 		engine.current_save->inv.render(engine.textures->ui[1]);
+		engine.current_save->inv.tool_bar.render();
 		DrawText(TextFormat("x: %.1f, z:%.1f", engine.current_save->pos.x, engine.current_save->pos.z), 20, 40, 20, GREEN);
 		DrawFPS(0, 0);
 	EndTextureMode();
