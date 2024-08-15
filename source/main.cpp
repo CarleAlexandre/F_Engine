@@ -134,7 +134,6 @@ int main(void) {
 				break;
 			}
 			case (engine_status_online): {
-				DisableEventWaiting();
 				renderOnline();
 				break;
 			}
@@ -168,5 +167,6 @@ int main(void) {
 		freeLevel(&engine.levels[i]);
 	}
 	UnloadRenderTexture(engine.fbo);
+	//ShowCursor();
 	CloseWindow();
 }

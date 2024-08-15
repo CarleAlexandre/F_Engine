@@ -202,6 +202,7 @@ typedef struct s_level {
 	int *event;
 	Vector3 dimension;
 	char *filename;
+	Texture2D tile_texture;
 	char *tileset;
 } t_level;
 

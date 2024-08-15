@@ -5,9 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <cstring>
-#include <unordered_map>
 
-std::unordered_map<std::string, int> texture_dictionnary;
 t_level level;
 RenderTexture fbo;
 
@@ -157,10 +155,9 @@ int mapBuilder(std::vector<Texture2D> textures) {
 		mouse_pos = GetMousePosition();
 		int width = GetScreenWidth();
 		if (!ctx.new_file) {
-			ctx.tileset_ok = texture_dictionnary.contains(level.tileset);
-			if (ctx.tileset_ok) {
-				current_tileset = textures[texture_dictionnary[level.tileset]];
-			}
+			if (FileExists(ctx.tileset)) {
+				current_tileset = LoadTexture(TextFormat("assets/textures/env/%s", ctx.tileset));
+			} else {abort();}
 		}
 		if (!ctx.tile_bound.height) {
 			ctx.tile_bound.height = (float)(GetScreenHeight() * 0.5) - 10;
@@ -334,17 +331,17 @@ int mapBuilder(std::vector<Texture2D> textures) {
 		if (IsCursorHidden()) {
 			switch (ctx.tool_action) {
 				case (0): {
-					DrawTextureRec(textures[texture_dictionnary["BRUSH"]], {0, 0, 32, 32}, {mouse_pos.x, mouse_pos.y}, WHITE);
+					DrawTextureRec(textures[0], {0, 0, 32, 32}, {mouse_pos.x, mouse_pos.y}, WHITE);
 					ctx.saved = false;
 					break;
 				}
 				case (1): {
-					DrawTextureRec(textures[texture_dictionnary["ERASE"]], {0, 0, 32, 32}, {mouse_pos.x, mouse_pos.y}, WHITE);
+					DrawTextureRec(textures[2], {0, 0, 32, 32}, {mouse_pos.x, mouse_pos.y}, WHITE);
 					ctx.saved = false;
 					break;
 				}
 				case (2): {
-					DrawTextureRec(textures[texture_dictionnary["FILL"]], {0, 0, 32, 32}, {mouse_pos.x, mouse_pos.y}, WHITE);
+					DrawTextureRec(textures[3], {0, 0, 32, 32}, {mouse_pos.x, mouse_pos.y}, WHITE);
 					ctx.saved = false;
 					break;
 				}
@@ -458,7 +455,7 @@ int mapBuilder(std::vector<Texture2D> textures) {
 					ctx.error = error_bad_dimension;
 				} else if (!strnlen(ctx.filename, 19)) {
 					ctx.error = error_file_empty;
-				} else if (!texture_dictionnary.contains(ctx.tileset)) {
+				} else if (!FileExists(ctx.tileset)) {
 					ctx.error = error_tileset_not_found;
 					ctx.tileset_ok = false;
 				} else {

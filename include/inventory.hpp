@@ -57,9 +57,9 @@ class INVENTORY {
 	public:
 		TOOL_BAR tool_bar;
 	
-		void render() {
+		void render(Texture2D texture) {
 			if (isopen) {
-				DrawRectangleRec({pos.x, pos.y, 360, 480}, RED);
+				DrawTexture(texture, pos.x, pos.y, WHITE);
 				switch (current_tab) {
 					case (1): {
 						break;
@@ -110,6 +110,7 @@ class INVENTORY {
 
 		INVENTORY() : tool_bar(){
 			current_tab = 1;
+			pos = {100, 100};
 		}
 		~INVENTORY() {
 		}

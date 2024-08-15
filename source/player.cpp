@@ -21,6 +21,8 @@ void updateInput(void) {
 			}
 		}
 		if (!engine.input[i].ismouse && IsKeyDown(engine.input[i].key)) {
+			static double interval = 0.1;
+			interval += GetFrameTime();
 			switch(engine.input[i].id){
 				case(interact):{
 					break;
@@ -44,7 +46,10 @@ void updateInput(void) {
 					break;
 				}
 				case(toggleinventory):{
-					engine.current_save->inv.toggle();
+					if (interval >= 0.1) {
+						engine.current_save->inv.toggle();
+						interval = 0;
+					}
 					break;
 				}
 				case(centercamera):{
