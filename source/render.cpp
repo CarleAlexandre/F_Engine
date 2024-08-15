@@ -114,7 +114,6 @@ void saveUi() {
 		case (2):{
 			static char player_name[15] = "\0";
 			static char player_skinidx = 1;
-			Texture2D tmp =  engine.textures.hero[engine.texture_dictionnary["skin"]];
 
 			GuiTextBox({20, 50, 200, 20}, player_name, 15, true);
 			if (player_skinidx > 1) {
@@ -137,7 +136,7 @@ void saveUi() {
 			if (GuiButton({200, 360, 100, 50}, "Create!")) {
 				t_player new_player = defaultPlayerInit(Vector3Zero());
 				new_player.name = player_name;
-				new_player.skin = engine.texture_dictionnary[TextFormat("Hero_%02i", player_skinidx)];
+				new_player.skin = player_skinidx;
 				new_player.to = new_player.pos;
 				engine.players.push_back(new_player);
 				engine.current_save = engine.players.data() + ((engine.players.size() - 1) * sizeof(t_player));
@@ -149,7 +148,7 @@ void saveUi() {
 				stats = 0;
 				scroll.y = 0;
 			}
-			DrawTextureRec(engine.textures.hero[engine.texture_dictionnary[TextFormat("Hero_%02i", player_skinidx)]], {0, 0, 32, 32}, {40, 100}, WHITE);
+			DrawTextureRec(engine.textures->hero[player_skinidx - 1], {0, 0, 32, 32}, {40, 100}, WHITE);
 			break;
 		}
 		case (3):{
@@ -168,7 +167,7 @@ void saveUi() {
 			if (promptdelete) {
 				int result = GuiMessageBox({100, 100, 200, 200}, "#152#DELETE", "#152#Are you sure ??", "#152#;NO!!");
 					if (result == 1) {
-						std::remove(TextFormat("save/%s.player", engine.players[deleteidx].name.c_str()));
+						std::remove(TextFormat("assets/save/%s.player", engine.players[deleteidx].name.c_str()));
 						engine.players.erase(engine.players.begin() + deleteidx);
 						stats = 0;
 					}

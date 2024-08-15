@@ -355,42 +355,37 @@ void savePlayerData(t_player player) {
 	writeFile(TextFormat("save/%s.player", player.name.c_str()), data.str().c_str(), data.str().size());
 }
 
-t_textures loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary) {
+t_textures *loadAllTexture() {
 	FilePathList textures_directory;
-	t_textures textures;
+	t_textures *textures = new t_textures;
 
-	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/env"));
+	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/env/"));
 	for (int i = 0; i < textures_directory.count; i++) {
-		textures.env.push_back(LoadTexture(textures_directory.paths[i]));
-		texture_dictionnary.emplace(GetFileNameWithoutExt(textures_directory.paths[i]), i);
+		textures->env.push_back(LoadTexture(textures_directory.paths[i]));
 	}
 	UnloadDirectoryFiles(textures_directory);
 
-	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/hero"));
+	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/hero/"));
 	for (int i = 0; i < textures_directory.count; i++) {
-		textures.hero.push_back(LoadTexture(textures_directory.paths[i]));
-		texture_dictionnary.emplace(GetFileNameWithoutExt(textures_directory.paths[i]), i);
+		textures->hero.push_back(LoadTexture(textures_directory.paths[i]));
 	}
 	UnloadDirectoryFiles(textures_directory);
 
-	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/item"));
+	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/item/"));
 	for (int i = 0; i < textures_directory.count; i++) {
-		textures.item.push_back(LoadTexture(textures_directory.paths[i]));
-		texture_dictionnary.emplace(GetFileNameWithoutExt(textures_directory.paths[i]), i);
+		textures->item.push_back(LoadTexture(textures_directory.paths[i]));
 	}
 	UnloadDirectoryFiles(textures_directory);
 
-	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/mob"));
+	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/mob/"));
 	for (int i = 0; i < textures_directory.count; i++) {
-		textures.mob.push_back(LoadTexture(textures_directory.paths[i]));
-		texture_dictionnary.emplace(GetFileNameWithoutExt(textures_directory.paths[i]), i);
+		textures->mob.push_back(LoadTexture(textures_directory.paths[i]));
 	}
 	UnloadDirectoryFiles(textures_directory);
 
-	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/ui"));
+	textures_directory = LoadDirectoryFiles(GetDirectoryPath("assets/textures/ui/"));
 	for (int i = 0; i < textures_directory.count; i++) {
-		textures.ui.push_back(LoadTexture(textures_directory.paths[i]));
-		texture_dictionnary.emplace(GetFileNameWithoutExt(textures_directory.paths[i]), i);
+		textures->ui.push_back(LoadTexture(textures_directory.paths[i]));
 	}
 	UnloadDirectoryFiles(textures_directory);
 

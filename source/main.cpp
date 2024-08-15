@@ -99,7 +99,7 @@ int main(void) {
 	SetTargetFPS(120);
 	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
 	engine.fbo = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-	engine.textures = loadAllTexture(engine.texture_dictionnary);
+	engine.textures = loadAllTexture();
 	engine.players = loadAllSave();
 	engine.levels = loadAllLevel();
 	loadInput(engine.input);
@@ -140,7 +140,7 @@ int main(void) {
 			}
 			case (engine_status_level_editor): {
 				EnableEventWaiting();
-				engine.status = mapBuilder(engine.textures.env);
+				engine.status = mapBuilder(engine.textures->env);
 				DisableEventWaiting();
 				break;
 			}

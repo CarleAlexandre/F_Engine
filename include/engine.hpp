@@ -238,9 +238,8 @@ typedef struct s_engine {
 	RenderTexture fbo;
 	std::vector<t_player> players;
 	t_player *current_save;
-	t_textures textures;
+	t_textures *textures;
 	std::vector<t_level> levels;
-	std::unordered_map<std::string, int> texture_dictionnary;
 	t_input	input[MAX_INPUT];
 	std::vector<t_animation> animation_queue;
 	u32 level_idx;
@@ -270,7 +269,7 @@ const Vector2 getVector2Pos(const u32 index, const int width);
 
 std::vector<t_level> loadAllLevel(void);
 void freeLevel(t_level *level);
-t_textures loadAllTexture(std::unordered_map<std::string, int> &texture_dictionnary);
+t_textures *loadAllTexture();
 void drawLevel(t_level &level);
 void loadInput(t_input *inputlist);
 

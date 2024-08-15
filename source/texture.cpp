@@ -13,7 +13,7 @@ void renderTextureChunk(const u32 idx, const Texture2D &texture, Vector2 pos) {
 }
 
 void renderAnimationFrame(t_animation &animationframe) {
-			renderTextureChunk(animationframe.frame_idx + animationframe.current_frame, engine.textures.hero[animationframe.texture_idx], {animationframe.pos.x, animationframe.pos.z});
+			renderTextureChunk(animationframe.frame_idx + animationframe.current_frame, engine.textures->hero[animationframe.texture_idx], {animationframe.pos.x, animationframe.pos.z});
 	//switch (type) {
 	//	case (text_hero):{
 	//		break;
