@@ -28,12 +28,14 @@ void updateInput(void) {
 					break;
 				}
 				case(hotbar1):{
+					engine.current_save->inv.tool_bar.getPrev();
 					break;
 				}
 				case(hotbar2):{
 					break;
 				}
 				case(hotbar3):{
+					engine.current_save->inv.tool_bar.getNext();
 					break;
 				}
 				case(hotbar4):{
@@ -85,5 +87,6 @@ int updatePlayer(void) {
 			ret = 1;
 		}
 	}
+	engine.current_save->inv.tool_bar.update();
 	return (ret);
 }
