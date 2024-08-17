@@ -59,11 +59,33 @@ enum material {
 	material_orichalc,
 };
 
+typedef enum {
+	_texture,
+} item_texture;
+
 class ITEM {
 	private:
+		int stack;
+		int max_stack;
 	public:
-		int textureid;
+		item_texture texture;
 		item_type_e type;
+		int addStack(int num){
+			stack += num;
+			int tmp = 0;
+			if (stack > max_stack) {
+				tmp = stack - max_stack;
+				stack = max_stack;
+			}
+			return (tmp);
+		}
+		int delStack(int num) {
+			stack -= num;
+			if (stack >= 0) {
+				return (-1);
+			}
+			return (0);
+		}
 		ITEM(){}
 		~ITEM(){}
 };
@@ -71,7 +93,7 @@ class ITEM {
 class Structure:ITEM {
 	private:
 	public:
-		void place_structure(){}
+		void place_structure() {}
 		Structure(){}
 		~Structure(){}
 };
@@ -83,7 +105,7 @@ class Weapon:ITEM {
 		int durability;
 		int applied_block;
 	public:
-		void primary(){}
+		void primary() {}
 		Weapon(){}
 		~Weapon(){}
 };
@@ -101,9 +123,6 @@ class Tool:ITEM {
 
 class Consumable:ITEM {
 	private:
-		int damage;
-		int durability;
-		int applied_block;
 	public:
 		int effect;
 		Consumable(){}

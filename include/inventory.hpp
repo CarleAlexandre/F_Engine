@@ -6,7 +6,6 @@
 #include "item.hpp"
 #include <raymath.h>
 
-
 class TOOL_BAR {
 	private:
 		int current_item;
@@ -19,11 +18,11 @@ class TOOL_BAR {
 
 		void render() {
 			BeginScissorMode(pos.x, pos.y, 80, 60);
-				DrawRectangle(pos1.x, pos1.y, 40, 40, RED);
-				DrawRectangle(pos2.x, pos2.y, 40, 40, RED);
+				DrawTexturePro(, {}, {0, 0, 40, 40}, pos1, 0, WHITE);
+				DrawTexturePro(, {}, {0, 0, 40, 40}, pos2, 0, WHITE);
 			EndScissorMode();
 		}
-		void update() {	
+		void update() {
 			if (gotonext || gotoprev) {
 				pos1 = Vector2MoveTowards(pos1, topos1, 10);
 				pos2 = Vector2MoveTowards(pos2, topos2, 10);
