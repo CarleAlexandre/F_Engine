@@ -50,27 +50,6 @@ typedef enum {
 }engine_status_e;
 
 typedef enum {
-	player_status_well = 0,
-	player_status_sick = 1,
-	player_status_dead = 2,
-	player_status_hungry = 3,
-	player_status_drunk = 4,
-	player_status_unlucky = 5,
-	player_status_lucky = 6,
-	player_status_cursed = 7,
-	player_status_blessed = 8,
-	player_status_god = 9,
-}player_status_e;
-
-typedef enum {
-	player_action_default	= -1,
-	player_action_idle		= 0,
-	player_action_moving	= 1,
-	player_action_hurt		= 2,
-	playar_action_interact	= 3,
-} player_action_e;
-
-typedef enum {
 	player_token_status			= 2,
 	player_token_lvl			= 3,
 	player_token_xp				= 4,
@@ -143,23 +122,6 @@ typedef struct s_input {
 	player_input_e id;
 }t_input;
 
-typedef struct s_stats {
-	float move_speed;
-	float crit_chance;
-	float crit_dmg;
-	float raw_dmg;
-	float dmg_reduction;
-	float armor;
-	float attack_speed;
-	float life_steal;
-	float mana;
-	float magic_affinity;
-	float life;
-	float max_life;
-	float health_regen;
-	float mana_regen;
-} t_stats;
-
 typedef struct s_thread_queue {
 	void (*fun)(void *);
 	void *arg;
@@ -178,23 +140,6 @@ typedef struct s_entity {
 	float life;
 	float max_life;
 }	t_entity;
-
-typedef struct s_player {
-	Vector3 pos;
-	Vector3 to;
-	char dir;
-	player_status_e	status;
-	player_action_e action;
-	unsigned int lvl;
-	float xp;
-	INVENTORY inv;
-	t_stats stats;
-	Rectangle hitbox;
-	Rectangle frame;
-	std::string name;
-	int skin;
-	int animation_idx;
-} t_player;
 
 typedef struct s_level {
 	int *terrain;
@@ -258,10 +203,6 @@ void CorrectWallCollision(t_player *player, const t_level &level, Rectangle *col
 
 void travelTarget(Vector2 *current, const Vector2 target, const f32 velocity, const f32 deltaTime);
 bool IsInBond(Vector2 pos, Vector2 hi, Vector2 low);
-
-t_player defaultPlayerInit(const Vector3 spawn);
-std::vector<t_player> loadAllSave(void);
-void savePlayerData(t_player player);
 
 const u32 getLinearIndex(const float x, const float y, const int width);
 const Vector2 getVector2Pos(const u32 index, const int width);
