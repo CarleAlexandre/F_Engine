@@ -87,7 +87,18 @@ class MAP {
 				}
 			}
 		}
-		void render(){}
+		void render(){
+			Vector2 beg = GetScreenToWorld2D({0,0}, engine. camera);
+			Vector2 end = GetScreenToWorld2D({(float)GetScreenWidth(), (float)GetScreenHeight()}, engine. camera);
+
+			//for (float y = beg.y; y < level.dimension.y && y < end.y; y ++) {
+			//	for (float z = 0; z < level.dimension.z; z += 32){
+			//		for (float x = beg.x; x < level.dimension.x && x < end.x; x += 32) {
+			//			DrawTextureRec(engine.textures.env[level.tileset], {(float)level.terrain[linearIndexFromCoordinate({x, y, z}, level.dimension.x, level.dimension.z)], }, {x, z}, WHITE);
+			//		}
+			//	}
+			//}
+		}
 		void logic(){}
 };
 

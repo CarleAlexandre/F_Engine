@@ -28,28 +28,6 @@ std::unordered_map<std::string, level_token_e> level_dictionnary{
 	{"tileset", level_token_tileset},
 };
 
-std::unordered_map<std::string, player_token_e> player_dictionnary{
-	{"status", player_token_status},
-	{"lvl", player_token_lvl},
-	{"xp", player_token_xp},
-	{"move_speed", player_token_move_speed},
-	{"crit_chance", player_token_crit_chance},
-	{"crit_dmg", player_token_crit_dmg},
-	{"raw_dmg", player_token_raw_dmg},
-	{"dmg_reduction", player_token_dmg_reduction},
-	{"armor", player_token_armor},
-	{"attack_speed", player_token_attack_speed},
-	{"life_steal", player_token_life_steal},
-	{"mana", player_token_mana},
-	{"magic_affinity", player_token_magic_affinity},
-	{"life", player_token_life},
-	{"max_life", player_token_max_life},
-	{"health_regen", player_token_health_regen},
-	{"mana_regen", player_token_mana_regen},
-	{"name", player_token_name},
-	{"skin", player_token_skin},
-};
-
 std::unordered_map<std::string, player_input_e> input_dictionnary{
 	{"move", move},
 	{"autoattack", autoattack},
@@ -216,104 +194,6 @@ std::vector<t_level> loadAllLevel(void) {
 	return (levels);
 }
 
-t_player loadPlayerSave(const char *savepath) {
-	t_player ret = defaultPlayerInit(Vector3Zero());
-
-	if (savepath == 0) {
-		return (ret);
-	}
-	char *player_data = readFile(savepath);
-	
-	std::vector<t_token> token = tokenizer(player_data, ",\n", 2, player_dictionnary);
-
-	if (token.size() == 0){
-#ifdef DEBUG 
-	std::cout << "Player file Parse Error: " << savepath << ".!\n";
-#endif
-		MemFree(player_data);
-		return (ret);
-	}
-	for (int i = 0; i < token.size(); i++) {
-		switch (token[i].identifier) {
-			case (player_token_move_speed):{
-				ret.stats.move_speed = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_crit_chance):{
-				ret.stats.crit_chance = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_crit_dmg):{
-				ret.stats.crit_dmg = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_raw_dmg):{
-				ret.stats.raw_dmg = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_dmg_reduction):{
-				ret.stats.dmg_reduction = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_armor):{
-				ret.stats.armor = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_attack_speed):{
-				ret.stats.attack_speed = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_life_steal):{
-				ret.stats.life_steal = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_mana):{
-				ret.stats.mana = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_magic_affinity):{
-				ret.stats.magic_affinity = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_life):{
-				ret.stats.life = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_max_life):{
-				ret.stats.max_life = std::atoi(token[i].value.c_str());
-				break;}
-			case (player_token_health_regen):{
-				ret.stats.health_regen = std::atoi(token[i].value.c_str());
-				break;
-			}
-			case (player_token_mana_regen):{
-				ret.stats.mana_regen = std::atoi(token[i].value.c_str());
-				break;
-			}
-			case (player_token_status):{
-				ret.status = (player_status_e)std::atoi(token[i].value.c_str());
-				break;
-			}
-			case (player_token_lvl):{
-				ret.lvl = std::atoi(token[i].value.c_str());
-				break;
-			}
-			case (player_token_xp):{
-				ret.xp = std::atof(token[i].value.c_str());
-				break;
-			}
-			case (player_token_name): {
-				ret.name = token[i].value;
-				break;
-			}
-			case (player_token_skin): {
-				ret.skin = atoi(token[i].value.c_str());
-#ifdef DEBUG
-						std::cout << ret.skin << "\n";
-#endif
-				break;
-			}
-			default:
-#ifdef DEBUG
-				std::cerr << "Save File Is Corrupted!\n";
-#endif
-				break;
-		}
-	}
-	clearToken(token);
-	MemFree(player_data);
-	return (ret);
-}
-
 std::vector<t_player> loadAllSave(void) {
 	std::vector<t_player> player_data;
 
@@ -323,36 +203,6 @@ std::vector<t_player> loadAllSave(void) {
 		player_data.push_back(loadPlayerSave(save_directory.paths[i]));	
 	}
 	return (player_data);
-}
-
-//if idx =0 then it's a new save
-void savePlayerData(t_player player) {
-	std::stringstream data;
-
-	data << "name:" << player.name.c_str() \
-		<< ",\nlvl:" << player.lvl \
-		<< ",\nxp:" << player.xp \
-		<< ",\nstatus:" << player.status \
-		<< ",\narmor:" << player.stats.armor \
-		<< ",\nattack_speed:" << player.stats.attack_speed \
-		<< ",\nmove_speed:" << player.stats.move_speed \
-		<< ",\ncrit_chance:" << player.stats.crit_chance \
-		<< ",\ncrit_dmg:" << player.stats.crit_dmg \
-		<< ",\ndmg_reduction:" << player.stats.dmg_reduction \
-		<< ",\nhealth_regen:" << player.stats.health_regen \
-		<< ",\nmana_regen:" << player.stats.mana_regen \
-		<< ",\nmax_life:" << player.stats.max_life \
-		<< ",\nlife:" << player.stats.life \
-		<< ",\nmana:" << player.stats.mana \
-		<< ",\nraw_dmg:" << player.stats.raw_dmg \
-		<< ",\nmagic_affinity:" << player.stats.magic_affinity \
-		<< ",\nlife_steal:" << player.stats.life_steal \
-		<< ",\nskin:" << player.skin << ",\n"\
-		;
-#ifdef DEBUG
-						std::cout << player.skin << "\n";
-#endif
-	writeFile(TextFormat("save/%s.player", player.name.c_str()), data.str().c_str(), data.str().size());
 }
 
 t_textures *loadAllTexture() {

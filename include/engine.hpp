@@ -213,9 +213,6 @@ t_textures *loadAllTexture();
 void drawLevel(t_level &level);
 void loadInput(t_input *inputlist);
 
-void updateInput(void);
-int updatePlayer(void);
-
 int updateAnimation(t_animation *animationframe, const Vector3 *pos);
 void renderAnimationFrame(t_animation &animationframe);
 void renderTextureChunk(const u32 idx, const Texture2D &texture, Vector2 pos);
