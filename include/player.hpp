@@ -2,20 +2,13 @@
 # define PLAYER_HPP
 
 #include "inventory.hpp"
-# include "../HavenLib/include/haven.hpp"
+#include "include.hpp"
+#include "../HavenLib/include/haven.hpp"
 #include <raymath.h>
 #include <unordered_map>
 #include <string>
 #include <sstream>
-
-#define MAX_INPUT 11
-
-typedef enum {
-	SOUTH	= 1 << 0,
-	NORTH	= 1 << 1,
-	EAST	= 1 << 2,
-	WEST	= 1 << 3,
-}diraction_e;
+#include <string.h>
 
 typedef enum {
 	player_token_status			= 2,
