@@ -2,8 +2,42 @@
 # define PLAYER_HPP
 
 #include "inventory.hpp"
+# include "../HavenLib/include/haven.hpp"
 #include <raymath.h>
 #include <unordered_map>
+#include <string>
+#include <sstream>
+
+#define MAX_INPUT 11
+
+typedef enum {
+	SOUTH	= 1 << 0,
+	NORTH	= 1 << 1,
+	EAST	= 1 << 2,
+	WEST	= 1 << 3,
+}diraction_e;
+
+typedef enum {
+	player_token_status			= 2,
+	player_token_lvl			= 3,
+	player_token_xp				= 4,
+	player_token_move_speed		= 5,
+	player_token_crit_chance	= 6,
+	player_token_crit_dmg		= 7,
+	player_token_raw_dmg		= 8,
+	player_token_dmg_reduction	= 9,
+	player_token_armor			= 10,
+	player_token_attack_speed	= 11,
+	player_token_life_steal		= 12,
+	player_token_mana			= 13,
+	player_token_magic_affinity	= 14,
+	player_token_life			= 15,
+	player_token_max_life		= 16,
+	player_token_health_regen	= 17,
+	player_token_mana_regen		= 18,
+	player_token_name			= 19,
+	player_token_skin			= 20,
+} player_token_e;
 
 std::unordered_map<std::string, player_token_e> player_dictionnary{
 	{"status", player_token_status},
@@ -27,6 +61,19 @@ std::unordered_map<std::string, player_token_e> player_dictionnary{
 	{"skin", player_token_skin},
 };
 
+std::unordered_map<std::string, player_input_e> input_dictionnary{
+	{"move", move},
+	{"autoattack", autoattack},
+	{"interact", interact},
+	{"hotbar1", hotbar1},
+	{"hotbar2", hotbar2},
+	{"hotbar3", hotbar3},
+	{"hotbar4", hotbar4},
+	{"hotbar5", hotbar5},
+	{"hotbar6", hotbar6},
+	{"toggleinventory", toggleinventory},
+	{"centercamera", centercamera},
+};
 
 typedef enum {
 	player_status_well = 0,
@@ -49,6 +96,20 @@ typedef enum {
 	playar_action_interact	= 3,
 } player_action_e;
 
+typedef enum {
+	move			= 1,
+	autoattack		= 2,
+	interact		= 3,
+	hotbar1			= 4,
+	hotbar2			= 5,
+	hotbar3			= 6,
+	hotbar4			= 7,
+	hotbar5			= 8,
+	hotbar6			= 9,
+	toggleinventory	= 10,
+	centercamera	= 11,
+}player_input_e;
+
 typedef struct s_stats {
 	float move_speed;
 	float crit_chance;
@@ -66,6 +127,12 @@ typedef struct s_stats {
 	float mana_regen;
 } t_stats;
 
+typedef struct s_input {
+	int key;
+	bool ismouse;
+	player_input_e id;
+}t_input;
+
 class PLAYER {
 	private:
 		std::string name;
@@ -82,16 +149,17 @@ class PLAYER {
 		Rectangle hitbox;
 		Rectangle frame;
 		INVENTORY inv;
+		t_input	input[MAX_INPUT];
 	public:
-		void updateInput(void) {
+		void updateInput(Camera2D *camera) {
 			for (int i = 0; i < MAX_INPUT; i++) {
-				if (engine.input[i].ismouse && IsMouseButtonDown(engine.input[i].key)) {
-					switch(engine.input[i].id){
+				if (input[i].ismouse && IsMouseButtonDown(input[i].key)) {
+					switch(input[i].id){
 						case(move):{
-							Vector2 to;
-							to = GetScreenToWorld2D(GetMousePosition(), engine.camera);
-							engine.current_save->to.x = to.x - 16;
-							engine.current_save->to.z = to.y - 24;
+							Vector2 topos;
+							topos = GetScreenToWorld2D(GetMousePosition(), *camera);
+							to.x = topos.x - 16;
+							to.y = topos.y - 24;
 							break;
 						}
 						case(autoattack):{
@@ -101,22 +169,22 @@ class PLAYER {
 						break;
 					}
 				}
-				if (!engine.input[i].ismouse && IsKeyDown(engine.input[i].key)) {
+				if (!input[i].ismouse && IsKeyDown(input[i].key)) {
 					static double interval = 0.1;
 					interval += GetFrameTime();
-					switch(engine.input[i].id){
+					switch(input[i].id){
 						case(interact):{
 							break;
 						}
 						case(hotbar1):{
-							engine.current_save->inv.tool_bar.getPrev();
+							inv.tool_bar.getPrev();
 							break;
 						}
 						case(hotbar2):{
 							break;
 						}
 						case(hotbar3):{
-							engine.current_save->inv.tool_bar.getNext();
+							inv.tool_bar.getNext();
 							break;
 						}
 						case(hotbar4):{
@@ -130,13 +198,13 @@ class PLAYER {
 						}
 						case(toggleinventory):{
 							if (interval >= 0.1) {
-								engine.current_save->inv.toggle();
+								inv.toggle();
 								interval = 0;
 							}
 							break;
 						}
 						case(centercamera):{
-							engine.camera.target = {engine.current_save->pos.x + 16, engine.current_save->pos.z + 24};
+							camera->target = {pos.x + 16, pos.y + 24};
 							break;
 						}
 						default:
@@ -149,33 +217,30 @@ class PLAYER {
 		int update(void) {
 			static player_action_e last_action = player_action_default;
 			int ret = 0;
-			Vector2 from = {engine.current_save->pos.x, engine.current_save->pos.z};
-			Vector2 to = {engine.current_save->to.x, engine.current_save->to.z};
+			Vector2 from = {pos.x, pos.y};
+			Vector2 topos = {to.x, to.y};
 
-			if (Vector2Distance(from, to) > 0.1) {
-				travelTarget(&from, to, engine.current_save->stats.move_speed, GetFrameTime());
-				engine.current_save->pos.x = from.x;
-				engine.current_save->pos.z = from.y;
+			if (Vector2Distance(from, topos) > 0.1) {
+				travelTarget(&from, topos, stats.move_speed, GetFrameTime());
+				pos.x = from.x;
+				pos.y = from.y;
 				if (last_action != player_action_moving) {
-					engine.current_save->action = player_action_moving;
-					last_action = engine.current_save->action;
+					action = player_action_moving;
+					last_action = action;
 					ret = 1;
 				}
 			} else {
 				if (last_action != player_action_idle) {
-					engine.current_save->action = player_action_idle;
-					last_action = engine.current_save->action;
+					action = player_action_idle;
+					last_action = action;
 					ret = 1;
 				}
 			}
-			engine.current_save->inv.tool_bar.update();
+			inv.tool_bar.update();
 			return (ret);
 		}
 
 		void loadSave(const char *savepath) {
-			if (savepath == 0) {
-				return (ret);
-			}
 			char *player_data = readFile(savepath);
 			
 			std::vector<t_token> token = tokenizer(player_data, ",\n", 2, player_dictionnary);
@@ -185,7 +250,7 @@ class PLAYER {
 			std::cout << "Player file Parse Error: " << savepath << ".!\n";
 		#endif
 				MemFree(player_data);
-				return (ret);
+				return ;
 			}
 			for (int i = 0; i < token.size(); i++) {
 				switch (token[i].identifier) {
@@ -250,7 +315,7 @@ class PLAYER {
 						break;
 					}
 					case (player_token_skin): {
-						ret.skin = atoi(token[i].value.c_str());
+						skin = atoi(token[i].value.c_str());
 		#ifdef DEBUG
 								std::cout << ret.skin << "\n";
 		#endif
@@ -265,6 +330,27 @@ class PLAYER {
 			}
 			clearToken(token);
 			MemFree(player_data);
+		}
+
+		void loadInput() {
+			char *inputfile = readFile("assets/config/input.cfg");
+			unsigned int current_input_idx = 0;
+
+			if (!inputfile){return;}
+			std::vector<t_token> inputtoken = tokenizer(inputfile, ";", 1, input_dictionnary);
+
+			if (!inputtoken.size()){return;}
+			for (int i = 0; i < inputtoken.size(); i++) {
+				eraseFromString(inputtoken[i].value, "{}\n", 3);
+				const char *nextdelim = getNextDelim(inputtoken[i].value.c_str(), ",", inputtoken[i].value.size(), 1);
+				input[inputtoken[i].identifier - 1].key = atoi(inputtoken[i].value.c_str() + 4);
+				input[inputtoken[i].identifier - 1].ismouse = (strncmp(nextdelim + 9, "true", 4) == 0) ? true : false;
+				input[inputtoken[i].identifier - 1].id = input_dictionnary[inputtoken[i].key];
+			}
+			clearToken(inputtoken);
+
+			MemFree(inputfile);
+			inputtoken.clear();
 		}
 
 		//if idx =0 then it's a new save
@@ -298,14 +384,13 @@ class PLAYER {
 		}
 
 	PLAYER(Vector2 spawn) {
-		t_player default_player = (t_player){
-			.pos = spawn,
-			.dir = NORTH,
-			.status = player_status_well,
-			.lvl = 1,
-			.xp = 0.0f,
-			.inv = INVENTORY(),
-			.stats = {
+			pos = spawn;
+			dir = NORTH;
+			status = player_status_well;
+			lvl = 1;
+			xp = 0.0f;
+			inv = INVENTORY();
+			stats = {
 				.move_speed = 10,
 				.crit_chance = 0.0f,
 				.crit_dmg = 1.2f,
@@ -318,13 +403,11 @@ class PLAYER {
 				.magic_affinity = 1.0f,
 				.life = 600,
 				.max_life = 600,
-			},
-			.hitbox = {spawn.x + 6, spawn.y - 8, 12, 12},
-			.frame = (Rectangle){0, 0, 32, 32},
-			.name = "default",
-			.animation_idx = 0,
-		};
-		return (default_player);
+			};
+			hitbox = {spawn.x + 6, spawn.y - 8, 12, 12};
+			frame = (Rectangle){0, 0, 32, 32};
+			name = "default";
+			animation_idx = 0;
 	}
 	~PLAYER();
 };

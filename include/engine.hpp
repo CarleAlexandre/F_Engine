@@ -50,47 +50,11 @@ typedef enum {
 }engine_status_e;
 
 typedef enum {
-	player_token_status			= 2,
-	player_token_lvl			= 3,
-	player_token_xp				= 4,
-	player_token_move_speed		= 5,
-	player_token_crit_chance	= 6,
-	player_token_crit_dmg		= 7,
-	player_token_raw_dmg		= 8,
-	player_token_dmg_reduction	= 9,
-	player_token_armor			= 10,
-	player_token_attack_speed	= 11,
-	player_token_life_steal		= 12,
-	player_token_mana			= 13,
-	player_token_magic_affinity	= 14,
-	player_token_life			= 15,
-	player_token_max_life		= 16,
-	player_token_health_regen	= 17,
-	player_token_mana_regen		= 18,
-	player_token_name			= 19,
-	player_token_skin			= 20,
-} player_token_e;
-
-typedef enum {
 	SOUTH	= 1 << 0,
 	NORTH	= 1 << 1,
 	EAST	= 1 << 2,
 	WEST	= 1 << 3,
 }diraction_e;
-
-typedef enum {
-	move			= 1,
-	autoattack		= 2,
-	interact		= 3,
-	hotbar1			= 4,
-	hotbar2			= 5,
-	hotbar3			= 6,
-	hotbar4			= 7,
-	hotbar5			= 8,
-	hotbar6			= 9,
-	toggleinventory	= 10,
-	centercamera	= 11,
-}player_input_e;
 
 typedef enum {
 	frame_loop_none = 0,
@@ -115,17 +79,6 @@ typedef enum {
 	text_mod,
 	text_ui,
 } text_type;
-
-typedef struct s_input {
-	int key;
-	bool ismouse;
-	player_input_e id;
-}t_input;
-
-typedef struct s_thread_queue {
-	void (*fun)(void *);
-	void *arg;
-} t_thread_queue;
 
 typedef struct s_entity {
 	unsigned int textureId;
@@ -180,11 +133,8 @@ typedef struct s_engine {
 	Font font;
 	Camera2D camera;
 	RenderTexture fbo;
-	std::vector<t_player> players;
-	t_player *current_save;
 	t_textures *textures;
 	std::vector<t_level> levels;
-	t_input	input[MAX_INPUT];
 	std::vector<t_animation> animation_queue;
 	u32 level_idx;
 } t_engine;

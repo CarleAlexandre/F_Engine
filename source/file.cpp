@@ -28,20 +28,6 @@ std::unordered_map<std::string, level_token_e> level_dictionnary{
 	{"tileset", level_token_tileset},
 };
 
-std::unordered_map<std::string, player_input_e> input_dictionnary{
-	{"move", move},
-	{"autoattack", autoattack},
-	{"interact", interact},
-	{"hotbar1", hotbar1},
-	{"hotbar2", hotbar2},
-	{"hotbar3", hotbar3},
-	{"hotbar4", hotbar4},
-	{"hotbar5", hotbar5},
-	{"hotbar6", hotbar6},
-	{"toggleinventory", toggleinventory},
-	{"centercamera", centercamera},
-};
-
 void writeToLevel(t_level level) {
 	//std::fstream output;
 
@@ -235,28 +221,4 @@ t_textures *loadAllTexture() {
 	UnloadDirectoryFiles(textures_directory);
 
 	return (textures);
-}
-
-void loadInput(t_input *inputlist) {
-	char *inputfile = readFile("assets/config/input.cfg");
-	u32 current_input_idx = 0;
-
-	if (!inputfile){return;}
-	std::vector<t_token> inputtoken = tokenizer(inputfile, ";", 1, input_dictionnary);
-
-	if (!inputtoken.size()){return;}
-	for (int i = 0; i < inputtoken.size(); i++) {
-		eraseFromString(inputtoken[i].value, "{}\n", 3);
-		const char *nextdelim = getNextDelim(inputtoken[i].value.c_str(), ",", inputtoken[i].value.size(), 1);
-		inputlist[inputtoken[i].identifier - 1].key = atoi(inputtoken[i].value.c_str() + 4);
-		inputlist[inputtoken[i].identifier - 1].ismouse = (strncmp(nextdelim + 9, "true", 4) == 0) ? true : false;
-		inputlist[inputtoken[i].identifier - 1].id = input_dictionnary[inputtoken[i].key];
-#ifdef DEBUG
-		std::cout << "key: " << inputlist[inputtoken[i].identifier - 1].key << " ismouse: " << inputlist[inputtoken[i].identifier - 1].ismouse << " id: " <<  inputlist[inputtoken[i].identifier - 1].id << "\n";
-#endif
-	}
-	clearToken(inputtoken);
-
-	MemFree(inputfile);
-	inputtoken.clear();
 }
