@@ -58,9 +58,9 @@ std::unordered_map<std::string, player_input_e> input_dictionnary{
 	{"move", move},
 	{"autoattack", autoattack},
 	{"interact", interact},
-	{"hotbar1", hotbar1},
-	{"hotbar2", hotbar2},
-	{"hotbar3", hotbar3},
+	{"hotbarprev", hotbarprev},
+	{"hotbaruse", hotbaruse},
+	{"hotbarnext", hotbarnext},
 	{"hotbar4", hotbar4},
 	{"hotbar5", hotbar5},
 	{"hotbar6", hotbar6},
@@ -130,20 +130,20 @@ class PLAYER {
 	private:
 		std::string name;
 		char dir;
-		Vector2 pos;
 		Vector2 to;
 		unsigned int lvl;
 		float xp;
 		int skin;
-		int animation_idx;
 		player_status_e	status;
-		player_action_e action;
 		t_stats stats;
 		Rectangle hitbox;
 		Rectangle frame;
-		INVENTORY inv;
 		t_input	input[MAX_INPUT];
 	public:
+		int animation_idx;
+		player_action_e action;
+		Vector2 pos;
+		INVENTORY inv;
 		void updateInput(Camera2D *camera) {
 			for (int i = 0; i < MAX_INPUT; i++) {
 				if (input[i].ismouse && IsMouseButtonDown(input[i].key)) {
@@ -169,14 +169,14 @@ class PLAYER {
 						case(interact):{
 							break;
 						}
-						case(hotbar1):{
+						case(hotbarprev):{
 							inv.tool_bar.getPrev();
 							break;
 						}
-						case(hotbar2):{
+						case(hotbaruse):{
 							break;
 						}
-						case(hotbar3):{
+						case(hotbarnext):{
 							inv.tool_bar.getNext();
 							break;
 						}

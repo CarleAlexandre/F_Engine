@@ -4,137 +4,21 @@
 
 t_engine engine;
 
-const Rectangle getTextureRec(const u32 idx, const Texture2D &texture) {
-	float x = getXpos(idx, texture.width / 32) * 32;
-	float y = getYpos(idx, texture.width / 32) * 32;
-	return ((const Rectangle){x, y, 32, 32});
-}
-
-void renderTextureChunk(const u32 idx, const Texture2D &texture, Vector2 pos) {
-	DrawTextureRec(texture, getTextureRec(idx, texture), pos, WHITE);
-}
-
-void renderAnimationFrame(t_animation &animationframe) {
-			renderTextureChunk(animationframe.frame_idx + animationframe.current_frame, engine.textures->hero[animationframe.texture_idx], {animationframe.pos.x, animationframe.pos.z});
-	//switch (type) {
-	//	case (text_hero):{
-	//		break;
-	//	}
-	//	case (text_env):{
-	//		break;
-	//	}
-	//	case (text_item):{
-	//		break;
-	//	}
-	//	case (text_mod):{
-	//		break;
-	//	}
-	//	case (text_ui):{
-	//		break;
-	//	}
-	//	default:break;
-	//}
-}
-
-//return -1 if animation is ended
-int updateAnimation(t_animation *animationframe, const Vector3 *pos) {
-	animationframe->frame_time += GetFrameTime();
-
-	if (pos) {
-		animationframe->pos = *pos;
-	}
-	if (animationframe->frame_time >= animationframe->max_time) {
-		switch(animationframe->loop_type) {
-			case(frame_loop_none):{
-				animationframe->current_frame++;
-				if (animationframe->current_frame >= animationframe->max_frame) {
-					return (-1);
-				}
-				break;
-			}
-			case(frame_loop_enable):{
-				animationframe->current_frame++;
-				if (animationframe->current_frame >= animationframe->max_frame) {
-					animationframe->current_frame = 0;
-				}
-				break;
-			}
-			case(frame_loop_reverse):{
-				animationframe->current_frame--;
-				if (animationframe->current_frame <= 0) {
-					animationframe->current_frame = animationframe->max_frame;
-				}
-				break;
-			}
-			case(frame_loop_updown):{
-				animationframe->current_frame += animationframe->incr;
-				if (animationframe->current_frame >= animationframe->max_frame) {
-					animationframe->incr *= -1;
-				}
-				break;
-			}
-		}
-		animationframe->frame_time = 0;
-	}
-	return (0);
-}
-
-int addAnimationToQueue(const int texture_idx, std::vector<t_animation> &animation_queue, const Vector3 pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype) {
-	t_animation new_animation;
-
-	new_animation.texture_idx = texture_idx;
-	new_animation.pos = pos;
-	new_animation.loop_type = looptype;
-	new_animation.current_frame = 0;
-	new_animation.max_time = 0.4;
-	new_animation.frame_time = 0;
-	new_animation.max_frame = max_frame;
-	new_animation.frame_idx = frame_idx;
-	animation_queue.push_back(new_animation);
-	return (animation_queue.size() - 1);
-}
-
-void deleteAnimationFromQueue(std::vector<t_animation> &animation_queue, u32 idx) {
-	animation_queue.erase(animation_queue.begin() + idx);
-}
-
-void updatePlayerAnimation(t_animation *player_animation, const player_action_e player_stats) {
-	updateAnimation(player_animation, &engine.current_save->pos);
-	switch (player_stats) {
-		case (player_action_idle): {
-			player_animation->frame_idx = 0;
-			player_animation->current_frame = 0;
-			break;
-		}
-		case (player_action_moving): {
-			player_animation->frame_idx = 6;
-			player_animation->current_frame = 0;
-			break;
-		}
-		case (player_action_hurt): {
-			player_animation->frame_idx = 50;
-			player_animation->current_frame = 0;
-			break;
-		}
-		default:break;
-	}
-}
-
 void menuUi(void) {
 	if (GuiButton({40, 90, 100, 50}, "Solo")){
-		engine.status.store(engine_status_save); 
+		engine.status = engine_status_save; 
 	}
 	if (GuiButton({40, 180, 100, 50}, "Setting")){
-		engine.status.store(engine_status_setting);
+		engine.status = engine_status_setting;
 	}
 	if (GuiButton({40, 270, 100, 50}, "Online")){
-		engine.status.store(engine_status_online);
+		engine.status = engine_status_online;
 	}
 	if (GuiButton({40, 360, 100, 50}, "Map Editor")){
-		engine.status.store(engine_status_level_editor);
+		engine.status = engine_status_level_editor;
 	}
 	if (GuiButton({40, 450, 100, 50}, "Exit")) {
-		engine.status.store(engine_status_close);
+		engine.status = engine_status_close;
 	}
 }
 
@@ -153,7 +37,7 @@ void settingUi() {
 				stats = 3;
 			}	
 			if (GuiButton({40, 360, 100, 50}, "Title Screen")){
-				engine.status.store(engine_status_menu);
+				engine.status = engine_status_menu;
 				stats = 0;
 			}
 			break;
@@ -171,7 +55,7 @@ void settingUi() {
 	}
 }
 
-void saveUi() {
+void saveUi(int save_number/*need to add save file list or database*/, ATLAS &atlas,PLAYER &player) {
 	static int stats = 0;
 	static Vector2 scroll;
 	static Rectangle view;
@@ -180,12 +64,12 @@ void saveUi() {
 	static u32 deleteidx = 0;
 	static bool promptdelete = false;
 
-	contentrec.height = engine.players.size() * 80;
+	contentrec.height = save_number * 80;
 	switch (stats) {
 		case (0): {
 			if (GuiButton({40, 90, 100, 50}, "LoadSave")){
 				stats = 1;
-				if (!engine.players.size()) {
+				if (!save_number) {
 					stats = 0;
 				}
 			}
@@ -194,12 +78,12 @@ void saveUi() {
 			}	
 			if (GuiButton({40, 270, 100, 50}, "DeleteSave")){
 				stats = 3;
-				if (!engine.players.size()) {
+				if (!save_number) {
 					stats = 0;
 				}
 			}	
 			if (GuiButton({40, 360, 100, 50}, "Title Screen")){
-				engine.status.store(engine_status_menu);
+				engine.status = engine_status_menu;
 				stats = 0;
 			}
 			break;
@@ -209,14 +93,15 @@ void saveUi() {
 
 			BeginDrawing();
 			BeginScissorMode(view.x, view.y, view.width, view.height);
-				for (int i = 0; i < engine.players.size(); i++) {
-					if (GuiButton({panelrec.x + 20 + scroll.x, panelrec.y + 30 + 70 * i + scroll.y, contentrec.width - 20, 60}, engine.players[i].name.c_str())) {
-						engine.current_save = &engine.players[i];
-						engine.current_save->to = engine.current_save->pos;
-						engine.status.store(engine_status_solo);
-						engine.current_save->animation_idx = addAnimationToQueue(engine.current_save->skin, engine.animation_queue, engine.current_save->pos, 6, 0, frame_loop_enable);
-						stats = 0;
-					}
+				for (int i = 0; i < save_number; i++) {
+					//load player and save list
+					// if (GuiButton({panelrec.x + 20 + scroll.x, panelrec.y + 30 + 70 * i + scroll.y, contentrec.width - 20, 60}, engine.players[i].name.c_str())) {
+					// 	engine.current_save = &engine.players[i];
+					// 	engine.current_save->to = engine.current_save->pos;
+					// 	engine.status.store(engine_status_solo);
+					// 	engine.current_save->animation_idx = addAnimationToQueue(engine.current_save->skin, engine.animation_queue, engine.current_save->pos, 6, 0, frame_loop_enable);
+					// 	stats = 0;
+					// }
 				}
 			EndScissorMode();
 
@@ -243,21 +128,21 @@ void saveUi() {
 			}
 			player_skinidx = clamp(player_skinidx, 1, 30);
 			if (GuiButton({200, 360, 100, 50}, "Create!")) {
-				t_player new_player = defaultPlayerInit(Vector3Zero());
-				new_player.name = player_name;
-				new_player.skin = player_skinidx;
-				new_player.to = new_player.pos;
-				engine.players.push_back(new_player);
-				engine.current_save = engine.players.data() + ((engine.players.size() - 1) * sizeof(t_player));
-				engine.status.store(engine_status_solo);
-				engine.current_save->animation_idx = addAnimationToQueue(engine.current_save->skin, engine.animation_queue, engine.current_save->pos, 6, 0, frame_loop_enable);
-				stats = 0;
+				// t_player new_player = defaultPlayerInit(Vector3Zero());
+				// new_player.name = player_name;
+				// new_player.skin = player_skinidx;
+				// new_player.to = new_player.pos;
+				// engine.players.push_back(new_player);
+				// engine.current_save = engine.players.data() + ((engine.players.size() - 1) * sizeof(t_player));
+				// engine.status.store(engine_status_solo);
+				// engine.current_save->animation_idx = addAnimationToQueue(engine.current_save->skin, engine.animation_queue, engine.current_save->pos, 6, 0, frame_loop_enable);
+				// stats = 0;
 			}
 			if (GuiButton({40, 360, 100, 50}, "Back")){
 				stats = 0;
 				scroll.y = 0;
 			}
-			DrawTextureRec(engine.textures->hero[player_skinidx - 1], {0, 0, 32, 32}, {40, 100}, WHITE);
+			DrawTextureRec(atlas.getTexture(player_skinidx), {0, 0, 32, 32}, {40, 100}, WHITE);
 			break;
 		}
 		case (3):{
@@ -265,8 +150,8 @@ void saveUi() {
 
 			BeginDrawing();
 			BeginScissorMode(view.x, view.y, view.width, view.height);
-				for (int i = 0; i < engine.players.size(); i++) {
-					if (GuiButton({panelrec.x + 20 + scroll.x, panelrec.y + 30 + 70 * i + scroll.y, contentrec.width - 20, 60}, engine.players[i].name.c_str())) {
+				for (int i = 0; i < save_number; i++) {
+					if (GuiButton({panelrec.x + 20 + scroll.x, panelrec.y + 30 + 70 * i + scroll.y, contentrec.width - 20, 60}, "")) {
 						promptdelete = true;
 						deleteidx = i;
 					}
@@ -276,8 +161,8 @@ void saveUi() {
 			if (promptdelete) {
 				int result = GuiMessageBox({100, 100, 200, 200}, "#152#DELETE", "#152#Are you sure ??", "#152#;NO!!");
 					if (result == 1) {
-						std::remove(TextFormat("assets/save/%s.player", engine.players[deleteidx].name.c_str()));
-						engine.players.erase(engine.players.begin() + deleteidx);
+						// std::remove(TextFormat("assets/save/%s.player", engine.players[deleteidx].name.c_str()));
+						// engine.players.erase(engine.players.begin() + deleteidx);
 						stats = 0;
 					}
 					if (result >= 0) {
@@ -311,32 +196,31 @@ void renderOnline(void) {
 	EndTextureMode();
 }
 
-void renderSolo(void) {
+void renderSolo(ATLAS &atlas, PLAYER &player) {
 	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
 			for (int i = 0; i < engine.animation_queue.size(); i++) {
-				if (updateAnimation(&engine.animation_queue[i], NULL) == -1) {
-					deleteAnimationFromQueue(engine.animation_queue, i);
+				if (atlas.updateAnimation(i, NULL) == -1) {
+					atlas.deleteAnimationFromQueue(i);
 				} else {
-					renderAnimationFrame(engine.animation_queue[i]);
+					atlas.renderAnimationFrame(i);
 				}
 			}
-			renderAnimationFrame(engine.animation_queue[engine.current_save->animation_idx]);
-			drawLevel(engine.levels[engine.level_idx]);
+			atlas.renderAnimationFrame(player.animation_idx);
 		EndMode2D();
 		//DrawPixel(GetScreenWidth() * 0.5, GetScreenHeight() * 0.5, PINK);
-		engine.current_save->inv.render(engine.textures->ui[1]);
-		engine.current_save->inv.tool_bar.render();
-		DrawText(TextFormat("x: %.1f, z:%.1f", engine.current_save->pos.x, engine.current_save->pos.z), 20, 40, 20, GREEN);
+		player.inv.render(atlas);
+		player.inv.tool_bar.render();
+		DrawText(TextFormat("x: %.1f, z:%.1f", player.pos.x, player.pos.y), 20, 40, 20, GREEN);
 		DrawFPS(0, 0);
 	EndTextureMode();
 }
 
-void renderSave() {
+void renderSave(ATLAS &atlas, PLAYER &player) {
 	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
-		saveUi();
+		saveUi(0, atlas, player);
 	EndTextureMode();
 }
 
@@ -351,31 +235,29 @@ int main(void) {
 	engine.status = engine_status_menu;
 	engine.camera.zoom = 2.0f;
 	engine.camera.target = Vector2Zero();
+	PLAYER player = PLAYER({0,0});
+	ATLAS atlas = ATLAS();
 
 	InitWindow(1920, 1080, "noheaven");
 	SetTargetFPS(120);
 	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
 	engine.fbo = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-	engine.textures = loadAllTexture();
-	engine.players = loadAllSave();
-	engine.levels = loadAllLevel();
-	loadInput(engine.input);
 	engine.camera.offset = {(float)(GetScreenWidth() * 0.5), (float)(GetScreenHeight() * 0.5)};
 	engine.level_idx = 0;
 
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
-			engine.status.store(engine_status_close);
+			engine.status = engine_status_close;
 		}
-		switch (engine.status.load()) {
+		switch (engine.status) {
 			case (engine_status_solo): {
-				updateInput();
-				if (updatePlayer()) {
-					updatePlayerAnimation(&engine.animation_queue[engine.current_save->animation_idx], engine.current_save->action);
+				player.updateInput(&engine.camera);
+				if (player.update()) {
+					atlas.updatePlayerAnimation(player.animation_idx, player.action, player.pos);
 				} else {
-					updatePlayerAnimation(&engine.animation_queue[engine.current_save->animation_idx], player_action_default);
+					atlas.updatePlayerAnimation(player.animation_idx, player_action_default, player.pos);
 				}
-				renderSolo();
+				renderSolo(atlas, player);
 				break;
 			}
 			case (engine_status_menu): {
@@ -383,7 +265,7 @@ int main(void) {
 				break;
 			}
 			case (engine_status_save): {
-				renderSave();
+				renderSave(atlas, player);
 				break;
 			}
 			case (engine_status_setting): {
@@ -413,12 +295,6 @@ int main(void) {
 			}*/
 		EndDrawing();
 	}
-
-	for (int i = 0; i < engine.players.size(); i++) {
-		savePlayerData(engine.players[i]);
-		engine.players[i].name.clear();
-	}
-	engine.players.clear();
 	UnloadRenderTexture(engine.fbo);
 	CloseWindow();
 }

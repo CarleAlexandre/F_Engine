@@ -18,8 +18,8 @@ class TOOL_BAR {
 
 		void render() {
 			BeginScissorMode(pos.x, pos.y, 80, 60);
-				DrawTexturePro(, {}, {0, 0, 40, 40}, pos1, 0, WHITE);
-				DrawTexturePro(, {}, {0, 0, 40, 40}, pos2, 0, WHITE);
+				// DrawTexturePro(, {}, {0, 0, 40, 40}, pos1, 0, WHITE);
+				// DrawTexturePro(, {}, {0, 0, 40, 40}, pos2, 0, WHITE);
 			EndScissorMode();
 		}
 		void update() {
@@ -77,9 +77,9 @@ class INVENTORY {
 	public:
 		TOOL_BAR tool_bar;
 	
-		void render(Texture2D texture) {
+		void render(ATLAS &atlas) {
 			if (isopen) {
-				DrawTexture(texture, pos.x, pos.y, WHITE);
+				DrawTexture(atlas.getTexture(0), pos.x, pos.y, WHITE);
 				switch (current_tab) {
 					case (1): {
 						break;
