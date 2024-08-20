@@ -2,6 +2,13 @@
 
 extern t_engine engine;
 
+typedef enum {
+	frame_loop_none = 0,
+	frame_loop_enable = 1,
+	frame_loop_reverse = 2,
+	frame_loop_updown = 3,
+} frame_loop_e;
+
 const Rectangle getTextureRec(const u32 idx, const Texture2D &texture) {
 	float x = getXpos(idx, texture.width / 32) * 32;
 	float y = getYpos(idx, texture.width / 32) * 32;

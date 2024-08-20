@@ -13,6 +13,18 @@ typedef enum {
 	WEST	= 1 << 3,
 }diraction_e;
 
+typedef struct s_animation {
+	u32 max_frame;
+	int texture_idx;
+	u32 current_frame;
+	u32 frame_idx;
+	double frame_time;
+	frame_loop_e loop_type;
+	double max_time;
+	int incr = 1;
+	Vector3 pos;
+} t_animation;
+
 int linearIndexFromCoordinate(Vector3 dim, int max_x, int max_y);
 Vector3 coordinateFromLinearIndex(int idx, float max_x, float max_y);
 Vector2 getBlockPos(Vector2 pos);

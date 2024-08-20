@@ -57,13 +57,6 @@ typedef enum {
 }diraction_e;
 
 typedef enum {
-	frame_loop_none = 0,
-	frame_loop_enable = 1,
-	frame_loop_reverse = 2,
-	frame_loop_updown = 3,
-} frame_loop_e;
-
-typedef enum {
 	tile_tool_use_shovel,
 	tile_tool_use_pickaxe,
 	tile_tool_use_axe,
@@ -79,47 +72,6 @@ typedef enum {
 	text_mod,
 	text_ui,
 } text_type;
-
-typedef struct s_entity {
-	unsigned int textureId;
-	Vector2 pos;
-	Vector2 topos;
-	Vector2 dim;
-	Vector2 animationframe;
-	entity_type_e type;
-	char y;
-	bool detected_player;
-	float damage;
-	float life;
-	float max_life;
-}	t_entity;
-
-typedef struct s_level {
-	int *terrain;
-	int *wall;
-	int *event;
-	Vector2 dimension;
-	char *filename;
-	Texture2D tile_texture;
-} t_level;
-
-typedef struct s_thread_handle {
-	std::thread th;
-	std::mutex mtx;
-	bool available = true;
-} t_thread_handle;
-
-typedef struct s_animation {
-	u32 max_frame;
-	int texture_idx;
-	u32 current_frame;
-	u32 frame_idx;
-	double frame_time;
-	frame_loop_e loop_type;
-	double max_time;
-	int incr = 1;
-	Vector3 pos;
-} t_animation;
 
 typedef struct s_texture{
 	std::vector<Texture2D> hero;
