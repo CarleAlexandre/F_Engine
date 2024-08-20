@@ -130,6 +130,18 @@ class ATLAS {
         void deleteAnimationFromQueue(u32 idx) {
             animation_queue.erase(animation_queue.begin() + idx);
         }
+
+        ATLAS(){
+            FilePathList textFile = LoadDirectoryFiles("assets/textures");
+            for (int i = 0; i < textFile.count; i++) {
+                textures.push_back(LoadTexture(textFile.paths[i]));
+            }
+        };
+        ~ATLAS(){
+            for (int i = 0; i < textures.size(); i++) {
+                UnloadTexture(textures[i]);
+            }
+        };
 };
 
 #endif
