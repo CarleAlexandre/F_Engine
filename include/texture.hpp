@@ -104,6 +104,10 @@ class ATLAS {
 					animation_queue[idx].current_frame = 0;
 					break;
 				}
+                case (2): {
+                    animation_queue[idx].frame_idx = 50;
+                    animation_queue[idx].current_frame = 0;
+                }
 				default:break;
 			}
 		}
