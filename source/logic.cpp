@@ -1,8 +1,8 @@
-# include <raymath.h>
 # include <raylib.h>
+# include <raymath.h>
 # include <cfloat>
 # include <iostream>
-# include "../HavenLib/include/haven.hpp"
+# include "haven.hpp"
 
 Vector2 getBlockPos(Vector2 pos) {
 	Vector2 result;

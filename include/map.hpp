@@ -1,9 +1,6 @@
 #ifndef MAP_HPP
 # define MAP_HPP
 
-#include <vector>
-#include <raylib.h>
-#include <raymath.h>
 #include "include.hpp"
 
 typedef struct s_chunk {

@@ -1,8 +1,18 @@
 #ifndef INCLUDE_HPP
 # define INCLUDE_HPP
 
-#include <raymath.h>
+#define GLSL_VERSION 330
 #include <raylib.h>
+#include <raymath.h>
+#include <rlgl.h>
+#include <raygui.h>
+#include <unordered_map>
+#include <string>
+#include <sstream>
+#include <string.h>
+#include <vector>
+#include <list>
+#include "haven.hpp"
 
 #define MAX_INPUT 11
 
@@ -20,8 +30,6 @@ typedef enum {
 	frame_loop_updown = 3,
 } frame_loop_e;
 
-int linearIndexFromCoordinate(Vector3 dim, int max_x, int max_y);
-Vector3 coordinateFromLinearIndex(int idx, float max_x, float max_y);
 Vector2 getBlockPos(Vector2 pos);
 const Vector2 getVector2Pos(const unsigned int index, const int width);
 void travelTarget(Vector2 *current, const Vector2 target, const float velocity, const double deltaTime);

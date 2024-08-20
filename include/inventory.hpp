@@ -1,10 +1,8 @@
 #ifndef INVENTORY_HPP
 # define INVENTORY_HPP
 
-#include <raygui.h>
-#include <vector>
 #include "item.hpp"
-#include <raymath.h>
+#include "texture.hpp"
 
 class TOOL_BAR {
 	private:
@@ -20,6 +18,8 @@ class TOOL_BAR {
 			BeginScissorMode(pos.x, pos.y, 80, 60);
 				// DrawTexturePro(, {}, {0, 0, 40, 40}, pos1, 0, WHITE);
 				// DrawTexturePro(, {}, {0, 0, 40, 40}, pos2, 0, WHITE);
+				DrawRectangleRec({pos1.x, pos1.y,40,40}, WHITE);
+				DrawRectangleRec({pos2.x, pos2.y,40,40}, WHITE);
 			EndScissorMode();
 		}
 		void update() {
@@ -77,9 +77,9 @@ class INVENTORY {
 	public:
 		TOOL_BAR tool_bar;
 	
-		void render(ATLAS &atlas) {
+		void render(Texture2D text) {
 			if (isopen) {
-				DrawTexture(atlas.getTexture(0), pos.x, pos.y, WHITE);
+				DrawTexture(text, pos.x, pos.y, WHITE);
 				switch (current_tab) {
 					case (1): {
 						break;

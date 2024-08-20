@@ -1,3 +1,13 @@
+#ifndef ENTITY_HPP
+# define ENTITY_HPP
+typedef enum {
+	entity_type_mobs,
+	entity_type_bullet,
+	entity_type_effect,
+	entity_type_gathering,
+	entity_type_plant,
+}entity_type_e;
+
 class Entity {
     private:
         unsigned int textureId;
@@ -13,3 +23,5 @@ class Entity {
         float max_life;
     public:
 };
+
+#endif

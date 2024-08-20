@@ -1,6 +1,6 @@
-# include <engine.hpp>
-# define RAYGUI_IMPLEMENTATION
-# include <raygui.h>
+#include <engine.hpp>
+#define RAYGUI_IMPLEMENTATION
+#include <raygui.h>
 
 t_engine engine;
 
@@ -200,17 +200,11 @@ void renderSolo(ATLAS &atlas, PLAYER &player) {
 	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
-			for (int i = 0; i < engine.animation_queue.size(); i++) {
-				if (atlas.updateAnimation(i, NULL) == -1) {
-					atlas.deleteAnimationFromQueue(i);
-				} else {
-					atlas.renderAnimationFrame(i);
-				}
-			}
-			atlas.renderAnimationFrame(player.animation_idx);
+			atlas.renderAnimationFrame();
+			atlas.renderPlayerAnimation();
 		EndMode2D();
 		//DrawPixel(GetScreenWidth() * 0.5, GetScreenHeight() * 0.5, PINK);
-		player.inv.render(atlas);
+		player.inv.render(atlas.getTexture(1));
 		player.inv.tool_bar.render();
 		DrawText(TextFormat("x: %.1f, z:%.1f", player.pos.x, player.pos.y), 20, 40, 20, GREEN);
 		DrawFPS(0, 0);
@@ -232,32 +226,30 @@ void renderSetting() {
 }
 
 int main(void) {
-	engine.status = engine_status_menu;
+	engine.status = engine_status_solo;
 	engine.camera.zoom = 2.0f;
 	engine.camera.target = Vector2Zero();
-	PLAYER player = PLAYER({0,0});
-	ATLAS atlas = ATLAS();
 
 	InitWindow(1920, 1080, "noheaven");
-	SetTargetFPS(120);
 	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
 	engine.fbo = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 	engine.camera.offset = {(float)(GetScreenWidth() * 0.5), (float)(GetScreenHeight() * 0.5)};
-	engine.level_idx = 0;
+	SetTargetFPS(120);
+
+	PLAYER *player = new PLAYER({0, 0});
+	ATLAS *atlas = new ATLAS(player->pos);
 
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
 			engine.status = engine_status_close;
 		}
-		switch (engine.status) {
+		 switch (engine.status) {
 			case (engine_status_solo): {
-				player.updateInput(&engine.camera);
-				if (player.update()) {
-					atlas.updatePlayerAnimation(player.animation_idx, player.action, player.pos);
-				} else {
-					atlas.updatePlayerAnimation(player.animation_idx, player_action_default, player.pos);
-				}
-				renderSolo(atlas, player);
+				player->updateInput(&engine.camera);
+				player->update();
+				//atlas->updateAnimation();
+				atlas->updatePlayerAnimation(player->action, player->pos);
+				renderSolo(*atlas, *player);
 				break;
 			}
 			case (engine_status_menu): {
@@ -265,7 +257,7 @@ int main(void) {
 				break;
 			}
 			case (engine_status_save): {
-				renderSave(atlas, player);
+				//renderSave(atlas, player);
 				break;
 			}
 			case (engine_status_setting): {
@@ -288,11 +280,11 @@ int main(void) {
 		BeginDrawing();
 			ClearBackground(BLACK);
 			DrawTextureRec(engine.fbo.texture, {0, 0, (float)GetScreenWidth(), -(float)GetScreenHeight()}, {0, 0}, WHITE);
-			/*if (enviroenment == Darkness) {
-				BeginShaderMode(engine.shader);
-					DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
-				EndShaderMode();
-			}*/
+		// 	/*if (enviroenment == Darkness) {
+		// 		BeginShaderMode(engine.shader);
+		// 			DrawRectangle(0, 0, engine.display.width, engine.display.height, WHITE);
+		// 		EndShaderMode();
+		// 	}*/
 		EndDrawing();
 	}
 	UnloadRenderTexture(engine.fbo);

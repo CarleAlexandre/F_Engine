@@ -1,6 +1,17 @@
 #ifndef ITEM_HPP
 # define ITEM_HPP
 
+#include "include.hpp"
+
+// typedef enum {
+// 	tile_tool_use_shovel,
+// 	tile_tool_use_pickaxe,
+// 	tile_tool_use_axe,
+// 	tile_tool_use_hoe,
+// 	tile_tool_use_wrench,
+// 	tile_tool_use_lockpick,
+// } tile_tool_use;
+
 typedef enum {
 	item_type_weapon,
 	item_type_tool,

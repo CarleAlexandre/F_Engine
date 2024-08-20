@@ -2,13 +2,14 @@
 # define TEXTURE_HPP
 
 #include "include.hpp"
-#include <vector>
-#include <raylib.h>
-#include "raymath.h"
-#include "haven.hpp"
 
 typedef enum {
-    text
+    text_brush = 0,
+    text_equipement = 1,
+    text_erase = 2,
+    text_fill = 3,
+    text_hero = 4,
+    text_tileset = 5,
 } e_texture;
 
 typedef struct s_animation {
@@ -25,9 +26,11 @@ typedef struct s_animation {
 
 class ATLAS {
     private:
-        std::vector<Texture2D> textures;
-        std::vector<t_animation> animation_queue;
+        //std::vector<t_animation> animation_queue;
     public:    
+        std::vector<Texture2D> textures;
+        std::list<t_animation> animation_queue;
+        t_animation player_anim;
         const Rectangle getTextureRec(const unsigned int idx, e_texture id) {
             float x = getXpos(idx, textures[id].width / 32) * 32;
             float y = getYpos(idx, textures[id].width / 32) * 32;
@@ -38,79 +41,99 @@ class ATLAS {
             DrawTextureRec(textures[id], getTextureRec(idx, id), pos, WHITE);
         }
 
-        void renderAnimationFrame(u32 idx) {
-            renderTextureChunk(animation_queue[idx].frame_idx + animation_queue[idx].current_frame, animation_queue[idx].texture_idx, {animation_queue[idx].pos.x, animation_queue[idx].pos.y});
+        void renderAnimationFrame() {
+            if (!animation_queue.empty())
+                for (auto animation_frame : animation_queue)
+                    renderTextureChunk(animation_frame.frame_idx + animation_frame.current_frame, animation_frame.texture_idx, animation_frame.pos);
+        }
+
+        void renderPlayerAnimation() {
+            renderTextureChunk(player_anim.frame_idx + player_anim.current_frame, player_anim.texture_idx, player_anim.pos);
         }
 
         //return -1 if animation is ended
         //need to test if it work
-        int updateAnimation(u32 idx, const Vector2 *pos) {
-            auto animationframe = &animation_queue[idx];
-            animationframe->frame_time += GetFrameTime();
+        void updateAnimation() {
+            for (auto animationframe = animation_queue.begin();;animationframe++) {
+                animationframe->frame_time += GetFrameTime();
 
-            if (pos) {
-                animationframe->pos = *pos;
-            }
-            if (animationframe->frame_time >= animationframe->max_time) {
-                switch(animationframe->loop_type) {
-                    case(frame_loop_none):{
-                        animationframe->current_frame++;
-                        if (animationframe->current_frame >= animationframe->max_frame) {
-                            return (-1);
+                if (animationframe->frame_time >= animationframe->max_time) {
+                    switch(animationframe->loop_type) {
+                        case(frame_loop_none):{
+                            animationframe->current_frame++;
+                            if (animationframe->current_frame >= animationframe->max_frame) {
+                                animation_queue.erase(animationframe);
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case(frame_loop_enable):{
-                        animationframe->current_frame++;
-                        if (animationframe->current_frame >= animationframe->max_frame) {
-                            animationframe->current_frame = 0;
+                        case(frame_loop_enable):{
+                            animationframe->current_frame++;
+                            if (animationframe->current_frame >= animationframe->max_frame) {
+                                animationframe->current_frame = 0;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case(frame_loop_reverse):{
-                        animationframe->current_frame--;
-                        if (animationframe->current_frame <= 0) {
-                            animationframe->current_frame = animationframe->max_frame;
+                        case(frame_loop_reverse):{
+                            animationframe->current_frame--;
+                            if (animationframe->current_frame <= 0) {
+                                animationframe->current_frame = animationframe->max_frame;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case(frame_loop_updown):{
-                        animationframe->current_frame += animationframe->incr;
-                        if (animationframe->current_frame >= animationframe->max_frame) {
-                            animationframe->incr *= -1;
+                        case(frame_loop_updown):{
+                            animationframe->current_frame += animationframe->incr;
+                            if (animationframe->current_frame >= animationframe->max_frame) {
+                                animationframe->incr *= -1;
+                            }
+                            break;
                         }
-                        break;
                     }
+                    animationframe->frame_time = 0;
                 }
-                animationframe->frame_time = 0;
             }
-            return (0);
         }
 
-        Texture2D const getTexture(u32 idx) {
-            return ((Texture2D const) textures.at(idx));
+        Texture2D getTexture(u32 idx) {
+            return (textures.at(idx));
         };
 
-		void updatePlayerAnimation(u32 idx, const int player_stats, const Vector2 pos) {
-			updateAnimation(idx, &pos);
-			switch (player_stats) {
-				case (0): {
-					animation_queue[idx].frame_idx = 0;
-					animation_queue[idx].current_frame = 0;
-					break;
-				}
-				case (1): {
-					animation_queue[idx].frame_idx = 6;
-					animation_queue[idx].current_frame = 0;
-					break;
-				}
-                case (2): {
-                    animation_queue[idx].frame_idx = 50;
-                    animation_queue[idx].current_frame = 0;
+		void updatePlayerAnimation(const int player_stats, const Vector2 pos) {
+            static int old_stats = 0 ;
+
+            if (player_stats != old_stats) {
+                switch (player_stats) {
+                    case (0): {
+                        player_anim.frame_idx = 0;
+                        player_anim.current_frame = 0;
+                        break;
+                    }
+                    case (1): {
+                        player_anim.frame_idx = 6;
+                        player_anim.current_frame = 0;
+                    //    player_anim.pos = pos;
+                        break;
+                    }
+                    case (2): {
+                        player_anim.frame_idx = 50;
+                        player_anim.current_frame = 0;
+                    }
+                    default:break;
                 }
-				default:break;
-			}
+                old_stats = player_stats;
+            }
+        	player_anim.frame_time += GetFrameTime();
+            if (player_anim.frame_time >= player_anim.max_time) {    
+                player_anim.current_frame += player_anim.incr;
+                if (player_anim.current_frame >= player_anim.max_frame) {
+                    player_anim.incr *= -1;
+                }
+                player_anim.frame_time = 0;
+            }
 		}
+
+        unsigned long long size(void) {
+            return (textures.size());
+        }
 
         int addAnimationToQueue(const e_texture texture_idx, const Vector2 pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype) {
             t_animation new_animation;
@@ -127,15 +150,22 @@ class ATLAS {
             return (animation_queue.size() - 1);
         }
 
-        void deleteAnimationFromQueue(u32 idx) {
-            animation_queue.erase(animation_queue.begin() + idx);
-        }
-
-        ATLAS(){
+        ATLAS(Vector2 pos): textures(), animation_queue() {
             FilePathList textFile = LoadDirectoryFiles("assets/textures");
             for (int i = 0; i < textFile.count; i++) {
                 textures.push_back(LoadTexture(textFile.paths[i]));
             }
+            UnloadDirectoryFiles(textFile);
+            player_anim = (t_animation){
+                .max_frame = 6,
+                .texture_idx = text_hero,
+                .current_frame = 0,
+                .frame_idx = 0,
+                .frame_time = 0,
+                .loop_type = frame_loop_updown,
+                .max_time = 0.4,
+                .pos = pos,
+            };
         };
         ~ATLAS(){
             for (int i = 0; i < textures.size(); i++) {

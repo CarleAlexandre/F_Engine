@@ -2,13 +2,6 @@
 # define PLAYER_HPP
 
 #include "inventory.hpp"
-#include "include.hpp"
-#include "../HavenLib/include/haven.hpp"
-#include <raymath.h>
-#include <unordered_map>
-#include <string>
-#include <sstream>
-#include <string.h>
 
 typedef enum {
 	player_token_status			= 2,
@@ -31,6 +24,41 @@ typedef enum {
 	player_token_name			= 19,
 	player_token_skin			= 20,
 } player_token_e;
+
+typedef enum {
+	player_status_well = 0,
+	player_status_sick = 1,
+	player_status_dead = 2,
+	player_status_hungry = 3,
+	player_status_drunk = 4,
+	player_status_unlucky = 5,
+	player_status_lucky = 6,
+	player_status_cursed = 7,
+	player_status_blessed = 8,
+	player_status_god = 9,
+}player_status_e;
+
+typedef enum {
+	player_action_default	= -1,
+	player_action_idle		= 0,
+	player_action_moving	= 1,
+	player_action_hurt		= 2,
+	playar_action_interact	= 3,
+} player_action_e;
+
+typedef enum {
+	move			= 1,
+	autoattack		= 2,
+	interact		= 3,
+	hotbarprev		= 4,
+	hotbaruse		= 5,
+	hotbarnext		= 6,
+	hotbar4			= 7,
+	hotbar5			= 8,
+	hotbar6			= 9,
+	toggleinventory	= 10,
+	centercamera	= 11,
+} player_input_e;
 
 std::unordered_map<std::string, player_token_e> player_dictionnary{
 	{"status", player_token_status},
@@ -68,41 +96,6 @@ std::unordered_map<std::string, player_input_e> input_dictionnary{
 	{"centercamera", centercamera},
 };
 
-typedef enum {
-	player_status_well = 0,
-	player_status_sick = 1,
-	player_status_dead = 2,
-	player_status_hungry = 3,
-	player_status_drunk = 4,
-	player_status_unlucky = 5,
-	player_status_lucky = 6,
-	player_status_cursed = 7,
-	player_status_blessed = 8,
-	player_status_god = 9,
-}player_status_e;
-
-typedef enum {
-	player_action_default	= -1,
-	player_action_idle		= 0,
-	player_action_moving	= 1,
-	player_action_hurt		= 2,
-	playar_action_interact	= 3,
-} player_action_e;
-
-typedef enum {
-	move			= 1,
-	autoattack		= 2,
-	interact		= 3,
-	hotbarprev		= 4,
-	hotbaruse		= 5,
-	hotbarnext		= 6,
-	hotbar4			= 7,
-	hotbar5			= 8,
-	hotbar6			= 9,
-	toggleinventory	= 10,
-	centercamera	= 11,
-}player_input_e;
-
 typedef struct s_stats {
 	float move_speed;
 	float crit_chance;
@@ -133,17 +126,16 @@ class PLAYER {
 		Vector2 to;
 		unsigned int lvl;
 		float xp;
-		int skin;
 		player_status_e	status;
 		t_stats stats;
 		Rectangle hitbox;
 		Rectangle frame;
 		t_input	input[MAX_INPUT];
 	public:
-		int animation_idx;
 		player_action_e action;
 		Vector2 pos;
 		INVENTORY inv;
+		int skin;
 		void updateInput(Camera2D *camera) {
 			for (int i = 0; i < MAX_INPUT; i++) {
 				if (input[i].ismouse && IsMouseButtonDown(input[i].key)) {
@@ -207,30 +199,22 @@ class PLAYER {
 			}
 		}
 
-		int update(void) {
+		void update(void) {
 			static player_action_e last_action = player_action_default;
-			int ret = 0;
-			Vector2 from = {pos.x, pos.y};
-			Vector2 topos = {to.x, to.y};
 
-			if (Vector2Distance(from, topos) > 0.1) {
-				travelTarget(&from, topos, stats.move_speed, GetFrameTime());
-				pos.x = from.x;
-				pos.y = from.y;
+			if (Vector2Distance(pos, to) > 0.1) {
+				travelTarget(&pos, to, stats.move_speed, GetFrameTime());
 				if (last_action != player_action_moving) {
 					action = player_action_moving;
 					last_action = action;
-					ret = 1;
 				}
 			} else {
 				if (last_action != player_action_idle) {
 					action = player_action_idle;
 					last_action = action;
-					ret = 1;
 				}
 			}
 			inv.tool_bar.update();
-			return (ret);
 		}
 
 		void loadSave(const char *savepath) {
@@ -239,9 +223,6 @@ class PLAYER {
 			std::vector<t_token> token = tokenizer(player_data, ",\n", 2, player_dictionnary);
 
 			if (token.size() == 0){
-		#ifdef DEBUG 
-			std::cout << "Player file Parse Error: " << savepath << ".!\n";
-		#endif
 				MemFree(player_data);
 				return ;
 			}
@@ -308,16 +289,9 @@ class PLAYER {
 						break;
 					}
 					case (player_token_skin): {
-						skin = atoi(token[i].value.c_str());
-		#ifdef DEBUG
-								std::cout << ret.skin << "\n";
-		#endif
 						break;
 					}
 					default:
-		#ifdef DEBUG
-						std::cerr << "Save File Is Corrupted!\n";
-		#endif
 						break;
 				}
 			}
@@ -341,7 +315,6 @@ class PLAYER {
 				input[inputtoken[i].identifier - 1].id = input_dictionnary[inputtoken[i].key];
 			}
 			clearToken(inputtoken);
-
 			MemFree(inputfile);
 			inputtoken.clear();
 		}
@@ -368,41 +341,39 @@ class PLAYER {
 				<< ",\nraw_dmg:" << stats.raw_dmg \
 				<< ",\nmagic_affinity:" << stats.magic_affinity \
 				<< ",\nlife_steal:" << stats.life_steal \
-				<< ",\nskin:" << skin << ",\n"\
+				<< ",\nskin:" << ",\n"\
 				;
-		#ifdef DEBUG
-								std::cout << skin << "\n";
-		#endif
 			writeFile(TextFormat("save/%s.player", name.c_str()), data.str().c_str(), data.str().size());
 		}
 
 	PLAYER(Vector2 spawn) {
-			pos = spawn;
-			dir = NORTH;
-			status = player_status_well;
-			lvl = 1;
-			xp = 0.0f;
-			inv = INVENTORY();
-			stats = {
-				.move_speed = 10,
-				.crit_chance = 0.0f,
-				.crit_dmg = 1.2f,
-				.raw_dmg = 0.0f,
-				.dmg_reduction = 0.0f,
-				.armor = 30,
-				.attack_speed = 0.6f,
-				.life_steal = 0.0f,
-				.mana = 300,
-				.magic_affinity = 1.0f,
-				.life = 600,
-				.max_life = 600,
-			};
-			hitbox = {spawn.x + 6, spawn.y - 8, 12, 12};
-			frame = (Rectangle){0, 0, 32, 32};
-			name = "default";
-			animation_idx = 0;
+		pos = spawn;
+		dir = NORTH;
+		action = player_action_default;
+		status = player_status_well;
+		lvl = 1;
+		xp = 0.0f;
+		inv = INVENTORY();
+		stats = {
+			.move_speed = 10,
+			.crit_chance = 0.0f,
+			.crit_dmg = 1.2f,
+			.raw_dmg = 0.0f,
+			.dmg_reduction = 0.0f,
+			.armor = 30,
+			.attack_speed = 0.6f,
+			.life_steal = 0.0f,
+			.mana = 300,
+			.magic_affinity = 1.0f,
+			.life = 600,
+			.max_life = 600,
+		};
+		hitbox = {spawn.x + 6, spawn.y - 8, 12, 12};
+		frame = (Rectangle){0, 0, 32, 32};
+		name = "default";
+		loadInput();
 	}
-	~PLAYER();
+	~PLAYER(){};
 };
 
 #endif
