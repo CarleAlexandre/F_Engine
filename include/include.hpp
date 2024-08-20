@@ -13,6 +13,13 @@ typedef enum {
 	WEST	= 1 << 3,
 }diraction_e;
 
+typedef enum {
+	frame_loop_none = 0,
+	frame_loop_enable = 1,
+	frame_loop_reverse = 2,
+	frame_loop_updown = 3,
+} frame_loop_e;
+
 typedef struct s_animation {
 	u32 max_frame;
 	int texture_idx;
