@@ -24,34 +24,34 @@ class MAP {
 		int getChunk() {
 			return(0);
 		}
-		char get_tile(char square[2][2]) {
+		char getTileTexIdx(char square[2][2]) {
 			if (square[0][0] == tile_grass) {
 				if (square[0][1] == tile_grass) {
 					if (square[1][0] == tile_grass) {
 						if (square[1][1] == tile_grass) {
-							return(1);
+							return(6);//6
 						} else {
-							return(1);
+							return(7);//7
 						}
 					}else{
 						if (square[1][1] == tile_grass) {
-							return(1);
+							return(10);//10
 						} else {
-							return(1);
+							return(9);//9
 						}
 					}
 				} else {
 					if (square[1][0] == tile_grass) {
 						if (square[1][1] == tile_grass) {
-							return(1);
+							return(2);//2
 						} else {
-							return(1);
+							return(11);//11 
 						}
 					}else{
 						if (square[1][1] == tile_grass) {
-							return(1);
+							return(4);//4
 						} else {
-							return(1);
+							return(15);//15
 						}
 					}
 				}
@@ -59,29 +59,29 @@ class MAP {
 				if (square[0][1] == tile_grass) {
 					if (square[1][0] == tile_grass) {
 						if (square[1][1] == tile_grass) {
-							return(1);
+							return(5);//5
 						} else {
-							return(1);
+							return(14);//14
 						}
 					}else{
 						if (square[1][1] == tile_grass) {
-							return(1);
+							return(1);//1
 						} else {
-							return(1);
+							return(8);//8
 						}
 					}
 				} else {
 					if (square[1][0] == tile_grass) { 
 						if (square[1][1] == tile_grass) {
-							return(1);
+							return(3);//3
 						} else {
-							return(1);
+							return(0);//0
 						}
 					}else{
 						if (square[1][1] == tile_grass) {
-							return(1);
+							return(13);//13
 						} else {
-							return(1);
+							return(12);//12
 						}
 					}
 				}

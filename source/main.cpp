@@ -245,7 +245,7 @@ int main(void) {
 		}
 		 switch (engine.status) {
 			case (engine_status_solo): {
-				player->updateInput(&engine.camera);
+				player->updateInput(engine.camera);
 				player->update();
 				//atlas->updateAnimation();
 				atlas->updatePlayerAnimation(player->action, player->pos);

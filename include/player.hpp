@@ -136,13 +136,13 @@ class PLAYER {
 		Vector2 pos;
 		INVENTORY inv;
 		int skin;
-		void updateInput(Camera2D *camera) {
+		void updateInput(Camera2D &camera) {
 			for (int i = 0; i < MAX_INPUT; i++) {
 				if (input[i].ismouse && IsMouseButtonDown(input[i].key)) {
 					switch(input[i].id){
 						case(move):{
 							Vector2 topos;
-							topos = GetScreenToWorld2D(GetMousePosition(), *camera);
+							topos = GetScreenToWorld2D(GetMousePosition(), camera);
 							to.x = topos.x - 16;
 							to.y = topos.y - 24;
 							break;
@@ -189,7 +189,7 @@ class PLAYER {
 							break;
 						}
 						case(centercamera):{
-							camera->target = {pos.x + 16, pos.y + 24};
+							camera.target = {pos.x + 16, pos.y + 24};
 							break;
 						}
 						default:

@@ -99,7 +99,7 @@ class ATLAS {
 
 		void updatePlayerAnimation(const int player_stats, const Vector2 pos) {
             static int old_stats = 0 ;
-
+            player_anim.pos = pos;
             if (player_stats != old_stats) {
                 switch (player_stats) {
                     case (0): {
@@ -110,7 +110,6 @@ class ATLAS {
                     case (1): {
                         player_anim.frame_idx = 6;
                         player_anim.current_frame = 0;
-                    //    player_anim.pos = pos;
                         break;
                     }
                     case (2): {
@@ -123,9 +122,9 @@ class ATLAS {
             }
         	player_anim.frame_time += GetFrameTime();
             if (player_anim.frame_time >= player_anim.max_time) {    
-                player_anim.current_frame += player_anim.incr;
+                player_anim.current_frame ++;
                 if (player_anim.current_frame >= player_anim.max_frame) {
-                    player_anim.incr *= -1;
+                    player_anim.current_frame = 0;
                 }
                 player_anim.frame_time = 0;
             }
@@ -137,7 +136,6 @@ class ATLAS {
 
         int addAnimationToQueue(const e_texture texture_idx, const Vector2 pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype) {
             t_animation new_animation;
-
             new_animation.texture_idx = texture_idx;
             new_animation.pos = pos;
             new_animation.loop_type = looptype;
@@ -162,7 +160,7 @@ class ATLAS {
                 .current_frame = 0,
                 .frame_idx = 0,
                 .frame_time = 0,
-                .loop_type = frame_loop_updown,
+                .loop_type = frame_loop_enable,
                 .max_time = 0.4,
                 .pos = pos,
             };
