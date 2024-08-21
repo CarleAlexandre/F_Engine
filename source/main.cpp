@@ -196,10 +196,11 @@ void renderOnline(void) {
 	EndTextureMode();
 }
 
-void renderSolo(ATLAS &atlas, PLAYER &player) {
+void renderSolo(ATLAS &atlas, PLAYER &player, MAP &map) {
 	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
+			map.render(engine.camera, atlas);
 			atlas.renderAnimationFrame();
 			atlas.renderPlayerAnimation();
 		EndMode2D();
@@ -226,18 +227,19 @@ void renderSetting() {
 }
 
 int main(void) {
-	engine.status = engine_status_solo;
-	engine.camera.zoom = 2.0f;
-	engine.camera.target = Vector2Zero();
-
 	InitWindow(1920, 1080, "noheaven");
 	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
 	engine.fbo = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 	engine.camera.offset = {(float)(GetScreenWidth() * 0.5), (float)(GetScreenHeight() * 0.5)};
 	SetTargetFPS(120);
 
-	PLAYER *player = new PLAYER({0, 0});
+	MAP *map = new MAP();
+	PLAYER *player = new PLAYER({10000, 10000});
 	ATLAS *atlas = new ATLAS(player->pos);
+
+	engine.status = engine_status_solo;
+	engine.camera.zoom = 2.0f;
+	engine.camera.target = {10000, 10000};
 
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
@@ -249,7 +251,7 @@ int main(void) {
 				player->update();
 				//atlas->updateAnimation();
 				atlas->updatePlayerAnimation(player->action, player->pos);
-				renderSolo(*atlas, *player);
+				renderSolo(*atlas, *player, *map);
 				break;
 			}
 			case (engine_status_menu): {

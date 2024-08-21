@@ -203,7 +203,7 @@ class PLAYER {
 			static player_action_e last_action = player_action_default;
 
 			if (Vector2Distance(pos, to) > 0.1) {
-				travelTarget(&pos, to, stats.move_speed, GetFrameTime());
+				pos = Vector2MoveTowards(pos, to, stats.move_speed);
 				if (last_action != player_action_moving) {
 					action = player_action_moving;
 					last_action = action;
@@ -348,6 +348,7 @@ class PLAYER {
 
 	PLAYER(Vector2 spawn) {
 		pos = spawn;
+		to = spawn;
 		dir = NORTH;
 		action = player_action_default;
 		status = player_status_well;
@@ -355,7 +356,7 @@ class PLAYER {
 		xp = 0.0f;
 		inv = INVENTORY();
 		stats = {
-			.move_speed = 10,
+			.move_speed = 0.6,
 			.crit_chance = 0.0f,
 			.crit_dmg = 1.2f,
 			.raw_dmg = 0.0f,
