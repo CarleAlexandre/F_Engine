@@ -1,6 +1,13 @@
 #ifndef ENTITY_HPP
 # define ENTITY_HPP
 
+typedef enum {
+        zombie,
+        slime,
+        cow,
+		pig,
+} e_mob_type;
+
 typedef struct S_mobs {
         Vector2 pos;
         Vector2 topos;
@@ -15,12 +22,14 @@ typedef struct s_projectil {
         bool destroy;
         int damage;
 } t_projectil;
+//idea for random projectil, use a quaternion to calculat a fonction 
 
 typedef struct s_effect {
         Vector2 pos;
         Vector2 topos;
         double time;
         bool destroy;
+		bool move;
 } t_effect;
 
 typedef struct s_gathering {
@@ -31,7 +40,63 @@ typedef struct s_gathering {
 } t_gathering;
 
 class Entity {
-    
+    private:
+        std::vector<t_mobs> mobs;
+        std::vector<t_projectil> projectil;
+        std::vector<t_effect> effect;
+        std::vector<t_gathering> gathering;
+    public:
+
+        void spawnMobs(Vector2 pos, int dmg, int max_life) {
+                mobs.push_back((t_mobs){pos, pos, dmg, max_life, max_life});
+        }
+        void spawnProjectil() {
+                projectil.push_back((t_projectil){}); 
+        }
+        void spawnEffect() {
+                effect.push_back((t_effect){});
+        }
+
+        void updateMobs() {
+
+        }
+        void updateProjectil() {
+
+        }
+        void updateEffect() {
+
+        }
+        void updateGathering() {
+
+        }
+        void update() {
+			static double time = 0;
+			time += GetFrameTime();
+			if (time > 0.2) {
+				updateMobs();
+            	updateProjectil();
+            	updateEffect();
+            	updateGathering();
+			}
+			for (auto tmp : mobs) {
+				if (Vector2Distance(tmp.pos, tmp.topos) > 0.1)
+				tmp.pos = Vector2MoveTowards(tmp.pos, tmp.topos, 0.2);
+			}
+			for (auto tmp : projectil) {
+				tmp.pos = Vector2MoveTowards(tmp.pos, tmp.topos, 0.2);
+			}
+			for (auto tmp : effect) {
+				if (tmp.move == true && Vector2Distance(tmp.pos, tmp.topos) > 0.1)
+					tmp.pos = Vector2MoveTowards(tmp.pos, tmp.topos, 0.2);
+			}
+        }
+
+        Entity() {
+
+        };
+        ~Entity() {
+
+        };
 };
 
 #endif
