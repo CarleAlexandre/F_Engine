@@ -233,9 +233,10 @@ int main(void) {
 	engine.camera.offset = {(float)(GetScreenWidth() * 0.5), (float)(GetScreenHeight() * 0.5)};
 	SetTargetFPS(120);
 
-	MAP *map = new MAP();
-	PLAYER *player = new PLAYER({10000, 10000});
-	ATLAS *atlas = new ATLAS(player->pos);
+	MAP map = MAP();
+	PLAYER player({10000, 10000});
+	ATLAS atlas(player.pos);
+	SOUND sound = SOUND();
 
 	engine.status = engine_status_solo;
 	engine.camera.zoom = 4.0f;
@@ -247,11 +248,11 @@ int main(void) {
 		}
 		 switch (engine.status) {
 			case (engine_status_solo): {
-				player->updateInput(engine.camera);
-				player->update();
+				player.updateInput(engine.camera);
+				player.update();
 				//atlas->updateAnimation();
-				atlas->updatePlayerAnimation(player->action, player->pos);
-				renderSolo(*atlas, *player, *map);
+				atlas.updatePlayerAnimation(player.action, player.pos);
+				renderSolo(atlas, player, map);
 				break;
 			}
 			case (engine_status_menu): {

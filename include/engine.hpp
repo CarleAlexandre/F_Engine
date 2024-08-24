@@ -6,6 +6,7 @@
 #include "entity.hpp"
 #include "config.hpp"
 #include "texture.hpp"
+#include "sound.hpp"
 
 typedef enum {
 	engine_status_menu = 0,
