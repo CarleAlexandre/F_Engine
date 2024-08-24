@@ -13,6 +13,7 @@
 #include <vector>
 #include <list>
 #include <array>
+#include <queue>
 #include "haven.hpp"
 
 #define MAX_INPUT 11

@@ -11,21 +11,33 @@ typedef enum {
 	stb,
 }sound_e;
 
+typedef struct s_spatial_sound{
+	Vector2 pos;
+	int		idx;
+}t_spatial_sound;
+
 class SOUND {
 	private:
 		std::vector<Sound> sounds;
-
+		std::queue<int> music_queue;
+		std::queue<t_spatial_sound> spatial_queue;
 	public:
 	
-		void play(){}
+		void play(int idx) {
+			music_queue.push(idx);
+		}
 
+		//get sound pos, raycast to play, if obstacle then muffle and diminish the sound by the distance traveled
 		void playSpatial() {
+		}
+
+		void updateSpatial() {
 
 		}
 
-		void updateSpatial(){}
+		void update() {
 
-		void update(){}
+		}
 
 		SOUND() {
 			FilePathList File = LoadDirectoryFiles("assets/sound");
