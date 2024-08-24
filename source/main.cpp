@@ -238,7 +238,7 @@ int main(void) {
 	ATLAS *atlas = new ATLAS(player->pos);
 
 	engine.status = engine_status_solo;
-	engine.camera.zoom = 2.0f;
+	engine.camera.zoom = 4.0f;
 	engine.camera.target = {10000, 10000};
 
 	while (engine.status != engine_status_close) {
