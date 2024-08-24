@@ -17,6 +17,16 @@ class SOUND {
 
 	public:
 	
+		void play(){}
+
+		void playSpatial() {
+
+		}
+
+		void updateSpatial(){}
+
+		void update(){}
+
 		SOUND() {
 			FilePathList File = LoadDirectoryFiles("assets/sound");
             for (int i = 0; i < File.count; i++) {
