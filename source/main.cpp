@@ -237,6 +237,7 @@ int main(void) {
 	PLAYER player({10000, 10000});
 	ATLAS atlas(player.pos);
 	SOUND sound = SOUND();
+	Entity entities = Entity();
 
 	engine.status = engine_status_solo;
 	engine.camera.zoom = 4.0f;
@@ -250,6 +251,7 @@ int main(void) {
 			case (engine_status_solo): {
 				player.updateInput(engine.camera);
 				player.update();
+				entities.update();
 				//atlas->updateAnimation();
 				atlas.updatePlayerAnimation(player.action, player.pos);
 				renderSolo(atlas, player, map);
