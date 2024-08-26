@@ -122,7 +122,6 @@ typedef struct s_input {
 class PLAYER {
 	private:
 		std::string name;
-		char dir;
 		Vector2 to;
 		unsigned int lvl;
 		float xp;
@@ -136,6 +135,7 @@ class PLAYER {
 		Vector2 pos;
 		INVENTORY inv;
 		int skin;
+		char dir;
 		void updateInput(Camera2D &camera) {
 			for (int i = 0; i < MAX_INPUT; i++) {
 				if (input[i].ismouse && IsMouseButtonDown(input[i].key)) {
@@ -145,6 +145,11 @@ class PLAYER {
 							topos = GetScreenToWorld2D(GetMousePosition(), camera);
 							to.x = topos.x - 16;
 							to.y = topos.y - 24;
+							if (to.x > pos.x) {
+								dir = EAST;
+							} else {
+								dir = WEST;
+							}
 							break;
 						}
 						case(autoattack):{

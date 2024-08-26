@@ -37,18 +37,25 @@ class ATLAS {
             return ((const Rectangle){x, y, 32, 32});
         }
 
-        void renderTextureChunk(const u32 idx, e_texture id, Vector2 pos) {
-            DrawTextureRec(textures[id], getTextureRec(idx, id), pos, WHITE);
+        void renderTextureChunk(const u32 idx, e_texture id, Vector2 pos, char dir) {
+			if (dir == EAST) {
+           		DrawTextureRec(textures[id], getTextureRec(idx, id), pos, WHITE);
+			} else {
+				Image tmp;
+
+				DrawIma
+				DrawTexturePro(textures[id], getTextureRec(idx, id), {pos.x, pos.y, 32, 32}, {0,0}, 180, WHITE);
+			}
         }
 
         void renderAnimationFrame() {
             if (!animation_queue.empty())
                 for (auto animation_frame : animation_queue)
-                    renderTextureChunk(animation_frame.frame_idx + animation_frame.current_frame, animation_frame.texture_idx, *animation_frame.pos);
+                    renderTextureChunk(animation_frame.frame_idx + animation_frame.current_frame, animation_frame.texture_idx, *animation_frame.pos, EAST);
         }
 
-        void renderPlayerAnimation() {
-            renderTextureChunk(player_anim.frame_idx + player_anim.current_frame, player_anim.texture_idx, *player_anim.pos);
+        void renderPlayerAnimation(char dir) {
+            renderTextureChunk(player_anim.frame_idx + player_anim.current_frame, player_anim.texture_idx, *player_anim.pos, dir);
         }
 
         //return -1 if animation is ended

@@ -203,7 +203,7 @@ void renderSolo(ATLAS &atlas, PLAYER &player, MAP &map, Entity &entities) {
 			map.render(engine.camera, atlas);
 			entities.render();
 			atlas.renderAnimationFrame();
-			atlas.renderPlayerAnimation();
+			atlas.renderPlayerAnimation(player.dir);
 		EndMode2D();
 		//DrawPixel(GetScreenWidth() * 0.5, GetScreenHeight() * 0.5, PINK);
 		player.inv.render(atlas.getTexture(1));
