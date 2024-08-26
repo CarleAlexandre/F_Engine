@@ -228,21 +228,35 @@ void renderSetting() {
 }
 
 int main(void) {
+	printf("UwU\n");
 	InitWindow(1920, 1080, "noheaven");
+	InitAudioDevice();
+	printf("initWindow\n");
 	GuiLoadStyle("include/styles/terminal/style_terminal.rgs");
+	printf("LoadGui\n");
 	engine.fbo = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+	printf("LOAD FBO\n");
 	engine.camera.offset = {(float)(GetScreenWidth() * 0.5), (float)(GetScreenHeight() * 0.5)};
+	printf("Camera\n");
 	SetTargetFPS(120);
 
-	MAP map = MAP();
+	MAP *map = new MAP();
+	printf("Map\n");
 	PLAYER player({1000, 1000});
+	printf("player\n");
 	ATLAS atlas(&player.pos);
+	printf("atlas\n");
 	SOUND sound = SOUND();
+	printf("sound\n");
 	Entity entities = Entity();
+	printf("entity\n");
 
 	engine.status = engine_status_solo;
 	engine.camera.zoom = 4.0f;
 	engine.camera.target = {1000, 1000};
+
+	entities.spawnMobs({1032, 1032}, 2);
+	entities.spawnMobs({1022, 1022}, 1);
 
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
@@ -255,7 +269,7 @@ int main(void) {
 				entities.update();
 				atlas.updateAnimation();
 				atlas.updatePlayerAnimation(player.action);
-				renderSolo(atlas, player, map, entities);
+				renderSolo(atlas, player, *map, entities);
 				break;
 			}
 			case (engine_status_menu): {
@@ -294,5 +308,6 @@ int main(void) {
 		EndDrawing();
 	}
 	UnloadRenderTexture(engine.fbo);
+	CloseAudioDevice();
 	CloseWindow();
 }

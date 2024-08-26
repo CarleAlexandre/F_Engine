@@ -112,67 +112,76 @@ class Cow : public Mob {
 
 class Entity {
     private:
-        std::vector<Mob> mobs;
-        std::vector<t_projectil> projectil;
-        std::vector<t_effect> effect;
-        std::vector<t_gathering> gathering;
+        std::vector<Mob *> mobs;
+        // std::vector<t_projectil> projectil;
+        // std::vector<t_effect> effect;
+        // std::vector<t_gathering> gathering;
 		double updateTime = 0;
     public:
-		template <typename T>
-        void spawnMobs(Vector2 pos, int dmg, int max_life) {
-                mobs.push_back();
-        }
-        void spawnProjectil() {
-                projectil.push_back((t_projectil){}); 
-        }
-        void spawnEffect() {
-                effect.push_back((t_effect){});
-        }
-
-        void updateMobs() {
-			for (auto tmp : mobs) {
-				tmp.update();
+        void spawnMobs(Vector2 pos, int type) {
+			switch (type) {
+				case (1) : {
+			    	mobs.push_back(new Cow(pos));
+					break;
+				}
+				case (2) : {
+					mobs.push_back(new Zombie(pos));
+					break;
+				}
+				default:break;
 			}
         }
-        void updateProjectil() {
+        // void spawnProjectil() {
+        //     projectil.push_back((t_projectil){}); 
+        // }
+        // void spawnEffect() {
+        //     effect.push_back((t_effect){});
+        // }
 
+        void updateMobs() {
+			for (int i = 0; i < mobs.size(); i++) {
+				mobs[i]->update();
+			}
         }
-        void updateEffect() {
+        // void updateProjectil() {
 
-        }
-        void updateGathering() {
+        // }
+        // void updateEffect() {
 
-        }
+        // }
+        // void updateGathering() {
+
+        // }
         void update() {
 			updateTime += GetFrameTime();
 			if (updateTime > 0.2) {
 				updateMobs();
-            	updateProjectil();
-            	updateEffect();
-            	updateGathering();
+            	// updateProjectil();
+            	// updateEffect();
+            	// updateGathering();
 				updateTime = 0;
 			}
-			for (auto tmp : mobs) {
-				if (Vector2Distance(tmp.pos, tmp.topos) > 0.1)
-				tmp.pos = Vector2MoveTowards(tmp.pos, tmp.topos, 0.2);
+			for (int i = 0; i < mobs.size(); i++) {
+				if (Vector2Distance(mobs[i]->pos, mobs[i]->topos) > 0.1)
+				mobs[i]->pos = Vector2MoveTowards(mobs[i]->pos, mobs[i]->topos, 0.2);
 			}
-			for (auto tmp : projectil) {
-				tmp.pos = Vector2MoveTowards(tmp.pos, tmp.topos, 0.2);
-			}
-			for (auto tmp : effect) {
-				if (tmp.move == true && Vector2Distance(tmp.pos, tmp.topos) > 0.1)
-					tmp.pos = Vector2MoveTowards(tmp.pos, tmp.topos, 0.2);
-			}
+			// for (int i = 0; i < projectil.size(); i++) {
+			// 	projectil[i].pos = Vector2MoveTowards(projectil[i].pos, projectil[i].topos, 0.2);
+			// }
+			// for (int i = 0; i < effect.size(); i++) {
+			// 	if (effect[i].move == true && Vector2Distance(effect[i].pos, effect[i].topos) > 0.1)
+			// 		effect[i].pos = Vector2MoveTowards(effect[i].pos, effect[i].topos, 0.2);
+			// }
         }
 
 		void render() {
-			for (auto tmp : mobs) {
-				tmp.render();
+			for (int i = 0; i < mobs.size(); i++) {
+				mobs[i]->render();
 			}
 		}
 
         Entity() {
-
+			mobs = std::vector<Mob *>();
         };
         ~Entity() {
 

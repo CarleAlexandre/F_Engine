@@ -21,7 +21,7 @@ typedef struct s_animation {
 	frame_loop_e loop_type;
 	double max_time;
 	int incr = 1;
-	const Vector2 *pos;
+	Vector2 *pos;
 } t_animation;
 
 class ATLAS {
@@ -133,7 +133,7 @@ class ATLAS {
             return (textures.size());
         }
 
-        int addAnimationToQueue(const e_texture texture_idx, const Vector2 *pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype) {
+        int addAnimationToQueue(const e_texture texture_idx, Vector2 *pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype) {
             t_animation new_animation;
             new_animation.texture_idx = texture_idx;
             new_animation.pos = pos;
@@ -147,7 +147,7 @@ class ATLAS {
             return (animation_queue.size() - 1);
         }
 
-        ATLAS(const Vector2 *pos): textures(), animation_queue() {
+        ATLAS(Vector2 *pos): textures(), animation_queue() {
             FilePathList textFile = LoadDirectoryFiles("assets/textures");
             for (int i = 0; i < textFile.count; i++) {
                 textures.push_back(LoadTexture(textFile.paths[i]));

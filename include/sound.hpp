@@ -31,7 +31,6 @@ class SOUND {
             UnloadDirectoryFiles(File);
 		}
 		~SOUND() {
-
 		}
 };
 
