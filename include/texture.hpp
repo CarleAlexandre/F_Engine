@@ -21,7 +21,7 @@ typedef struct s_animation {
 	frame_loop_e loop_type;
 	double max_time;
 	int incr = 1;
-	Vector2 pos;
+	const Vector2 *pos;
 } t_animation;
 
 class ATLAS {
@@ -44,11 +44,11 @@ class ATLAS {
         void renderAnimationFrame() {
             if (!animation_queue.empty())
                 for (auto animation_frame : animation_queue)
-                    renderTextureChunk(animation_frame.frame_idx + animation_frame.current_frame, animation_frame.texture_idx, animation_frame.pos);
+                    renderTextureChunk(animation_frame.frame_idx + animation_frame.current_frame, animation_frame.texture_idx, *animation_frame.pos);
         }
 
         void renderPlayerAnimation() {
-            renderTextureChunk(player_anim.frame_idx + player_anim.current_frame, player_anim.texture_idx, player_anim.pos);
+            renderTextureChunk(player_anim.frame_idx + player_anim.current_frame, player_anim.texture_idx, *player_anim.pos);
         }
 
         //return -1 if animation is ended
@@ -97,9 +97,8 @@ class ATLAS {
             return (textures.at(idx));
         };
 
-		void updatePlayerAnimation(const int player_stats, const Vector2 pos) {
+		void updatePlayerAnimation(const int player_stats) {
             static int old_stats = 0 ;
-            player_anim.pos = pos;
             if (player_stats != old_stats) {
                 switch (player_stats) {
                     case (0): {
@@ -134,7 +133,7 @@ class ATLAS {
             return (textures.size());
         }
 
-        int addAnimationToQueue(const e_texture texture_idx, const Vector2 pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype) {
+        int addAnimationToQueue(const e_texture texture_idx, const Vector2 *pos, const u32 max_frame, const u32 frame_idx, frame_loop_e looptype) {
             t_animation new_animation;
             new_animation.texture_idx = texture_idx;
             new_animation.pos = pos;
@@ -148,7 +147,7 @@ class ATLAS {
             return (animation_queue.size() - 1);
         }
 
-        ATLAS(Vector2 pos): textures(), animation_queue() {
+        ATLAS(const Vector2 *pos): textures(), animation_queue() {
             FilePathList textFile = LoadDirectoryFiles("assets/textures");
             for (int i = 0; i < textFile.count; i++) {
                 textures.push_back(LoadTexture(textFile.paths[i]));

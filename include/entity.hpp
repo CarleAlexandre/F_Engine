@@ -8,14 +8,6 @@ typedef enum {
 		pig,
 } e_mob_type;
 
-typedef struct S_mobs {
-        Vector2 pos;
-        Vector2 topos;
-        float damage;
-        float life;
-        float max_life;
-} t_mobs;
-
 typedef struct s_projectil {
         Vector2 pos;
         Vector2 topos;
@@ -39,16 +31,55 @@ typedef struct s_gathering {
         int harvet_level;
 } t_gathering;
 
+class Mob {
+	private:
+	public:
+        Vector2 pos;
+        Vector2 topos;
+        float damage;
+        float life;
+        float max_life;
+	
+		Mob() {
+
+		}
+		~Mob() {
+
+		}
+};
+
+class Zombie : public Mob {
+	private:
+	public:
+		Zombie(const Vector2 position) {
+			pos = position;
+		}
+		~Zombie() {
+
+		}
+};
+
+class Cow : public Mob {
+	private:
+	public:
+		Cow(const Vector2 position) {
+			pos = position;
+		}
+		~Cow() {
+
+		}
+};
+
 class Entity {
     private:
-        std::vector<t_mobs> mobs;
+        std::vector<Mob> mobs;
         std::vector<t_projectil> projectil;
         std::vector<t_effect> effect;
         std::vector<t_gathering> gathering;
     public:
-
+		template <typename T>
         void spawnMobs(Vector2 pos, int dmg, int max_life) {
-                mobs.push_back((t_mobs){pos, pos, dmg, max_life, max_life});
+                mobs.push_back();
         }
         void spawnProjectil() {
                 projectil.push_back((t_projectil){}); 

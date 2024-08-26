@@ -234,14 +234,14 @@ int main(void) {
 	SetTargetFPS(120);
 
 	MAP map = MAP();
-	PLAYER player({10000, 10000});
-	ATLAS atlas(player.pos);
+	PLAYER player({1000, 1000});
+	ATLAS atlas(&player.pos);
 	SOUND sound = SOUND();
 	Entity entities = Entity();
 
 	engine.status = engine_status_solo;
 	engine.camera.zoom = 4.0f;
-	engine.camera.target = {10000, 10000};
+	engine.camera.target = {1000, 1000};
 
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {
@@ -252,8 +252,8 @@ int main(void) {
 				player.updateInput(engine.camera);
 				player.update();
 				entities.update();
-				//atlas->updateAnimation();
-				atlas.updatePlayerAnimation(player.action, player.pos);
+				atlas.updateAnimation();
+				atlas.updatePlayerAnimation(player.action);
 				renderSolo(atlas, player, map);
 				break;
 			}
