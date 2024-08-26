@@ -54,7 +54,7 @@ class ATLAS {
         //return -1 if animation is ended
         //need to test if it work
         void updateAnimation() {
-            for (auto animationframe = animation_queue.begin();;animationframe++) {
+            for (auto animationframe = animation_queue.begin();animationframe != animation_queue.end();animationframe++) {
                 animationframe->frame_time += GetFrameTime();
 
                 if (animationframe->frame_time >= animationframe->max_time) {
