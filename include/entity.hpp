@@ -40,6 +40,12 @@ class Mob {
         float life;
         float max_life;
 	
+		void pathFinding() {
+
+		}
+
+		virtual void update(){};
+
 		Mob() {
 
 		}
@@ -51,6 +57,10 @@ class Mob {
 class Zombie : public Mob {
 	private:
 	public:
+
+		void update() {
+
+		}
 		Zombie(const Vector2 position) {
 			pos = position;
 		}
@@ -62,6 +72,10 @@ class Zombie : public Mob {
 class Cow : public Mob {
 	private:
 	public:
+
+		void update() {
+
+		}
 		Cow(const Vector2 position) {
 			pos = position;
 		}
@@ -89,7 +103,9 @@ class Entity {
         }
 
         void updateMobs() {
-
+			for (auto tmp : mobs) {
+				tmp.update();
+			}
         }
         void updateProjectil() {
 
