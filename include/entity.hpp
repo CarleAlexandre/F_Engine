@@ -1,6 +1,8 @@
 #ifndef ENTITY_HPP
 # define ENTITY_HPP
 
+#include "include.hpp"
+
 typedef enum {
         zombie,
         slime,
@@ -39,12 +41,21 @@ class Mob {
         float damage;
         float life;
         float max_life;
+		float range;
+		Vector2 hitbox;
+		Color color;
 	
 		void pathFinding() {
 
 		}
 
-		virtual void update(){};
+		void render() {
+			DrawRectangle(pos.x, pos.y, hitbox.x, hitbox.y, color);
+		}
+
+		virtual void update() {
+
+		};
 
 		Mob() {
 
@@ -61,8 +72,16 @@ class Zombie : public Mob {
 		void update() {
 
 		}
+
 		Zombie(const Vector2 position) {
 			pos = position;
+			topos = pos;
+			damage = 1;
+			life = 100;
+			max_life = 100;
+			range = 10;
+			hitbox = {16, 16};
+			color = GREEN;
 		}
 		~Zombie() {
 
@@ -78,6 +97,13 @@ class Cow : public Mob {
 		}
 		Cow(const Vector2 position) {
 			pos = position;
+			topos = pos;
+			damage = 0;
+			life = 100;
+			max_life = 100;
+			range = 0;
+			hitbox = {16, 16};
+			color = BROWN;
 		}
 		~Cow() {
 
@@ -90,6 +116,7 @@ class Entity {
         std::vector<t_projectil> projectil;
         std::vector<t_effect> effect;
         std::vector<t_gathering> gathering;
+		double updateTime = 0;
     public:
 		template <typename T>
         void spawnMobs(Vector2 pos, int dmg, int max_life) {
@@ -117,13 +144,13 @@ class Entity {
 
         }
         void update() {
-			static double time = 0;
-			time += GetFrameTime();
-			if (time > 0.2) {
+			updateTime += GetFrameTime();
+			if (updateTime > 0.2) {
 				updateMobs();
             	updateProjectil();
             	updateEffect();
             	updateGathering();
+				updateTime = 0;
 			}
 			for (auto tmp : mobs) {
 				if (Vector2Distance(tmp.pos, tmp.topos) > 0.1)
@@ -137,6 +164,12 @@ class Entity {
 					tmp.pos = Vector2MoveTowards(tmp.pos, tmp.topos, 0.2);
 			}
         }
+
+		void render() {
+			for (auto tmp : mobs) {
+				tmp.render();
+			}
+		}
 
         Entity() {
 

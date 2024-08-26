@@ -196,11 +196,12 @@ void renderOnline(void) {
 	EndTextureMode();
 }
 
-void renderSolo(ATLAS &atlas, PLAYER &player, MAP &map) {
+void renderSolo(ATLAS &atlas, PLAYER &player, MAP &map, Entity &entities) {
 	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
 			map.render(engine.camera, atlas);
+			entities.render();
 			atlas.renderAnimationFrame();
 			atlas.renderPlayerAnimation();
 		EndMode2D();
@@ -254,7 +255,7 @@ int main(void) {
 				entities.update();
 				atlas.updateAnimation();
 				atlas.updatePlayerAnimation(player.action);
-				renderSolo(atlas, player, map);
+				renderSolo(atlas, player, map, entities);
 				break;
 			}
 			case (engine_status_menu): {
