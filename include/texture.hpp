@@ -10,6 +10,7 @@ typedef enum {
     text_fill = 3,
     text_hero = 4,
     text_tileset = 5,
+	text_reverse_hero = 6,
 } e_texture;
 
 typedef struct s_animation {
@@ -37,25 +38,22 @@ class ATLAS {
             return ((const Rectangle){x, y, 32, 32});
         }
 
-        void renderTextureChunk(const u32 idx, e_texture id, Vector2 pos, char dir) {
-			if (dir == EAST) {
-           		DrawTextureRec(textures[id], getTextureRec(idx, id), pos, WHITE);
-			} else {
-				Image tmp;
-
-				DrawIma
-				DrawTexturePro(textures[id], getTextureRec(idx, id), {pos.x, pos.y, 32, 32}, {0,0}, 180, WHITE);
-			}
+        void renderTextureChunk(const u32 idx, e_texture id, Vector2 pos) {
+           	DrawTextureRec(textures[id], getTextureRec(idx, id), pos, WHITE);
         }
 
         void renderAnimationFrame() {
             if (!animation_queue.empty())
                 for (auto animation_frame : animation_queue)
-                    renderTextureChunk(animation_frame.frame_idx + animation_frame.current_frame, animation_frame.texture_idx, *animation_frame.pos, EAST);
+                    renderTextureChunk(animation_frame.frame_idx + animation_frame.current_frame, animation_frame.texture_idx, *animation_frame.pos);
         }
 
         void renderPlayerAnimation(char dir) {
-            renderTextureChunk(player_anim.frame_idx + player_anim.current_frame, player_anim.texture_idx, *player_anim.pos, dir);
+			if (dir == WEST) {
+				renderTextureChunk(player_anim.frame_idx + player_anim.current_frame, text_reverse_hero, *player_anim.pos);
+			} else {
+				renderTextureChunk(player_anim.frame_idx + player_anim.current_frame, text_hero, *player_anim.pos);
+			}
         }
 
         //return -1 if animation is ended
@@ -104,34 +102,64 @@ class ATLAS {
             return (textures.at(idx));
         };
 
-		void updatePlayerAnimation(const int player_stats) {
+		void updatePlayerAnimation(const int player_stats, char dir) {
             static int old_stats = 0 ;
-            if (player_stats != old_stats) {
-                switch (player_stats) {
-                    case (0): {
-                        player_anim.frame_idx = 0;
-                        player_anim.current_frame = 0;
-                        break;
-                    }
-                    case (1): {
-                        player_anim.frame_idx = 6;
-                        player_anim.current_frame = 0;
-                        break;
-                    }
-                    case (2): {
-                        player_anim.frame_idx = 50;
-                        player_anim.current_frame = 0;
-                    }
-                    default:break;
-                }
-                old_stats = player_stats;
-            }
+			if (dir == WEST) {
+				if (player_stats != old_stats) {
+					switch (player_stats) {
+						case (0): {
+							player_anim.frame_idx = 5;
+							player_anim.current_frame = 0;
+							break;
+						}
+						case (1): {
+							player_anim.frame_idx = 11;
+							player_anim.current_frame = 0;
+							break;
+						}
+						case (2): {
+							player_anim.frame_idx = 55;
+							player_anim.current_frame = 0;
+						}
+						default:break;
+					}
+					old_stats = player_stats;
+				}
+			} else {
+				if (player_stats != old_stats) {
+					switch (player_stats) {
+						case (0): {
+							player_anim.frame_idx = 0;
+							player_anim.current_frame = 0;
+							break;
+						}
+						case (1): {
+							player_anim.frame_idx = 6;
+							player_anim.current_frame = 0;
+							break;
+						}
+						case (2): {
+							player_anim.frame_idx = 50;
+							player_anim.current_frame = 0;
+						}
+						default:break;
+					}
+					old_stats = player_stats;
+				}
+			}
         	player_anim.frame_time += GetFrameTime();
-            if (player_anim.frame_time >= player_anim.max_time) {    
-                player_anim.current_frame ++;
-                if (player_anim.current_frame >= player_anim.max_frame) {
-                    player_anim.current_frame = 0;
-                }
+            if (player_anim.frame_time >= player_anim.max_time) {
+				if (dir == WEST) {
+                	player_anim.current_frame --;
+					if (player_anim.current_frame >= player_anim.max_frame) {
+						player_anim.current_frame = 0;
+					}
+				} else {
+                	player_anim.current_frame ++;
+					if (player_anim.current_frame <= 0) {
+						player_anim.current_frame = 5;
+					}
+				}
                 player_anim.frame_time = 0;
             }
 		}
@@ -160,6 +188,10 @@ class ATLAS {
                 textures.push_back(LoadTexture(textFile.paths[i]));
             }
             UnloadDirectoryFiles(textFile);
+			auto tmp = LoadImageFromTexture(textures[text_hero]);
+			ImageFlipHorizontal(&tmp);
+			textures.push_back(LoadTextureFromImage(tmp));
+			UnloadImage(tmp);
             player_anim = (t_animation){
                 .max_frame = 6,
                 .texture_idx = text_hero,
