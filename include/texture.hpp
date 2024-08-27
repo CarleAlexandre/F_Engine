@@ -104,61 +104,31 @@ class ATLAS {
 
 		void updatePlayerAnimation(const int player_stats, char dir) {
             static int old_stats = 0 ;
-			if (dir == WEST) {
-				if (player_stats != old_stats) {
-					switch (player_stats) {
-						case (0): {
-							player_anim.frame_idx = 5;
-							player_anim.current_frame = 0;
-							break;
-						}
-						case (1): {
-							player_anim.frame_idx = 11;
-							player_anim.current_frame = 0;
-							break;
-						}
-						case (2): {
-							player_anim.frame_idx = 55;
-							player_anim.current_frame = 0;
-						}
-						default:break;
+			if (player_stats != old_stats) {
+				switch (player_stats) {
+					case (0): {
+						player_anim.frame_idx = 0;
+						player_anim.current_frame = 0;
+						break;
 					}
-					old_stats = player_stats;
-				}
-			} else {
-				if (player_stats != old_stats) {
-					switch (player_stats) {
-						case (0): {
-							player_anim.frame_idx = 0;
-							player_anim.current_frame = 0;
-							break;
-						}
-						case (1): {
-							player_anim.frame_idx = 6;
-							player_anim.current_frame = 0;
-							break;
-						}
-						case (2): {
-							player_anim.frame_idx = 50;
-							player_anim.current_frame = 0;
-						}
-						default:break;
+					case (1): {
+						player_anim.frame_idx = 6;
+						player_anim.current_frame = 0;
+						break;
 					}
-					old_stats = player_stats;
+					case (2): {
+						player_anim.frame_idx = 50;
+						player_anim.current_frame = 0;
+					}
+					default:break;
 				}
+				old_stats = player_stats;
 			}
         	player_anim.frame_time += GetFrameTime();
             if (player_anim.frame_time >= player_anim.max_time) {
-				if (dir == WEST) {
-                	player_anim.current_frame --;
-					if (player_anim.current_frame >= player_anim.max_frame) {
-						player_anim.current_frame = 0;
-					}
-				} else {
-                	player_anim.current_frame ++;
-					if (player_anim.current_frame <= 0) {
-						player_anim.current_frame = 5;
-					}
+                player_anim.current_frame ++;
+				if (player_anim.current_frame >= player_anim.max_frame) {
+					player_anim.current_frame = 0;
 				}
                 player_anim.frame_time = 0;
             }

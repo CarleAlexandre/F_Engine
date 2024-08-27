@@ -143,7 +143,7 @@ class MAP {
 				for (int x = posx; x < posx + 4; x++) {
 					for (int k = 0; k < 16; k++) {
 						for (int n = 0; n < 16; n++) {
-							atlas.renderTextureChunk(render_chunks[y * 1000 + x].tex[k][n], text_tileset, {x * 512 + (float)n * 32, y * 512 + (float)k * 32}, EAST);
+							atlas.renderTextureChunk(render_chunks[y * 1000 + x].tex[k][n], text_tileset, {x * 512 + (float)n * 32, y * 512 + (float)k * 32});
 						}
 					}
 				}

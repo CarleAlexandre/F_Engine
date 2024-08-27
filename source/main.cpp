@@ -201,6 +201,7 @@ void renderSolo(ATLAS &atlas, PLAYER &player, MAP &map, Entity &entities) {
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
 			map.render(engine.camera, atlas);
+			//add function to render animation frame before player pos and after player pos
 			entities.render();
 			atlas.renderAnimationFrame();
 			atlas.renderPlayerAnimation(player.dir);
@@ -268,7 +269,7 @@ int main(void) {
 				player.update();
 				entities.update();
 				atlas.updateAnimation();
-				atlas.updatePlayerAnimation(player.action);
+				atlas.updatePlayerAnimation(player.action, player.dir);
 				renderSolo(atlas, player, *map, entities);
 				break;
 			}
