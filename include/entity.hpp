@@ -43,14 +43,9 @@ class Mob {
         float max_life;
 		float range;
 		Vector2 hitbox;
-		Color color;
 	
 		void pathFinding() {
 
-		}
-
-		void render() {
-			DrawRectangle(pos.x, pos.y, hitbox.x, hitbox.y, color);
 		}
 
 		virtual void update() {
@@ -81,7 +76,6 @@ class Zombie : public Mob {
 			max_life = 100;
 			range = 10;
 			hitbox = {16, 16};
-			color = GREEN;
 		}
 		~Zombie() {
 
@@ -103,7 +97,6 @@ class Cow : public Mob {
 			max_life = 100;
 			range = 0;
 			hitbox = {16, 16};
-			color = BROWN;
 		}
 		~Cow() {
 
@@ -152,6 +145,7 @@ class Entity {
         // void updateGathering() {
 
         // }
+
         void update() {
 			updateTime += GetFrameTime();
 			if (updateTime > 0.2) {
@@ -173,12 +167,6 @@ class Entity {
 			// 		effect[i].pos = Vector2MoveTowards(effect[i].pos, effect[i].topos, 0.2);
 			// }
         }
-
-		void render() {
-			for (int i = 0; i < mobs.size(); i++) {
-				mobs[i]->render();
-			}
-		}
 
         Entity() {
 			mobs = std::vector<Mob *>();

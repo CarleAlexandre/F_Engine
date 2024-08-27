@@ -201,10 +201,7 @@ void renderSolo(ATLAS &atlas, PLAYER &player, MAP &map, Entity &entities) {
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
 			map.render(engine.camera, atlas);
-			//add function to render animation frame before player pos and after player pos
-			entities.render();
-			atlas.renderAnimationFrame();
-			atlas.renderPlayerAnimation(player.dir);
+			atlas.renderAnimationFrame(player.dir, player.pos.y);
 		EndMode2D();
 		//DrawPixel(GetScreenWidth() * 0.5, GetScreenHeight() * 0.5, PINK);
 		player.inv.render(atlas.getTexture(1));

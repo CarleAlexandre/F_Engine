@@ -38,14 +38,34 @@ class ATLAS {
             return ((const Rectangle){x, y, 32, 32});
         }
 
+		void sort() {
+			for (auto tmp : animation_queue) {
+				if (tmp.pos->y) {
+
+				}
+			}
+		}
+
         void renderTextureChunk(const u32 idx, e_texture id, Vector2 pos) {
            	DrawTextureRec(textures[id], getTextureRec(idx, id), pos, WHITE);
         }
 
-        void renderAnimationFrame() {
-            if (!animation_queue.empty())
-                for (auto animation_frame : animation_queue)
+        void renderAnimationFrame(char dir, float y) {
+			bool player_render = false;
+			float current_y = 0;
+            if (!animation_queue.empty()) {
+                for (auto animation_frame : animation_queue) {
+					current_y = animation_frame.pos->y;
+					if (y < current_y && player_render == false) {
+						renderPlayerAnimation(dir);
+						player_render = true;
+					}
                     renderTextureChunk(animation_frame.frame_idx + animation_frame.current_frame, animation_frame.texture_idx, *animation_frame.pos);
+				}
+				if (player_render == false) {
+					renderPlayerAnimation(dir);
+				}
+			}
         }
 
         void renderPlayerAnimation(char dir) {
@@ -149,6 +169,7 @@ class ATLAS {
             new_animation.max_frame = max_frame;
             new_animation.frame_idx = frame_idx;
             animation_queue.push_back(new_animation);
+			sort();
             return (animation_queue.size() - 1);
         }
 
