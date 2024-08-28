@@ -1,13 +1,13 @@
 #ifndef ENTITY_HPP
 # define ENTITY_HPP
 
-#include "include.hpp"
+#include "texture.hpp"
 
 typedef enum {
-        zombie,
-        slime,
-        cow,
-		pig,
+        zombie_type,
+        slime_type,
+        cow_type,
+		pig_type,
 } e_mob_type;
 
 typedef struct s_projectil {
@@ -111,14 +111,16 @@ class Entity {
         // std::vector<t_gathering> gathering;
 		double updateTime = 0;
     public:
-        void spawnMobs(Vector2 pos, int type) {
+        void spawnMobs(Vector2 pos, int type, ATLAS &atlas) {
 			switch (type) {
-				case (1) : {
+				case (cow_type) : {
 			    	mobs.push_back(new Cow(pos));
+					atlas.addAnimationToQueue(text_cow, &mobs.back()->pos, 0, 0, frame_loop_enable);
 					break;
 				}
-				case (2) : {
+				case (zombie_type) : {
 					mobs.push_back(new Zombie(pos));
+					atlas.addAnimationToQueue(text_zombie, &mobs.back()->pos, 0, 0, frame_loop_enable);
 					break;
 				}
 				default:break;

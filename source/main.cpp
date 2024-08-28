@@ -253,8 +253,8 @@ int main(void) {
 	engine.camera.zoom = 4.0f;
 	engine.camera.target = {1000, 1000};
 
-	entities.spawnMobs({1032, 1032}, 2);
-	entities.spawnMobs({1022, 1022}, 1);
+	entities.spawnMobs({1032, 1032}, zombie_type, atlas);
+	entities.spawnMobs({1022, 1022}, cow_type, atlas);
 
 	while (engine.status != engine_status_close) {
 		if (WindowShouldClose()) {

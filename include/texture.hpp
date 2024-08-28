@@ -11,6 +11,10 @@ typedef enum {
     text_hero = 4,
     text_tileset = 5,
 	text_reverse_hero = 6,
+	text_cow = 7,
+	text_reverse_cow = 8,
+	text_zombie = 9,
+	text_reverse_zombie = 10,
 } e_texture;
 
 typedef struct s_animation {
@@ -30,7 +34,7 @@ class ATLAS {
         //std::vector<t_animation> animation_queue;
     public:    
         std::vector<Texture2D> textures;
-        std::list<t_animation> animation_queue;
+        std::vector<t_animation> animation_queue;
         t_animation player_anim;
         const Rectangle getTextureRec(const unsigned int idx, e_texture id) {
             float x = getXpos(idx, textures[id].width / 32) * 32;
@@ -38,11 +42,25 @@ class ATLAS {
             return ((const Rectangle){x, y, 32, 32});
         }
 
-		void sort() {
-			for (auto tmp : animation_queue) {
-				if (tmp.pos->y) {
+		int partitionSort(int low, int high) {
+			float pivot = animation_queue[high].pos->y;
+			int i = (low - 1);
 
+			for (int j = low; j < high; j++) {
+				if (animation_queue[j].pos->y <= pivot) {
+					i++;
+					std::swap(animation_queue[i], animation_queue[j]);
 				}
+			}
+			std::swap(animation_queue[i + 1], animation_queue[high]);
+			return (i+1);
+		}
+
+		void quickSort(int low, int high) {
+			if (low < high) {
+				int p = partitionSort(low, high);
+				quickSort(low, p - 1);
+				quickSort(p + 1, high);
 			}
 		}
 
@@ -62,9 +80,9 @@ class ATLAS {
 					}
                     renderTextureChunk(animation_frame.frame_idx + animation_frame.current_frame, animation_frame.texture_idx, *animation_frame.pos);
 				}
-				if (player_render == false) {
-					renderPlayerAnimation(dir);
-				}
+			}
+			if (player_render == false) {
+				renderPlayerAnimation(dir);
 			}
         }
 
@@ -79,6 +97,7 @@ class ATLAS {
         //return -1 if animation is ended
         //need to test if it work
         void updateAnimation() {
+			quickSort(0, animation_queue.size() - 1);
             for (auto animationframe = animation_queue.begin();animationframe != animation_queue.end();animationframe++) {
                 animationframe->frame_time += GetFrameTime();
 
@@ -169,7 +188,7 @@ class ATLAS {
             new_animation.max_frame = max_frame;
             new_animation.frame_idx = frame_idx;
             animation_queue.push_back(new_animation);
-			sort();
+			quickSort(0, animation_queue.size() - 1);
             return (animation_queue.size() - 1);
         }
 
