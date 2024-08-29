@@ -2,6 +2,8 @@
 # define PLAYER_HPP
 
 #include "inventory.hpp"
+#include "pathfinding.hpp"
+#include "map.hpp"
 
 typedef enum {
 	player_token_status			= 2,
