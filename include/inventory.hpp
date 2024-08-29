@@ -130,6 +130,7 @@ class INVENTORY {
 		INVENTORY() : tool_bar(){
 			current_tab = 1;
 			pos = {100, 100};
+			isopen = false;
 		}
 		~INVENTORY() {
 		}
