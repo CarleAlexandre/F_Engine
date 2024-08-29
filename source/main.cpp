@@ -248,6 +248,7 @@ int main(void) {
 	printf("sound\n");
 	Entity entities = Entity();
 	printf("entity\n");
+	Pathfinding pf = Pathfinding();
 
 	engine.status = engine_status_solo;
 	engine.camera.zoom = 4.0f;
@@ -263,8 +264,8 @@ int main(void) {
 		 switch (engine.status) {
 			case (engine_status_solo): {
 				player.updateInput(engine.camera);
-				player.update();
-				entities.update();
+				player.update(pf, map);
+				entities.update(pf, map);
 				atlas.updateAnimation();
 				atlas.updatePlayerAnimation(player.action, player.dir);
 				renderSolo(atlas, player, *map, entities);

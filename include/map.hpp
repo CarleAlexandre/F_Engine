@@ -129,6 +129,13 @@ class MAP {
 			}
 		}
 
+		t_chunk getWallChunk(Vector2 pos){
+			int x = static_cast<int>(pos.x / 512);
+        	int y = static_cast<int>(pos.y / 512);
+
+			return (chunks[x + y * 1000]);
+		}
+
 		void render(Camera2D camera, ATLAS &atlas) {
 			Vector2 beg = GetScreenToWorld2D({0,0}, camera);
 

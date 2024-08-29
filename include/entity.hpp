@@ -2,6 +2,7 @@
 # define ENTITY_HPP
 
 #include "texture.hpp"
+#include "pathfinding.hpp"
 
 typedef enum {
         zombie_type,
@@ -43,14 +44,13 @@ class Mob {
         float max_life;
 		float range;
 		Vector2 hitbox;
-	
-		void pathFinding() {
 
-		}
-
-		virtual void update() {
-
+		void updatePos(Pathfinding &pf, MAP *map) {
+			if (Vector2Distance(pos, topos) > 0.1)
+				pos = Vector2MoveTowards(pos, topos, 0.2);
 		};
+
+		void virtual update(Pathfinding &pf, MAP *map){}
 
 		Mob() {
 
@@ -64,8 +64,8 @@ class Zombie : public Mob {
 	private:
 	public:
 
-		void update() {
-
+		void update(Pathfinding &pf, MAP *map) {
+			updatePos(pf, map);
 		}
 
 		Zombie(const Vector2 position) {
@@ -86,8 +86,8 @@ class Cow : public Mob {
 	private:
 	public:
 
-		void update() {
-
+		void update(Pathfinding &pf, MAP *map) {
+			updatePos(pf, map);
 		}
 		Cow(const Vector2 position) {
 			pos = position;
@@ -115,12 +115,12 @@ class Entity {
 			switch (type) {
 				case (cow_type) : {
 			    	mobs.push_back(new Cow(pos));
-					atlas.addAnimationToQueue(text_cow, &mobs.back()->pos, 0, 0, frame_loop_enable);
+					atlas.addAnimationToQueue(text_hero, &mobs.back()->pos, 0, 0, frame_loop_enable);
 					break;
 				}
 				case (zombie_type) : {
 					mobs.push_back(new Zombie(pos));
-					atlas.addAnimationToQueue(text_zombie, &mobs.back()->pos, 0, 0, frame_loop_enable);
+					atlas.addAnimationToQueue(text_hero, &mobs.back()->pos, 0, 0, frame_loop_enable);
 					break;
 				}
 				default:break;
@@ -133,9 +133,9 @@ class Entity {
         //     effect.push_back((t_effect){});
         // }
 
-        void updateMobs() {
+        void updateMobs(Pathfinding &pf, MAP *map) {
 			for (int i = 0; i < mobs.size(); i++) {
-				mobs[i]->update();
+				mobs[i]->update(pf, map);
 			}
         }
         // void updateProjectil() {
@@ -148,18 +148,14 @@ class Entity {
 
         // }
 
-        void update() {
+        void update(Pathfinding &pf, MAP *map) {
 			updateTime += GetFrameTime();
 			if (updateTime > 0.2) {
-				updateMobs();
+				updateMobs(pf, map);
             	// updateProjectil();
             	// updateEffect();
             	// updateGathering();
 				updateTime = 0;
-			}
-			for (int i = 0; i < mobs.size(); i++) {
-				if (Vector2Distance(mobs[i]->pos, mobs[i]->topos) > 0.1)
-				mobs[i]->pos = Vector2MoveTowards(mobs[i]->pos, mobs[i]->topos, 0.2);
 			}
 			// for (int i = 0; i < projectil.size(); i++) {
 			// 	projectil[i].pos = Vector2MoveTowards(projectil[i].pos, projectil[i].topos, 0.2);
