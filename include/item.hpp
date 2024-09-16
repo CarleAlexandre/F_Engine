@@ -68,6 +68,7 @@ enum material {
 	material_silver,
 	material_mithril,
 	material_orichalc,
+	material_malachit,
 };
 
 typedef enum {
@@ -81,6 +82,7 @@ class ITEM {
 	public:
 		item_texture texture;
 		item_type_e type;
+		material mat;
 		int addStack(int num){
 			stack += num;
 			int tmp = 0;

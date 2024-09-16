@@ -209,9 +209,8 @@ class PLAYER {
 		void update(Pathfinding &pf, MAP *map) {
 			static player_action_e last_action = player_action_default;
 
+			std::vector<Pathfinding::node*> path = pf.findShortest(map->getWallChunk(pos).structure, pos, to);
 			if (Vector2Distance(pos, to) > 0.1) {
-				Pathfinding pf;
-				std::vector<Pathfinding::node*> path = pf.findShortest(map->getWallChunk(pos).structure, pos, to);
 				pos = Vector2MoveTowards(pos, to, stats.move_speed);
 				if (last_action != player_action_moving) {
 					action = player_action_moving;
