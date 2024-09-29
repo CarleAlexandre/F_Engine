@@ -137,43 +137,43 @@ class MAP {
 		}
 
 		void render(Camera2D camera, ATLAS &atlas) {
-			Vector2 beg = GetScreenToWorld2D({0,0}, camera);
+			//Vector2 beg = GetScreenToWorld2D({0,0}, camera);
 
 			//get mod of 512 pos beg to know hist relative pos to chunk border
 			//same for end
 
-			int posx, posy;
-			posx = floorf(beg.x / 512);
-			posy = floorf(beg.y / 512);
-			//(3 by 4 is the max number of chunk rendered on the screen)
-			for (int y = posy; y < posy + 3; y++) {
-				for (int x = posx; x < posx + 4; x++) {
-					for (int k = 0; k < 16; k++) {
-						for (int n = 0; n < 16; n++) {
-							atlas.renderTextureChunk(render_chunks[y * 1000 + x].tex[k][n], text_tileset, {x * 512 + (float)n * 32, y * 512 + (float)k * 32});
-						}
-					}
-				}
-			}
+			// int posx, posy;
+			// posx = floorf(beg.x / 512);
+			// posy = floorf(beg.y / 512);
+			// //(3 by 4 is the max number of chunk rendered on the screen)
+			// for (int y = posy; y < posy + 3; y++) {
+			// 	for (int x = posx; x < posx + 4; x++) {
+			// 		for (int k = 0; k < 16; k++) {
+			// 			for (int n = 0; n < 16; n++) {
+			// 				if (y >= 0 && x >= 0 || y <= 10000 || x <= 10000) {
+			// 					atlas.renderTextureChunk(render_chunks[y * 1000 + x].tex[k][n], text_tileset, {x * 512 + (float)n * 32, y * 512 + (float)k * 32});
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
 
 		MAP() {
-			chunks.fill({0});
-			render_chunks.fill({0});
-			for (int k = 0; k < 1000000; k++) {
-				t_chunk &chunk = chunks.at(k);
-				Vector2 pos = getVector2Pos(k, 1000);
-				for (int y = 0; y < 16; y++) {
-					for (int x = 0; x < 16; x++) {
-						if (GetRandomValue(0, 10) > 5) {
-							chunk.terrain[y][x] = tile_grass;
-						}
-					}
-				}
-			}
-			for (int k = 0; k < 1000000; k++) {
-				updateChunkTex(k);
-			}
+			// chunks.fill({0});
+			// render_chunks.fill({0});
+			// for (int k = 0; k < 1000000; k++) {
+			// 	t_chunk &chunk = chunks.at(k);
+			// 	Vector2 pos = getVector2Pos(k, 1000);
+			// 	for (int y = 0; y < 16; y++) {
+			// 		for (int x = 0; x < 16; x++) {
+			// 			chunk.terrain[y][x] = tile_grass;
+			// 		}
+			// 	}
+			// }
+			// for (int k = 0; k < 1000000; k++) {
+			// 	updateChunkTex(k);
+			// }
 		}
 		~MAP() {
 		}

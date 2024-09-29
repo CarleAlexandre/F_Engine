@@ -200,13 +200,16 @@ void renderSolo(ATLAS &atlas, PLAYER &player, MAP &map, Entity &entities) {
 	BeginTextureMode(engine.fbo);
 		ClearBackground(BLACK);
 		BeginMode2D(engine.camera);
-			map.render(engine.camera, atlas);
+			// map.render(engine.camera, atlas);
 			atlas.renderAnimationFrame(player.dir, player.pos.y);
 		EndMode2D();
 		//DrawPixel(GetScreenWidth() * 0.5, GetScreenHeight() * 0.5, PINK);
 		player.inv.render(atlas.getTexture(1));
 		player.inv.tool_bar.render();
 		DrawText(TextFormat("x: %.1f, z:%.1f", player.pos.x, player.pos.y), 20, 40, 20, GREEN);
+		if (player.pos.x < 0 || player.pos.y < 0 || player.pos.x > 10000 || player.pos.y > 10000) {
+			DrawText("you feel something watching you in the infinite darkness", 20, GetScreenHeight() * 0.5, 50, RED);
+		}
 		DrawFPS(0, 0);
 	EndTextureMode();
 }
@@ -240,7 +243,7 @@ int main(void) {
 
 	MAP *map = new MAP();
 	printf("Map\n");
-	PLAYER player({1000, 1000});
+	PLAYER player({0, 0});
 	printf("player\n");
 	ATLAS atlas(&player.pos);
 	printf("atlas\n");

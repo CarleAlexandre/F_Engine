@@ -58,6 +58,8 @@ class TOOL_BAR {
 		TOOL_BAR() {
 			pos.x = GetScreenWidth() - 140;
 			pos.y = GetScreenHeight() - 100;
+			getNext();
+			getPrev();
 		}
 		~TOOL_BAR(){}
 };
